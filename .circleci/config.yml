@@ -1,0 +1,101 @@
+version: 2
+jobs:
+
+  integrate:
+    working_directory: /app
+    # The primary container is an instance of the first list image listed.
+    # Your build commands run in this container.
+    docker:
+      - image: node:10
+    steps:
+      - checkout
+      - run:
+          name: Environment
+          command: |
+            git --version
+            env | sort | grep "CIRCLE"
+      - run:
+          name: Intro
+          command: ./play --manuscript .circleci/manuscript.yml --part gitintro
+      - run:
+          name: Swap to target branch and test integration
+          command: ./play --manuscript .circleci/manuscript.yml --part integrate
+
+  build:
+    working_directory: /app
+    docker:
+      - image: node:10
+    steps:
+      - checkout
+      - run:
+          name: Swap to target branch and integrate
+          command: ./play --manuscript .circleci/manuscript.yml --part integrate
+      - run:
+          name: Where am I
+          command: |
+            pwd
+            ls -a
+            git rev-parse --short HEAD
+  deliver:
+    working_directory: /app
+    docker:
+      - image: node:10
+    steps:
+      - checkout
+      - run:
+          name: Intro
+          command: ./play --manuscript .circleci/manuscript.yml --part gitintro
+      - run:
+          name: integrate
+          command: ./play --manuscript .circleci/manuscript.yml --part integrate
+      - run:
+          name: Deliver
+          command: ./play --manuscript .circleci/manuscript.yml --part deliver
+  dev_test:
+    docker:
+      # specify the version you desire here
+      - image: node:10
+
+    working_directory: /app
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # run tests!
+      - run: npm test
+
+workflows:
+  version: 2
+  drop-gdpr_phlow:
+    jobs:
+      - integrate:
+          filters:
+            branches:
+              only:
+                - /ready\/.*/
+      - build:
+          requires:
+            - integrate
+      - deliver:
+          requires:
+            - build
+      - dev_test:
+          filters:
+            branches:
+              only:
+                - /\d+-.*
+

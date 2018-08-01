@@ -1,0 +1,75 @@
+manuscript:
+  props:
+    - PLAY_REMOTEREPO:   origin
+    - PLAY_TARGETBRANCH: master
+    - PLAY_REMOTEBRANCH: '`echo $PLAY_REMOTEREPO/$PLAY_TARGETBRANCH`'
+  scene:
+    dryrun:  0
+    verbose: 1
+    debug:   0
+  parts:
+    integrate:
+      props:
+        - PLAY_VERSION:      ${CIRCLE_SHA1:=`git rev-parse HEAD`}
+        - PLAY_VER:          '`printenv PLAY_VERSION | cut -c 1-7`'
+        - PLAY_TARGETVER:    '`git rev-parse --short $PLAY_REMOTEBRANCH`'
+      scene:
+        verbose: 1
+        dryrun:  0
+        debug:   0
+      lines:
+        - run:
+            caption: Rebase to remote branch
+            command: git rebase $PLAY_REMOTEBRANCH
+            die_on_err: yes
+        - run:
+            caption: Checkout target branch
+            command: git checkout $PLAY_TARGETBRANCH
+            die_on_err: yes
+        - run:
+            caption: Pull latest
+            command: git pull $PLAY_REMOTEREPO $PLAY_TARGETBRANCH
+            die_on_err: yes
+        - run:
+            caption: Merge
+            command: git merge --ff-only $PLAY_VER
+            die_on_err: yes
+    deploy:
+      props:
+      scene:
+    deliver:
+      props:
+        - PLAY_GITREPO: '`git config --get remote.$PLAY_REMOTEREPO.url | sed  s/".*github.com[\/:]//" | sed s/.git//`'
+      scene:
+        dryrun:  no
+        verbose: yes
+      lines:
+        - run:
+            caption:
+            command: git remote add ghtoken https://$GHTOKEN_PROLIKE@github.com/$PLAY_GITREPO.git
+            die_on_err: yes
+        - run:
+            caption:
+            command: git push ghtoken
+            die_on_err: yes
+        - run:
+            caption:
+            command: git push ghtoken :$CIRCLE_BRANCH
+            die_on_err: yes
+    gitintro:
+      props:
+      scene:
+        dryrun: no
+        verbose: no
+      lines:
+        - run:
+            caption:
+            command: git config user.name "Circle CI by @Prolike"
+            die_on_err: yes
+        - run:
+            caption:
+            command: git config user.email "circleci@prolike.io"
+            die_on_err: yes
+        - run:
+            command: git config --global push.default simple
+            die_on_err: yes

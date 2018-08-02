@@ -36,6 +36,7 @@ jobs:
             pwd
             ls -a
             git rev-parse --short HEAD
+
   deliver:
     working_directory: /app
     docker:
@@ -98,4 +99,3 @@ workflows:
             branches:
               only:
                 - /\d+-.*
-

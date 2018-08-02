@@ -87,7 +87,7 @@ workflows:
           filters:
             branches:
               only:
-                - /ready\/.*/
+                - /ready\/.+/
       - build:
           requires:
             - integrate
@@ -98,4 +98,4 @@ workflows:
           filters:
             branches:
               only:
-                - /\d+-.*
+                - /\d+\-.+/

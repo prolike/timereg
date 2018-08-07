@@ -2,6 +2,8 @@
 import sys
 import os
 import argparse
+import subprocess
+import logging as log
 
 
 def main():
@@ -13,16 +15,25 @@ def main():
     gitpath = find_git(location)
     variables = get_git_variables()
 
+    if args.verbose:
+        log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
+    else:
+        log.basicConfig(format="%(levelname)s: %(message)s")        
     if args.web:
         web()
-    elif args.debug:
-        debug()
+
+    ''' lOG ORDER
+    log.debug("This is debug") #USE THIS FOR VERBOSE
+    log.info("This is info")
+    log.warning("This is warning")
+    log.error("This is error")
+    '''
 
 def arguments():
     global args
     parser = argparse.ArgumentParser(prog="Git extension POC")
     parser.add_argument("-w", "--web", action="store_true", help="Opens the git repository in your browser.")
-    parser.add_argument("-d", "--debug", action="store_true", help="Displays data from the %(prog)s script")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Outputs verbose data")
     args = parser.parse_args()
 
 def find_git(path):
@@ -51,13 +62,7 @@ def web():
     else:
         link = variables["url"][:-4]
     os.system("xdg-open " + link)
-
-def debug():
-    print("--------DEBUG--------")
-    print("Run from:\t", location)
-    print("Git path:\t", gitpath)
-    print("Variables:\t", variables)
-    print("---------------------")
+    log.debug("xdg-open " + link)
 
 if __name__ == "__main__":
     main()

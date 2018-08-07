@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys
 import os
+#import platform
+import webbrowser
 import argparse
 import subprocess
 import logging as log
@@ -21,6 +23,10 @@ def main():
         log.basicConfig(format="%(levelname)s: %(message)s")        
     if args.web:
         web()
+
+    log.info(location)
+    log.info(gitpath)
+    log.info(variables)
 
     ''' lOG ORDER
     log.debug("This is debug") #USE THIS FOR VERBOSE
@@ -46,14 +52,10 @@ def find_git(path):
 
 def get_git_variables():
     variables_temp = {}
-    with open((gitpath + "HEAD"), 'r') as f:
-        for line in f:
-            variables_temp["branch"] = line.rstrip().split('/')[-1]
-    with open(gitpath + "config", 'r') as f:
-        for line in f:
-            newline = line.strip().split(" = ")
-            if newline[0] == "url":
-                variables_temp["url"] =  newline[1]
+    branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD", "--"], stdout=subprocess.PIPE)
+    url = subprocess.run(["git", "config", "--get", "remote.origin.url"], stdout=subprocess.PIPE)
+    variables_temp["branch"] = branch.stdout.decode("utf-8").rstrip()[:-3]
+    variables_temp["url"] = url.stdout.decode("utf-8").rstrip()
     return variables_temp
 
 def web():
@@ -61,8 +63,8 @@ def web():
         link = "github.com/" + variables["url"].split(":")[-1][:-4]
     else:
         link = variables["url"][:-4]
-    os.system("xdg-open " + link)
-    log.debug("xdg-open " + link)
+    log.debug("webbrowser.open " + link)
+    webbrowser.open(link, new=0, autoraise=True)
 
 if __name__ == "__main__":
     main()

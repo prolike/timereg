@@ -1,24 +1,29 @@
+#!/usr/bin/env python3
 import sys
 import os
-#import argparse
+import argparse
 
-
-location = ""
-gitpath = ""
-variables = {}
 
 def main():
     global location, gitpath, variables
+
+    arguments()
+
     location = os.getcwd()
     gitpath = find_git(location)
     variables = get_git_variables()
-    for arg in sys.argv:
-        if arg == "-d" or arg == "--debug":
-            debug()
-        if arg == "-h" or arg == "--help":
-            help()
-        if arg == "-w" or arg == "--web":
-            web(variables["url"].split(":")[-1])
+
+    if args.web:
+        web()
+    elif args.debug:
+        debug()
+
+def arguments():
+    global args
+    parser = argparse.ArgumentParser(prog="Git extension POC")
+    parser.add_argument("-w", "--web", action="store_true", help="Opens the git repository in your browser.")
+    parser.add_argument("-d", "--debug", action="store_true", help="Displays data from the %(prog)s script")
+    args = parser.parse_args()
 
 def find_git(path):
     if os.path.isdir(path + "/.git/"):
@@ -40,22 +45,19 @@ def get_git_variables():
                 variables_temp["url"] =  newline[1]
     return variables_temp
 
-def web(link):
-    os.system("xdg-open github.com/" + link)
-
-def help():
-    print("---------------")
-    print("HELP:")
-    print("-d --debug       prints parameters")
-    print("---------------\n")
+def web():
+    if variables["url"][:4] == "git@":
+        link = "github.com/" + variables["url"].split(":")[-1][:-4]
+    else:
+        link = variables["url"][:-4]
+    os.system("xdg-open " + link)
 
 def debug():
-    print("---------------")
-    print("DEBUG:")
+    print("--------DEBUG--------")
     print("Run from:\t", location)
     print("Git path:\t", gitpath)
     print("Variables:\t", variables)
-    print("---------------\n")
+    print("---------------------")
 
 if __name__ == "__main__":
     main()

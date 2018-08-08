@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
+from datetime import datetime
+from time import mktime as mktime
 import sys
 import os
-#import platform
+import re
 import webbrowser
 import argparse
 import subprocess
-import logging as log
-
+import logging
 
 def main():
     global location, gitpath, variables
@@ -17,22 +18,34 @@ def main():
     gitpath = find_git(location)
     variables = get_git_variables()
 
+    #get_time_worked("08-08-2018/12:34", "08-08-2018/13:34")
+
     if args.verbose:
-        log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
+        logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
     else:
-        log.basicConfig(format="%(levelname)s: %(message)s")        
+        logging.basicConfig(format="%(levelname)s: %(message)s")        
     if args.web:
         web()
+    if args.logtimestart:
+        if args.custom:
+            log("start", value=args.custom)
+        else:    
+            log("start")
+    if args.logtimeend:        
+        if args.custom:
+            log("end", value=args.custom)
+        else:    
+            log("end")
 
-    log.info(location)
-    log.info(gitpath)
-    log.info(variables)
+    logging.info(location)
+    logging.info(gitpath)
+    logging.info(variables)
 
     ''' lOG ORDER
-    log.debug("This is debug") #USE THIS FOR VERBOSE
-    log.info("This is info")
-    log.warning("This is warning")
-    log.error("This is error")
+    logging.debug("This is debug") #USE THIS FOR VERBOSE
+    logging.info("This is info")
+    logging.warning("This is warning")
+    logging.error("This is error")
     '''
 
 def arguments():
@@ -40,6 +53,9 @@ def arguments():
     parser = argparse.ArgumentParser(prog="Git extension POC")
     parser.add_argument("-w", "--web", action="store_true", help="Opens the git repository in your browser.")
     parser.add_argument("-v", "--verbose", action="store_true", help="Outputs verbose data")
+    parser.add_argument("-ls", "--logtimestart", action="store_true", help="Log the time you used on the current issue")
+    parser.add_argument("-le", "--logtimeend", action="store_true", help="Log the time you used on the current issue")
+    parser.add_argument("-c", "--custom", help="Define a custom time", type=str)
     args = parser.parse_args()
 
 def find_git(path):
@@ -50,6 +66,40 @@ def find_git(path):
         newpath = "/".join(strlist[:-1])
         return find_git(newpath)
 
+def time(**kwargs):
+    chour = kwargs.get('chour', None)
+    cminute = kwargs.get('cminute', None)
+    format = "%d-%m-%Y/%H:%M"
+    now = datetime.now()
+    if chour is not None:
+        now = now.replace(hour=int(chour))
+    if cminute is not None:
+        now = now.replace(minute=int(cminute))
+    return now.strftime(format)
+
+def log(state, **kwargs):
+    note_string = "[" + state + "]"
+    value = kwargs.get('value', None)
+    try:
+        if re.search(r"([01]\d|2[0-3]):[0-5]\d", value):
+            chour = value.split(":")[0]
+            cminute = value.split(":")[1]
+            note_string += time(chour=chour, cminute=cminute)
+            print(note_string)
+        elif re.search(r"([01]\d|2[0-3])?[0-5]\d", value):
+            if len(value) is 3:
+                note_string += time(cminute=value[-2:], chour=value[:1])
+            else:
+                note_string += time(cminute=value[-2:], chour=value[:2])
+            print(note_string)
+        else:
+            note_string += time()
+            print(note_string)
+    except:
+        note_string += time()
+        print(note_string)
+    return 1
+
 def get_git_variables():
     variables_temp = {}
     branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD", "--"], stdout=subprocess.PIPE)
@@ -58,12 +108,20 @@ def get_git_variables():
     variables_temp["url"] = url.stdout.decode("utf-8").rstrip()
     return variables_temp
 
+def get_time_worked(started, ended):
+    fmt = "%d-%m-%Y/%H:%M"
+    d1 = datetime.strptime(started, fmt)
+    d2 = datetime.strptime(ended, fmt)
+    d1_ts = mktime(d1.timetuple())
+    d2_ts = mktime(d2.timetuple())
+    print(int(d2_ts-d1_ts) / 60) #Prints time worken in min
+
 def web():
     if variables["url"][:4] == "git@":
         link = "github.com/" + variables["url"].split(":")[-1][:-4]
     else:
         link = variables["url"][:-4]
-    log.debug("webbrowser.open " + link)
+    logging.debug("webbrowser.open " + link)
     webbrowser.open(link, new=0, autoraise=True)
 
 if __name__ == "__main__":

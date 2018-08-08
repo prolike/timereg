@@ -16,9 +16,7 @@ def main():
 
     location = os.getcwd()
     gitpath = find_git(location)
-    variables = get_git_variables()
-
-    #get_time_worked("08-08-2018/12:34", "08-08-2018/13:34")
+    variables = get_git_variables() 
 
     if args.verbose:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
@@ -36,6 +34,11 @@ def main():
             log("end", value=args.custom)
         else:    
             log("end")
+    if args.checktime:
+        starts = ['[davidcarl][start]08-08-2018/12:34', '[davidcarl][start]08-08-2018/15:00']
+        ended = ['[davidcarl][end]08-08-2018/13:34', '[davidcarl][end]08-08-2018/15:30']
+        logging.debug('calling: calc_time_worked')
+        calc_time_worked(starts, ended) #Testing purposes
 
     logging.info(location)
     logging.info(gitpath)
@@ -53,9 +56,10 @@ def arguments():
     parser = argparse.ArgumentParser(prog="Git extension POC")
     parser.add_argument("-w", "--web", action="store_true", help="Opens the git repository in your browser.")
     parser.add_argument("-v", "--verbose", action="store_true", help="Outputs verbose data")
-    parser.add_argument("-ls", "--logtimestart", action="store_true", help="Log the time you used on the current issue")
-    parser.add_argument("-le", "--logtimeend", action="store_true", help="Log the time you used on the current issue")
+    parser.add_argument("-ls", "--logtimestart", action="store_true", help="Log the start time you used on the current issue")
+    parser.add_argument("-le", "--logtimeend", action="store_true", help="Log the end time you used on the current issue")
     parser.add_argument("-c", "--custom", help="Define a custom time", type=str)
+    parser.add_argument('-ct', '--checktime', action="store_true", help='Check how much time you used')
     args = parser.parse_args()
 
 def find_git(path):
@@ -78,7 +82,7 @@ def time(**kwargs):
     return now.strftime(format)
 
 def log(state, **kwargs):
-    note_string = "[" + state + "]"
+    note_string = '[' + variables['username'] + '][' + state + ']'
     value = kwargs.get('value', None)
     try:
         if re.search(r"([01]\d|2[0-3]):[0-5]\d", value):
@@ -104,17 +108,40 @@ def get_git_variables():
     variables_temp = {}
     branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD", "--"], stdout=subprocess.PIPE)
     url = subprocess.run(["git", "config", "--get", "remote.origin.url"], stdout=subprocess.PIPE)
+    username = subprocess.run(['git', 'config', 'github.user'], stdout=subprocess.PIPE)
     variables_temp["branch"] = branch.stdout.decode("utf-8").rstrip()[:-3]
     variables_temp["url"] = url.stdout.decode("utf-8").rstrip()
+    variables_temp['username'] = username.stdout.decode('utf-8').rstrip()
     return variables_temp
 
-def get_time_worked(started, ended):
+def calc_time_worked(started, ended):
     fmt = "%d-%m-%Y/%H:%M"
-    d1 = datetime.strptime(started, fmt)
-    d2 = datetime.strptime(ended, fmt)
-    d1_ts = mktime(d1.timetuple())
-    d2_ts = mktime(d2.timetuple())
-    print(int(d2_ts-d1_ts) / 60) #Prints time worken in min
+    total_min_worked = 0
+
+    logging.debug('Cleaning metadata')
+    name = get_clean_name_meta_data(started)
+    clean_start = get_clean_time_meta_data(started)
+    clean_end = get_clean_time_meta_data(ended)
+    
+    #print(name, clean_start, clean_end)
+    logging.debug("Checking for missing timestamps")
+    if len(started) > len(ended):
+        logging.warning("You are missing some timestamps!")
+    logging.debug('Calculating time worked')
+    for start_time, end_time in zip(clean_start, clean_end):
+        d1 = mktime(datetime.strptime(start_time, fmt).timetuple())
+        d2 = mktime(datetime.strptime(end_time, fmt).timetuple())
+        total_min_worked += (int(d2-d1) / 60) #Prints time worken in min
+    return total_min_worked
+
+def get_clean_time_meta_data(meta_data):
+    cleaned_data = []
+    for data in meta_data:
+        cleaned_data.append(re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', data).group(0)) #Very brittle!
+    return cleaned_data
+
+def get_clean_name_meta_data(meta_data):
+    return re.search(r'\[(.+?)\]', meta_data[0]).group(1)
 
 def web():
     if variables["url"][:4] == "git@":

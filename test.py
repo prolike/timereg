@@ -20,10 +20,8 @@ class TestAdd(unittest.TestCase):
         self.assertEqual(mainfile.get_clean_name_meta_data(starts), 'davidcarl')
 
     def test_cleanmetalist(self):
-        testdata = ['[][end]08-08-2018/12:34', 
-        '[davidcarl][end]08-08-2018/15:69', 
+        testdata = ['[davidcarl][end]08-08-2018/15:69', 
         '[davidcarl][end]08-08-2018/15:00', 
-        '[asdasdasdasdasdasdasdasdasdasdasdasdasdasd][start]08-08-2018/12:34', 
         '[davidcarl][star]08-08-2018/15:00', 
         '[davidcarl][start]08-08-2018/12:34',
         '[davidcarl][strt]08-08-2018/15:00']
@@ -31,11 +29,30 @@ class TestAdd(unittest.TestCase):
         '[davidcarl][start]08-08-2018/12:34']
         self.assertEqual(mainfile.clean_meta_list(testdata), result)
 
-    #def test_metadatacleanername_wrong(self):
+    def test_clean_meta_list_username(self):
+        testdata = ['[][end]08-08-2018/12:34',
+        '[asdasdasdasdasdasdasdasdasdasdasdasdasdasd][start]08-08-2018/12:34',
+        '[davidcarl][end]08-08-2018/12:34']
+        result = ['[davidcarl][end]08-08-2018/12:34']
+        self.assertEqual(mainfile.clean_meta_list(testdata), result)
 
+    def test_clean_meta_list_time(self):
+        testdata = ['[davidcarl][end]08-08-2018/15:69', 
+        '[davidcarl][end]08-08-2018/15:00', 
+        '[davidcarl][start]08-08-2018/25:34',
+        '[davidcarl][start]08-08-2018/15:00']
+        result = ['[davidcarl][end]08-08-2018/15:00', 
+        '[davidcarl][start]08-08-2018/15:00']
+        self.assertEqual(mainfile.clean_meta_list(testdata), result)
 
-    #def test_metadatacleanertime_wrong(self):
-
+    def test_clean_meta_list_tag(self):
+        testdata = ['[davidcarl][end]08-08-2018/15:00', 
+        '[davidcarl][en]08-08-2018/15:00', 
+        '[davidcarl][start]08-08-2018/12:34',
+        '[davidcarl][strt]08-08-2018/15:00']
+        result = ['[davidcarl][end]08-08-2018/15:00', 
+        '[davidcarl][start]08-08-2018/12:34']
+        self.assertEqual(mainfile.clean_meta_list(testdata), result)
 
     def test_workcalculator(self):
         starts = ['[davidcarl][start]08-08-2018/12:34', '[davidcarl][start]08-08-2018/15:00']

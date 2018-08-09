@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import main as mainfile
+from lib import main as mainfile
 import argparse
 import logging
 

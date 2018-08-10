@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker run -it --rm -v /$(pwd):/app:rw -w //app --pid host --entrypoint git-mytest davidcarl/dockerpython:latest "$@"
+docker run -it --rm -v /$(pwd):/app:rw -w //app --pid host --entrypoint ./git-mytest dockerfile:latest "$@"

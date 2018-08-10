@@ -1,0 +1,3 @@
+#!/bin/sh
+
+docker run -it --rm -v /$(pwd):/app:rw -w //app --pid host --entrypoint ./test.py dockerfile:latest "$@"

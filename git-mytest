@@ -9,11 +9,9 @@ def main():
     arguments()
 
     if args.verbose:
-        mainfile.verbose(True)
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
     else:
-        mainfile.verbose(False)
-        logging.basicConfig(format="%(levelname)s: %(message)s")  
+        logging.basicConfig(format="%(levelname)s: %(message)s")      
     if args.web:
         mainfile.web()
     if args.logtimestart:

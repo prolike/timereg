@@ -14,23 +14,12 @@ def main():
     gitpath = find_git(location)
     variables = get_git_variables() 
 
-    logging.info(location)
-    logging.info(gitpath)
-    logging.info(variables)
-
     ''' lOG ORDER
     logging.debug("This is debug") #USE THIS FOR VERBOSE
     logging.info("This is info")
     logging.warning("This is warning")
     logging.error("This is error")
     '''
-
-def verbose(state):
-    if state is True:
-        print(state)
-        logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
-    else:
-        logging.basicConfig(format="%(levelname)s: %(message)s")
 
 def find_git(path):
     if os.path.isdir(path + "/.git/"):

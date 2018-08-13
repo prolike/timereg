@@ -155,7 +155,7 @@ def merge_conflict_overlap(commit_hashname, split_point_blob_hashname, remote_bl
 def merge_blob_content(split_point, remote, local):
     '''
     Merges 2 list of strings together by looking at the split point they both originated from
-
+hashname
     Args:
         param1(list containing strings): split_point - The list of strings the two other list originated from
         param2(list containing strings): remote - A list of strings
@@ -362,7 +362,7 @@ def find_git(path):
         param1(str): path - The path to the folder you want to find the .git folder
 
     Return:
-        str: Retruns a string of the path to the .git folder
+        str: Returns a string of the path to the .git folder
     '''
     if os.path.isdir(path + '/.git/'):
         return path + '/.git/'
@@ -370,3 +370,23 @@ def find_git(path):
         strlist = path.split('/')
         newpath = '/'.join(strlist[:-1])
         return find_git(newpath)
+
+def get_all_notes():
+    '''
+    Extract all git notes
+
+    Return:
+        dict: Returns a dictonary with the key being a reference to a commit and the value being a list of nodes on the commit
+    '''
+    gitpath = find_git(os.getcwd())
+    with open(gitpath+'refs/notes/commits') as f:
+        for line in f:
+            commit = line.rstrip()
+
+    commit = extract_git_commit_object(commit)
+    tree = extract_git_tree_object(commit['tree'])
+    notes = {}
+
+    for key, value in tree.items():
+        notes[key] = extract_git_blob_object(value)
+    return notes

@@ -21,7 +21,17 @@ def main():
     logging.error("This is error")
     '''
 
-def find_git(path):
+def find_git(path):    
+    '''
+    Finds the full path to the .git folder in the suppiled path,
+    this function starts in the supplied folder and move out untill it finds the .git folder
+
+    Args:
+        param1(str): path - The path to the folder you want to find the .git folder
+
+    Return:
+        str: Returns a string of the path to the .git folder
+    '''
     if os.path.isdir(path + "/.git/"):
         return path + "/.git/"
     else:
@@ -30,6 +40,17 @@ def find_git(path):
         return find_git(newpath)
 
 def time(**kwargs):
+    '''
+    Makes custom time format with date, and possibility of using,
+    custom hour and minute
+
+    Args:
+        param1(str): chour - custom hour for the time returned
+        param2(str): cminute - custom minute for the time returned
+
+    Return:
+        str: Returns a string of the current time or custom time with the current date
+    '''
     chour = kwargs.get('chour', None)
     cminute = kwargs.get('cminute', None)
     format = "%d-%m-%Y/%H:%M"
@@ -41,6 +62,18 @@ def time(**kwargs):
     return now.strftime(format)
 
 def log(state, **kwargs):
+    '''
+    Makes our meta data string, that we are gonna use for logging time in git notes.
+
+    Args:
+        param1(str): state - if you 'start' the time log or 'end' it
+        param2(str): chour - custom hour for the time returned
+        param3(str): cminute - custom minute for the time returned
+
+    Return:
+        str: Returns a string with meta data including, git username, state (start or end),
+        and timestamp with date (from the time method)
+    '''
     note_string = '[' + variables['username'] + '][' + state + ']'
     value = kwargs.get('value', None)
     try:
@@ -64,6 +97,13 @@ def log(state, **kwargs):
     return 1
 
 def get_git_variables():
+    '''
+    Makes a dictonary containing information fetched from different git configs
+
+    Return:
+        dictonary: returns branch, url, and git username, with the following keys:
+        'branch', 'url', 'username'
+    '''
     variables_temp = {}
     branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD", "--"], stdout=subprocess.PIPE)
     url = subprocess.run(["git", "config", "--get", "remote.origin.url"], stdout=subprocess.PIPE)
@@ -74,6 +114,16 @@ def get_git_variables():
     return variables_temp
 
 def calc_time_worked(started, ended):
+    '''
+    Calculates the time spent working from the metadata in the git notes
+
+    Args:
+        param1(list): Started - A list containing metadata with the tag started
+        param2(list): ended - A list containing metadata with the tag ended
+
+    Return:
+        str: Returns a string with amount of minutes worked with the provided information
+    '''
     fmt = "%d-%m-%Y/%H:%M"
     total_min_worked = 0
 
@@ -94,15 +144,42 @@ def calc_time_worked(started, ended):
     return total_min_worked
 
 def get_clean_time_meta_data(meta_data):
+    '''
+    Seperating the good metadata timewise and the bad metadata timewise
+
+    Args:
+        param1(list): meta_data - A list containing metadata that needs cleaning
+
+    Return:
+        list: Returns a list of only valid timestamps
+    '''
     cleaned_data = []
     for data in meta_data:
         cleaned_data.append(re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', data).group(0)) #Very brittle!
     return cleaned_data
 
 def get_clean_name_meta_data(meta_data):
+    '''
+    Seperating username from rest of the metadata
+
+    Args:
+        param1(list): meta_data - A list containing metadata that needs username pulled out
+
+    Return:
+        str: Returns a string of the username supplied in the meta_data
+    '''
     return re.findall(r'\[(.+?)\]', meta_data[0])[0]
 
 def clean_meta_list(dirtylist):
+    '''
+    Seperating the good metadata timewise and the bad metadata timewise
+
+    Args:
+        param1(list): dirtylist - A list containing metadata that needs cleaning
+
+    Return:
+        list: Returns a list of only valid timestamps
+    '''
     index_remove = []
     clean_list = dirtylist
     for idx, element in enumerate(dirtylist):
@@ -113,7 +190,17 @@ def clean_meta_list(dirtylist):
         del clean_list[idx]
     return clean_list
 
-def cleaner(data_element):
+def cleaner(data_element):    
+    '''
+    Making sure all the data in the data_element is valid, and telling if the provided
+    string should be allowed to continue or deleted
+
+    Args:
+        param1(list): data_element - A string containing metadata that needs username pulled out
+
+    Return:
+        bool: Returns True or False depending on how the test goes
+    '''
     format = "%d-%m-%Y/%H:%M"
     metatag = re.findall(r'\[(.*?)\]', data_element)
     try:

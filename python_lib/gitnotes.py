@@ -8,18 +8,17 @@ def push_notes():
     Push git notes to remote via 'git push origin refs/notes/commits',
     and deals with any merge issues that may occur.
     '''
-    push = push_notes_call()
-    if push.returncode == 1:
-        logging.debug('push failed')
-        logging.debug('merge conflict')
-        fetch = fetch_notes_call()
-        if fetch.returncode == 1:
-            logging.debug('fetch failed')
-            notes_merge()
-            push = push_notes_call()
-            if push.returncode != 0:
-                logging.error('something went wrong in the push')
-                sys.exit(1)
+    fetch = fetch_notes_call()
+    if fetch.returncode == 1:
+        logging.debug('fetch failed')
+        notes_merge()
+        push = push_notes_call()
+    elif fetch.returncode == 0:
+        push = push_notes_call()
+    
+    if push.returncode != 0:
+        logging.error('something went wrong in the push')
+        sys.exit(1)
 
 def fetch_notes():
     '''
@@ -63,7 +62,7 @@ def rename_refs_notes_file(old_name, new_name):
     gitpath = find_git(os.getcwd())
     git_refs_notes_path = gitpath + 'refs/notes/'
     logging.debug(f'Call: mv .git/refs/notes/{old_name} .git/refs/notes/{new_name}')
-    subprocess.run(['mv', git_refs_notes_path + old_name, git_refs_notes_path + new_name])
+    os.rename(git_refs_notes_path + old_name, git_refs_notes_path + new_name)
 
 def remove_file_refs_notes(name):
     '''
@@ -73,7 +72,7 @@ def remove_file_refs_notes(name):
         param1(str): name
     '''
     git_refs_notes_path = gitpath + 'refs/notes/'
-    subprocess.run(['rm', git_refs_notes_path + name])
+    os.remove(git_refs_notes_path + name)
 
 def notes_merge():
     '''
@@ -100,8 +99,15 @@ def __merge_notes_conflicts(local_name):
     '''
     global gitpath
     gitpath = find_git(os.getcwd())
-    local = subprocess.run(['cat', gitpath + 'refs/notes/' + local_name], stdout=subprocess.PIPE).stdout.decode('utf-8').rstrip()
-    remote = subprocess.run(['cat', gitpath + 'refs/notes/commits'], stdout=subprocess.PIPE).stdout.decode('utf-8').rstrip()
+    
+    with open(gitpath +'refs/notes/' + local_name) as f:
+        for line in f:
+            local = line.rstrip()
+    
+    with open(gitpath +'refs/notes/commits') as f:
+        for line in f:
+            remote = line.rstrip()
+    
     split_point = find_commit_split(local, remote)
     
     local = extract_git_tree_object(extract_git_commit_object(local)['tree'])

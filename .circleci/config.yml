@@ -6,7 +6,7 @@ jobs:
     # The primary container is an instance of the first list image listed.
     # Your build commands run in this container.
     docker:
-      - image: node:10
+      - image: prolike/timereg:latest
     steps:
       - checkout
       - run:
@@ -24,7 +24,7 @@ jobs:
   build:
     working_directory: /app
     docker:
-      - image: node:10
+      - image: prolike/timereg:latest
     steps:
       - checkout
       - run:
@@ -40,7 +40,7 @@ jobs:
   deliver:
     working_directory: /app
     docker:
-      - image: node:10
+      - image: prolike/timereg:latest
     steps:
       - checkout
       - run:
@@ -55,33 +55,16 @@ jobs:
   dev_test:
     docker:
       # specify the version you desire here
-      - image: node:10
+      - image: prolike/timereg:latest
 
     working_directory: /app
 
     steps:
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: npm install
-
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-
-      # run tests!
-      - run: npm test
+      - run: python3 ./test.py
 
 workflows:
   version: 2
-  drop-gdpr_phlow:
+  timereg_phlow:
     jobs:
       - integrate:
           filters:

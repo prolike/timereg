@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker run -it --rm -v /$(pwd):/app:rw -w //app --pid host --entrypoint ./test.py dockerfile:latest "$@"
+docker run -it --rm -v /$(pwd):/app:rw -w //app -v ~/.gitconfig:/root/.gitconfig/:rw --pid host --entrypoint /home/test.py prolike/timereg:latest "$@"

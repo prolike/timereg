@@ -87,7 +87,10 @@ class Test_shared(unittest.TestCase):
         expected = '/'.join(os.getcwd().split('/')[:-2]) + '/home/usr/Documents'
         self.assertEqual(shared.get_work_dir(), expected)
 
-
+    def test_git_variables(self):
+        result = shared.get_git_variables()
+        expected = 'git@github.com:prolike/timereg.git'
+        self.assertEqual(result['url'], expected)
 
     def test_git_path_finding(self):
         #print('Testing git path finding')

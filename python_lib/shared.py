@@ -1,4 +1,6 @@
 import os
+import subprocess
+
 
 gitpath = ''
 working_dir = os.getcwd()
@@ -58,7 +60,7 @@ def find_git(path):
 def get_git_variables():
     global git_variables
     if git_variables == {}:
-        git_variables = find_git_variables
+        git_variables = find_git_variables()
 
     return git_variables
 

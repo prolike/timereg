@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-from python_lib import metadata
-from python_lib import gitnotes
+from python_lib import metadata, gitnotes, shared
 import argparse
 import logging
 
 def main():
-    metadata.main()
     arguments()
 
     if args.verbose:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s")      
+    
+    if args.path:
+        shared.set_working_dir(args.path)
+        # print(shared.get_work_dir())
+        print(shared.get_gitpath())
+
     if args.logtimestart:
         if args.custom:
             metadata.log("start", value=args.custom)
@@ -38,6 +42,7 @@ def arguments():
     global args
     parser = argparse.ArgumentParser(prog="Git extension POC")
     parser.add_argument("-v", "--verbose", action="store_true", help="Outputs verbose data")
+    parser.add_argument("-C", "--path", help="Define a path", type=str)    
     parser.add_argument("-ls", "--logtimestart", action="store_true", help="Log the start time you used on the current issue")
     parser.add_argument("-le", "--logtimeend", action="store_true", help="Log the end time you used on the current issue")
     parser.add_argument("-c", "--custom", help="Define a custom time", type=str)

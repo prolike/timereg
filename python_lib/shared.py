@@ -1,18 +1,41 @@
 import os
 
-
 gitpath = ''
 working_dir = os.getcwd()
 git_variables = {}
 
 def set_working_dir(path):
-    working_dir = path
+    global working_dir
+    working_dir = path_routing(path)
+
+def path_routing(path):
+    if path[-1] == '/':
+        path = path[:-1]
+
+    if path[:1] == '/':
+        return path
+    elif path[:3] == '../':
+        return path_up_level(os.getcwd(), path)
+    elif path[:2] == './':
+        return os.getcwd() + path[1:]
+    
+    return os.getcwd() + path
+
+def path_up_level(cwd, path):
+    if path[:3] == '../':
+        return path_up_level('/'.join(cwd.split('/')[:-1]), path.split('/',1)[1])
+    else:
+        return cwd + '/' + path
+
+def get_work_dir():
+    return working_dir
 
 def get_gitpath():
-    if gitpath != '':
-        return gitpath
-    else:
-        return find_git(working_dir)
+    global gitpath
+    if gitpath == '':
+        gitpath = find_git(working_dir)
+
+    return gitpath    
 
 def find_git(path):    
     '''
@@ -34,7 +57,7 @@ def find_git(path):
 
 def get_git_variables():
     global git_variables
-    if git_variables != {}:
+    if git_variables == {}:
         git_variables = find_git_variables
 
     return git_variables

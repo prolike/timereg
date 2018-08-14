@@ -72,6 +72,23 @@ class Test_shared(unittest.TestCase):
     def setUp(self):
         print(" In method", self._testMethodName)
 
+    def test_set_different_path_case_root(self):
+        shared.set_working_dir('/home/usr/Documents')
+        expected = '/home/usr/Documents'
+        self.assertEqual(shared.get_work_dir(), expected)
+
+    def test_set_different_path_case_subfolder(self):
+        shared.set_working_dir('./home/usr/Documents')
+        expected = os.getcwd() + '/home/usr/Documents'
+        self.assertEqual(shared.get_work_dir(), expected)
+
+    def test_set_different_path_case_up_two_folders(self):
+        shared.set_working_dir('../../home/usr/Documents')
+        expected = '/'.join(os.getcwd().split('/')[:-2]) + '/home/usr/Documents'
+        self.assertEqual(shared.get_work_dir(), expected)
+
+
+
     def test_git_path_finding(self):
         #print('Testing git path finding')
         expected = os.getcwd() + "/.git/"

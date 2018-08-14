@@ -1,3 +1,4 @@
+from python_lib import shared
 from datetime import datetime
 from time import mktime as mktime
 import sys
@@ -7,37 +8,6 @@ import webbrowser
 import subprocess
 import logging
 
-def main():
-    global location, gitpath, variables
-
-    location = os.getcwd()
-    gitpath = find_git(location)
-    variables = get_git_variables() 
-
-    ''' lOG ORDER
-    logging.debug("This is debug") #USE THIS FOR VERBOSE
-    logging.info("This is info")
-    logging.warning("This is warning")
-    logging.error("This is error")
-    '''
-
-def find_git(path):    
-    '''
-    Finds the full path to the .git folder in the suppiled path,
-    this function starts in the supplied folder and move out untill it finds the .git folder
-
-    Args:
-        param1(str): path - The path to the folder you want to find the .git folder
-
-    Return:
-        str: Returns a string of the path to the .git folder
-    '''
-    if os.path.isdir(path + "/.git/"):
-        return path + "/.git/"
-    else:
-        strlist = path.split('/')
-        newpath = "/".join(strlist[:-1])
-        return find_git(newpath)
 
 def time(**kwargs):
     '''
@@ -74,7 +44,7 @@ def log(state, **kwargs):
         str: Returns a string with meta data including, git username, state (start or end),
         and timestamp with date (from the time method)
     '''
-    note_string = '[' + variables['username'] + '][' + state + ']'
+    note_string = '[' + shared.get_git_variables()['username'] + '][' + state + ']'
     value = kwargs.get('value', None)
     try:
         if re.search(r"([01]\d|2[0-3]):[0-5]\d", value):
@@ -95,23 +65,6 @@ def log(state, **kwargs):
         note_string += time()
         print(note_string)
     return 1
-
-def get_git_variables():
-    '''
-    Makes a dictonary containing information fetched from different git configs
-
-    Return:
-        dictonary: returns branch, url, and git username, with the following keys:
-        'branch', 'url', 'username'
-    '''
-    variables_temp = {}
-    branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD", "--"], stdout=subprocess.PIPE)
-    url = subprocess.run(["git", "config", "--get", "remote.origin.url"], stdout=subprocess.PIPE)
-    username = subprocess.run(['git', 'config', 'github.user'], stdout=subprocess.PIPE)
-    variables_temp["branch"] = branch.stdout.decode("utf-8").rstrip()[:-3]
-    variables_temp["url"] = url.stdout.decode("utf-8").rstrip()
-    variables_temp['username'] = username.stdout.decode('utf-8').rstrip()
-    return variables_temp
 
 def calc_time_worked(started, ended):
     '''
@@ -213,14 +166,3 @@ def cleaner(data_element):
     except:
         return True
     return False
-
-def web():
-    if variables["url"][:4] == "git@":
-        link = "github.com/" + variables["url"].split(":")[-1][:-4]
-    else:
-        link = variables["url"][:-4]
-    logging.debug("webbrowser.open " + link)
-    webbrowser.open(link, new=0, autoraise=True)
-
-if __name__ == "__main__":
-    main()

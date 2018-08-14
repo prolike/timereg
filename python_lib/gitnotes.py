@@ -1,3 +1,4 @@
+from python_lib import shared
 import sys
 import os
 import subprocess
@@ -58,9 +59,7 @@ def rename_refs_notes_file(old_name, new_name):
         param1 (str): old_name
         param1 (str): new_name
     '''
-    global gitpath
-    gitpath = find_git(os.getcwd())
-    git_refs_notes_path = gitpath + 'refs/notes/'
+    git_refs_notes_path = shared.get_gitpath() + 'refs/notes/'
     logging.debug(f'Call: mv .git/refs/notes/{old_name} .git/refs/notes/{new_name}')
     os.rename(git_refs_notes_path + old_name, git_refs_notes_path + new_name)
 
@@ -71,7 +70,7 @@ def remove_file_refs_notes(name):
     Args:
         param1(str): name
     '''
-    git_refs_notes_path = gitpath + 'refs/notes/'
+    git_refs_notes_path = shared.get_gitpath() + 'refs/notes/'
     os.remove(git_refs_notes_path + name)
 
 def notes_merge():
@@ -97,14 +96,11 @@ def __merge_notes_conflicts(local_name):
     Args:
         param1(str): local_name - The name of the renamed commits file
     '''
-    global gitpath
-    gitpath = find_git(os.getcwd())
-    
-    with open(gitpath +'refs/notes/' + local_name) as f:
+    with open(shared.get_gitpath() +'refs/notes/' + local_name) as f:
         for line in f:
             local = line.rstrip()
     
-    with open(gitpath +'refs/notes/commits') as f:
+    with open(shared.get_gitpath() +'refs/notes/commits') as f:
         for line in f:
             remote = line.rstrip()
     
@@ -359,23 +355,6 @@ def extract_git_notes_commits(commit_hashname):
     output = subprocess.run(['git', 'log', commit_hashname], stdout=subprocess.PIPE).stdout.decode('utf-8').split('commit ')[1:]
     return list(map(lambda x: x.split('\n')[0], output))    
 
-def find_git(path):
-    '''
-    Finds the full path to the .git folder in the suppiled path,
-    this function starts in the spullied folder and move out untill it finds the .git folder
-
-    Args:
-        param1(str): path - The path to the folder you want to find the .git folder
-
-    Return:
-        str: Returns a string of the path to the .git folder
-    '''
-    if os.path.isdir(path + '/.git/'):
-        return path + '/.git/'
-    else:
-        strlist = path.split('/')
-        newpath = '/'.join(strlist[:-1])
-        return find_git(newpath)
 
 def get_all_notes():
     '''
@@ -384,8 +363,7 @@ def get_all_notes():
     Return:
         dict: Returns a dictonary with the key being a reference to a commit and the value being a list of nodes on the commit
     '''
-    gitpath = find_git(os.getcwd())
-    with open(gitpath+'refs/notes/commits') as f:
+    with open(shared.get_gitpath() +'refs/notes/commits') as f:
         for line in f:
             commit = line.rstrip()
 

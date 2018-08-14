@@ -1,34 +1,32 @@
 #!/usr/bin/env python3
-from python_lib import main as mainfile
+from python_lib import metadata
 from python_lib import gitnotes
 import argparse
 import logging
 
 def main():
-    mainfile.main()
+    metadata.main()
     arguments()
 
     if args.verbose:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s")      
-    if args.web:
-        mainfile.web()
     if args.logtimestart:
         if args.custom:
-            mainfile.log("start", value=args.custom)
+            metadata.log("start", value=args.custom)
         else:    
-            mainfile.log("start")
+            metadata.log("start")
     if args.logtimeend:        
         if args.custom:
-            mainfile.log("end", value=args.custom)
+            metadata.log("end", value=args.custom)
         else:    
-            mainfile.log("end")
+            metadata.log("end")
     if args.checktime:
         starts = ['[davidcarl][start]08-08-2018/12:34', '[davidcarl][start]08-08-2018/15:00']
         ended = ['[davidcarl][end]08-08-2018/13:34', '[davidcarl][end]08-08-2018/15:30']
         logging.debug('calling: calc_time_worked')
-        mainfile.calc_time_worked(starts, ended) #Testing purposes
+        metadata.calc_time_worked(starts, ended) #Testing purposes
     if args.push:
         gitnotes.push_notes()
     if args.fetch:
@@ -39,7 +37,6 @@ def main():
 def arguments():
     global args
     parser = argparse.ArgumentParser(prog="Git extension POC")
-    parser.add_argument("-w", "--web", action="store_true", help="Opens the git repository in your browser.")
     parser.add_argument("-v", "--verbose", action="store_true", help="Outputs verbose data")
     parser.add_argument("-ls", "--logtimestart", action="store_true", help="Log the start time you used on the current issue")
     parser.add_argument("-le", "--logtimeend", action="store_true", help="Log the end time you used on the current issue")

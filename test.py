@@ -2,6 +2,7 @@
 from datetime import datetime
 from python_lib import metadata, shared
 import unittest
+import subprocess
 import os
 
 
@@ -96,6 +97,15 @@ class Test_shared(unittest.TestCase):
         #print('Testing git path finding')
         expected = os.getcwd() + "/.git/"
         self.assertEqual(shared.get_gitpath(), expected)
+
+class Test_gitmytest(unittest.TestCase):
+    
+    def setUp(self):
+        print(" In method", self._testMethodName)
+
+    def test_runable(self):
+        run = subprocess.run(['python3', 'git-mytest.py', '-h'], stdout=subprocess.PIPE)
+        self.assertEqual(run.returncode, 0)
 
 if __name__ == '__main__':
     unittest.main()

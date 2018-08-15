@@ -20,11 +20,11 @@ COPY python_lib/* /home/python_lib/
 COPY requirements.txt /home
 COPY python_lib /home
 COPY test.py /home
-COPY git-mytest /home
+COPY git-mytest.py /home
 
 RUN pip3 install -r /home/requirements.txt && \
     chmod 755 /home/test.py && \
-    chmod 755 /home/git-mytest && \
+    chmod 755 /home/git-mytest.py && \
     ls -all /
 
 COPY . /

@@ -39,7 +39,7 @@ def fetch_notes_call():
         subprocess: with a stdout to access the output
     '''
     logging.debug('Call: git fetch origin refs/notes/commits:refs/notes/commits')
-    return subprocess.run(['git', 'fetch', 'origin', 'refs/notes/commits:refs/notes/commits'], stdout=subprocess.PIPE)  
+    return subprocess.run(shared.git_prefix() + ['fetch', 'origin', 'refs/notes/commits:refs/notes/commits'], stdout=subprocess.PIPE)  
 
 def push_notes_call():
     '''
@@ -49,7 +49,7 @@ def push_notes_call():
         subprocess: with a stdout to access the output
     '''
     logging.debug('Call: git push origin refs/notes/commits')
-    return subprocess.run(['git', 'push', 'origin', 'refs/notes/commits'], stdout=subprocess.PIPE)
+    return subprocess.run(shared.git_prefix() + ['push', 'origin', 'refs/notes/commits'], stdout=subprocess.PIPE)
     
 def rename_refs_notes_file(old_name, new_name):
     '''
@@ -192,7 +192,7 @@ def notes_add_force_call(commit_hashname, msglist):
         param1(str): commit_hashname - The name of the commit
         param2(list): msglist - The list of strings (notes) which is to be added to the commit
     '''
-    call = ['git', 'notes', 'add', '-f']
+    call = shared.git_prefix() + ['notes', 'add', '-f']
     for msg in msglist:
         call.append('-m')
         call.append(f'{msg}')
@@ -210,7 +210,7 @@ def update_hashpointer_commit_call(commit, blob):
         param1(str): commit - The hashname of the commit (git object)
         param1(str): blob - the hashname of the blob (git object)
     '''
-    update = subprocess.run(['git', 'notes', 'add', '-f', '-C', blob, commit], stdout=subprocess.PIPE)
+    update = subprocess.run(shared.git_prefix() + ['notes', 'add', '-f', '-C', blob, commit], stdout=subprocess.PIPE)
     if update.returncode != 0:
         logging.error('Was unable to change blob on commit')
         sys.exit(1)
@@ -339,7 +339,7 @@ def extract_git_object(object_name):
     Return:
         str: Returns a string with the objects content
     '''
-    return subprocess.run(['git', 'cat-file', '-p', object_name], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    return subprocess.run(shared.git_prefix() + ['cat-file', '-p', object_name], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
 def extract_git_notes_commits(commit_hashname):
     '''
@@ -352,7 +352,7 @@ def extract_git_notes_commits(commit_hashname):
     Return:
         list: Returns a list of strings with the hashnames of the commits
     '''
-    output = subprocess.run(['git', 'log', commit_hashname], stdout=subprocess.PIPE).stdout.decode('utf-8').split('commit ')[1:]
+    output = subprocess.run(shared.git_prefix() + ['log', commit_hashname], stdout=subprocess.PIPE).stdout.decode('utf-8').split('commit ')[1:]
     return list(map(lambda x: x.split('\n')[0], output))    
 
 

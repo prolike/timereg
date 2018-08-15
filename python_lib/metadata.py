@@ -4,8 +4,6 @@ from time import mktime as mktime
 import sys
 import os
 import re
-import webbrowser
-import subprocess
 import logging
 
 
@@ -23,7 +21,7 @@ def time(**kwargs):
     '''
     chour = kwargs.get('chour', None)
     cminute = kwargs.get('cminute', None)
-    format = "%d-%m-%Y/%H:%M"
+    format = '%d-%m-%Y/%H:%M'
     now = datetime.now()
     if chour is not None:
         now = now.replace(hour=int(chour))
@@ -47,12 +45,12 @@ def log(state, **kwargs):
     note_string = '[' + shared.get_git_variables()['username'] + '][' + state + ']'
     value = kwargs.get('value', None)
     try:
-        if re.search(r"([01]\d|2[0-3]):[0-5]\d", value):
-            chour = value.split(":")[0]
-            cminute = value.split(":")[1]
+        if re.search(r'([01]\d|2[0-3]):[0-5]\d', value):
+            chour = value.split(':')[0]
+            cminute = value.split(':')[1]
             note_string += time(chour=chour, cminute=cminute)
             print(note_string)
-        elif re.search(r"([01]\d|2[0-3])?[0-5]\d", value):
+        elif re.search(r'([01]\d|2[0-3])?[0-5]\d', value):
             if len(value) is 3:
                 note_string += time(cminute=value[-2:], chour=value[:1])
             else:
@@ -77,7 +75,7 @@ def calc_time_worked(started, ended):
     Return:
         str: Returns a string with amount of minutes worked with the provided information
     '''
-    fmt = "%d-%m-%Y/%H:%M"
+    fmt = '%d-%m-%Y/%H:%M'
     total_min_worked = 0
 
     logging.debug('Cleaning metadata')
@@ -86,9 +84,9 @@ def calc_time_worked(started, ended):
     clean_end = get_clean_time_meta_data(ended)
     
     #print(name, clean_start, clean_end)
-    logging.debug("Checking for missing timestamps")
+    logging.debug('Checking for missing timestamps')
     if len(started) > len(ended):
-        logging.warning("You are missing some timestamps!")
+        logging.warning('You are missing some timestamps!')
     logging.debug('Calculating time worked')
     for start_time, end_time in zip(clean_start, clean_end):
         d1 = mktime(datetime.strptime(start_time, fmt).timetuple())
@@ -154,10 +152,10 @@ def cleaner(data_element):
     Return:
         bool: Returns True or False depending on how the test goes
     '''
-    format = "%d-%m-%Y/%H:%M"
+    format = '%d-%m-%Y/%H:%M'
     metatag = re.findall(r'\[(.*?)\]', data_element)
     try:
-        if metatag[1] != "start" and metatag[1] != "end":
+        if metatag[1] != 'start' and metatag[1] != 'end':
             return True
         if len(metatag[0]) == 0 or len(metatag[0]) > 39:
             return True    

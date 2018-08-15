@@ -50,11 +50,11 @@ def find_git(path):
     Return:
         str: Returns a string of the path to the .git folder
     '''
-    if os.path.isdir(path + "/.git/"):
-        return path + "/.git/"
+    if os.path.isdir(path + '/.git/'):
+        return path + '/.git/'
     else:
         strlist = path.split('/')
-        newpath = "/".join(strlist[:-1])
+        newpath = '/'.join(strlist[:-1])
         return find_git(newpath)
 
 def get_git_variables():
@@ -73,10 +73,22 @@ def find_git_variables():
         'branch', 'url', 'username'
     '''
     variables_temp = {}
-    branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD", "--"], stdout=subprocess.PIPE)
-    url = subprocess.run(["git", "config", "--get", "remote.origin.url"], stdout=subprocess.PIPE)
-    username = subprocess.run(['git', 'config', 'github.user'], stdout=subprocess.PIPE)
-    variables_temp["branch"] = branch.stdout.decode("utf-8").rstrip()[:-3]
-    variables_temp["url"] = url.stdout.decode("utf-8").rstrip()
+    branch = subprocess.run(git_prefix() + ['rev-parse', '--abbrev-ref', 'HEAD', '--'], stdout=subprocess.PIPE)
+    url = subprocess.run(git_prefix() + ['config', '--get', 'remote.origin.url'], stdout=subprocess.PIPE)
+    username = subprocess.run(git_prefix() + ['config', 'github.user'], stdout=subprocess.PIPE)
+    variables_temp['branch'] = branch.stdout.decode('utf-8').rstrip()[:-3]
+    variables_temp['url'] = url.stdout.decode('utf-8').rstrip()
     variables_temp['username'] = username.stdout.decode('utf-8').rstrip()
     return variables_temp
+
+def git_prefix():
+    '''
+    Makes the prefix -C param if needed to use all git commands in another folder than the cwd
+
+    Retrun:
+        list: Returns a list with the prefixes for git calls 
+    '''
+    print(working_dir)
+    if os.getcwd() != working_dir:
+        return ['git', '-C', working_dir]
+    return ['git']

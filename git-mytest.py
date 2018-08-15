@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from python_lib import metadata, gitnotes, shared
+from python_lib import metadata, gitnotes, shared, timestore
 import argparse
 import logging
 
@@ -25,10 +25,10 @@ def main():
         else:    
             metadata.log('end')
     if args.checktime:
-        starts = ['[davidcarl][start]08-08-2018/12:34', '[davidcarl][start]08-08-2018/15:00']
-        ended = ['[davidcarl][end]08-08-2018/13:34', '[davidcarl][end]08-08-2018/15:30']
+        starts, ended = timestore.listsplitter(timestore.readfromfile())
         logging.debug('calling: calc_time_worked')
-        metadata.calc_time_worked(starts, ended)
+        l = metadata.calc_time_worked(starts, ended)
+        print(l)
     if args.push:
         gitnotes.push_notes()
     if args.fetch:

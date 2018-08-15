@@ -103,4 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+#Editor
 .vscode
+
+#Temp storage for time values
+.time

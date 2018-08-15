@@ -1,4 +1,4 @@
-from python_lib import shared
+from python_lib import shared, timestore
 from datetime import datetime
 from time import mktime as mktime
 import sys
@@ -49,19 +49,19 @@ def log(state, **kwargs):
             chour = value.split(':')[0]
             cminute = value.split(':')[1]
             note_string += time(chour=chour, cminute=cminute)
-            print(note_string)
+            timestore.writetofile([note_string])
         elif re.search(r'([01]\d|2[0-3])?[0-5]\d', value):
             if len(value) is 3:
                 note_string += time(cminute=value[-2:], chour=value[:1])
             else:
                 note_string += time(cminute=value[-2:], chour=value[:2])
-            print(note_string)
+            timestore.writetofile([note_string])
         else:
             note_string += time()
-            print(note_string)
+            timestore.writetofile([note_string])
     except:
         note_string += time()
-        print(note_string)
+        timestore.writetofile([note_string])
     return 1
 
 def calc_time_worked(started, ended):

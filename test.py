@@ -107,5 +107,10 @@ class Test_gitmytest(unittest.TestCase):
         run = subprocess.run(['python3', 'git-mytest.py', '-h'], stdout=subprocess.PIPE)
         self.assertEqual(run.returncode, 0)
 
+class Test_timestore(unittest.TestCase):
+
+    def setUp(self):
+        print(' In method', self._testMethodName)
+
 if __name__ == '__main__':
     unittest.main()

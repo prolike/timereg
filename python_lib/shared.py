@@ -88,7 +88,6 @@ def git_prefix():
     Retrun:
         list: Returns a list with the prefixes for git calls 
     '''
-    print(working_dir)
     if os.getcwd() != working_dir:
         return ['git', '-C', working_dir]
     return ['git']

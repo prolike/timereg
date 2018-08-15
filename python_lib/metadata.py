@@ -83,7 +83,6 @@ def calc_time_worked(started, ended):
     clean_start = get_clean_time_meta_data(started)
     clean_end = get_clean_time_meta_data(ended)
     
-    #print(name, clean_start, clean_end)
     logging.debug('Checking for missing timestamps')
     if len(started) > len(ended):
         logging.warning('You are missing some timestamps!')

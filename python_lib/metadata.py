@@ -42,27 +42,58 @@ def log(state, **kwargs):
         str: Returns a string with meta data including, git username, state (start or end),
         and timestamp with date (from the time method)
     '''
-    note_string = '[' + shared.get_git_variables()['username'] + '][' + state + ']'
+    username = shared.get_git_variables()['username']
+    note_string = '[' + username + '][' + state + ']'
     value = kwargs.get('value', None)
-    try:
-        if re.search(r'([01]\d|2[0-3]):[0-5]\d', value):
-            chour = value.split(':')[0]
-            cminute = value.split(':')[1]
-            note_string += time(chour=chour, cminute=cminute)
-            timestore.writetofile([note_string])
-        elif re.search(r'([01]\d|2[0-3])?[0-5]\d', value):
-            if len(value) is 3:
-                note_string += time(cminute=value[-2:], chour=value[:1])
+    if check_correct_order(username, state) is True:
+        try:
+            if re.search(r'([01]\d|2[0-3]):[0-5]\d', value):
+                chour = value.split(':')[0]
+                cminute = value.split(':')[1]
+                note_string += time(chour=chour, cminute=cminute)
+                timestore.writetofile([note_string])
+            elif re.search(r'([01]\d|2[0-3])?[0-5]\d', value):
+                if len(value) is 3:
+                    note_string += time(cminute=value[-2:], chour=value[:1])
+                else:
+                    note_string += time(cminute=value[-2:], chour=value[:2])
+                timestore.writetofile([note_string])
             else:
-                note_string += time(cminute=value[-2:], chour=value[:2])
-            timestore.writetofile([note_string])
-        else:
+                note_string += time()
+                timestore.writetofile([note_string])
+        except:
             note_string += time()
             timestore.writetofile([note_string])
-    except:
-        note_string += time()
-        timestore.writetofile([note_string])
+    else:
+        s = re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', ''.join(timestore.readfromfile()[-1:]))
+        print('You already', state + 'ed your timer!', s.group(0))
     return 1
+
+def check_correct_order(username, state):
+    '''
+    Checks if the user already has a 'open' time log or open 'end' log
+    and makes sure they dont double open or double closes
+
+    Args:
+        param1(str): username - the username of the user working on the current issue
+        param2(str): state - if the user wanna start or end time logging
+
+    Return:
+        bool: true or false depending on the criterias
+    '''
+    data_list = timestore.readfromfile()
+    last_value = -1
+    for idx, element in enumerate(data_list):
+        metadata = re.findall(r'\[(.*?)\]', element)
+        if metadata[0] == username:
+            last_value = idx
+    metadata = re.findall(r'\[(.*?)\]', data_list[last_value])
+    if metadata[1] == 'end' and state == 'start' or last_value is -1:
+        return True
+    elif metadata[1] == 'start' and state == 'end':
+        return True
+    return False
+
 
 def calc_time_worked(started, ended):
     '''

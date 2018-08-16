@@ -11,14 +11,14 @@ This project is made for Prolike in our internship.
 The project aspired from this idea [Dilly Dally](http://code.praqma.com/dilly-dally/)...
 
 ## Usage
-This project requires [Docker](https://www.docker.com/) to run as we imagined it. It is possible to run it without Docker. However to run it with Docker you can use the following shell script
+This project requires [Docker](https://www.docker.com/) to run as we imagined it. It is possible to run it without Docker. However to run it with Docker you can use the following shell script:
 ```bash
 #!/bin/sh
 
 docker run -it --rm -v /$(pwd):/app:rw -w //app -v ~/.gitconfig:/root/.gitconfig/:rw --pid host --entrypoint /home/git-mytest.py prolike/timereg:latest "$@"
 ```
 
-And this is how to run the tests
+And this is how to run the tests:
 ```bash
 #!/bin/sh
 

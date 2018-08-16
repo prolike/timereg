@@ -1,6 +1,7 @@
 from python_lib import shared
 import os
 import re
+import logging
 
 
 def createfolder():
@@ -11,7 +12,7 @@ def createfolder():
         try:
             os.makedirs(shared.get_gitpath()[:-5] + '.time')
         except:
-            print('Failed to make folder')
+            logging.error('Failed to make folder')
 
 def writetofile(time_list):
     '''
@@ -21,20 +22,9 @@ def writetofile(time_list):
         param1(list): time_list - Takes list with strings that its supposed to write to file
     '''
     createfolder()
-    f = open(shared.get_gitpath()[:-5] + '.time/tempfile', 'a')
-    for string in time_list:
-        f.write(string + '\n')
-
-def printfile():
-    '''
-    Prints the files content in the cli
-    '''
-    if not os.path.exists(shared.get_gitpath()[:-5] + '.time/tempfile'):
-        pass
-    else:
-        f = open(shared.get_gitpath()[:-5] + '.time/tempfile', 'r')
-        for idx, line in enumerate(f):
-            print(idx, line.split('\n')[0])
+    with open(shared.get_gitpath()[:-5] + '.time/tempfile', 'a') as f:
+        for string in time_list:
+            f.write(string + '\n')
 
 def readfromfile():
     '''
@@ -47,10 +37,10 @@ def readfromfile():
         pass
     else:
         times = []
-        f = open(shared.get_gitpath()[:-5] + '.time/tempfile', 'r')
-        for line in f:
-            times.append(line.split('\n')[0])
-        return times 
+        with open(shared.get_gitpath()[:-5] + '.time/tempfile', 'r') as f:
+            for line in f:
+                times.append(line.split('\n')[0])
+            return times 
     return []
 
 def listsplitter(los):

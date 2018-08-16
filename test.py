@@ -11,15 +11,14 @@ class Test_metadata(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         try:
-            os.rename(shared.get_gitpath()[:-5] + '.time/tempfile', shared.get_gitpath()[:-5] + '.time/tempfile.save')
-            subprocess.run(['ls', '.time'])
+            os.rename(shared.get_gitpath()[:-5] + '.time', shared.get_gitpath()[:-5] + '.time.save')
         except:
             pass
 
     @classmethod
     def tearDownClass(self):
         try:
-            os.rename(shared.get_gitpath()[:-5] + '.time/tempfile.save', shared.get_gitpath()[:-5] + '.time/tempfile')
+            os.rename(shared.get_gitpath()[:-5] + '.time.save', shared.get_gitpath()[:-5] + '.time')
         except:
             pass
 
@@ -128,6 +127,17 @@ class Test_metadata(unittest.TestCase):
         metadata.log('start')
         self.assertEqual(metadata.log('end'), True)
 
+    def test_log_with_custom_time_t1(self):
+        self.assertEqual(metadata.log('start', value="1400"), True)
+
+    def test_log_with_custom_time_t2(self):
+        self.assertEqual(metadata.log('start', value="140"), True)
+
+    def test_log_with_custom_time_t3(self):
+        self.assertEqual(metadata.log('start', value="14:00"), True)
+
+    def test_log_with_custom_time_t4(self):
+        self.assertEqual(metadata.log('start'), True)
 
 class Test_shared(unittest.TestCase):
 
@@ -171,7 +181,17 @@ class Test_gitmytest(unittest.TestCase):
 class Test_timestore(unittest.TestCase):
 
     def setUp(self):
+        shared.set_working_dir(os.getcwd())
         print(' In method', self._testMethodName)
 
+    def test_listsplitter(self):
+        testdata = ['[davidcarl][end]08-08-2018/15:39', 
+        '[davidcarl][end]08-08-2018/15:00', 
+        '[davidcarl][start]08-08-2018/23:34',
+        '[davidcarl][start]08-08-2018/15:00']
+        start_list, end_list = timestore.listsplitter(testdata)
+        self.assertEqual(start_list, ['[davidcarl][start]08-08-2018/23:34', '[davidcarl][start]08-08-2018/15:00'])
+        self.assertEqual(end_list, ['[davidcarl][end]08-08-2018/15:39', '[davidcarl][end]08-08-2018/15:00'])
+        
 if __name__ == '__main__':
     unittest.main()

@@ -58,9 +58,6 @@ def log(state, **kwargs):
                 else:
                     note_string += time(cminute=value[-2:], chour=value[:2])
                 timestore.writetofile([note_string])
-            else:
-                note_string += time()
-                timestore.writetofile([note_string])
         except:
             note_string += time()
             timestore.writetofile([note_string])

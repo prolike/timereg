@@ -111,3 +111,6 @@ venv.bak/
 
 #Ignore htmlcov
 htmlcov
+
+#test env
+test/test_env

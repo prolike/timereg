@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from datetime import datetime
-from python_lib import metadata, shared
+from python_lib import metadata, shared, timestore
 import unittest
 import subprocess
 import os
@@ -8,8 +8,29 @@ import os
 
 class Test_metadata(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(self):
+        try:
+            os.rename(shared.get_gitpath()[:-5] + '.time/tempfile', shared.get_gitpath()[:-5] + '.time/tempfile.save')
+            subprocess.run(['ls', '.time'])
+        except:
+            pass
+
+    @classmethod
+    def tearDownClass(self):
+        try:
+            os.rename(shared.get_gitpath()[:-5] + '.time/tempfile.save', shared.get_gitpath()[:-5] + '.time/tempfile')
+        except:
+            pass
+
     def setUp(self):
         print(" In method", self._testMethodName)
+
+    def tearDown(self):
+        try:
+            os.remove(shared.get_gitpath()[:-5] + '.time/tempfile')
+        except:
+            pass
 
     def test_time_format(self):
         #print('Testing time format')
@@ -67,6 +88,46 @@ class Test_metadata(unittest.TestCase):
         starts = ['[davidcarl][start]08-08-2018/12:34', '[davidcarl][start]08-08-2018/15:00']
         ended = ['[davidcarl][end]08-08-2018/13:34', '[davidcarl][end]08-08-2018/15:30']
         self.assertEqual(metadata.calc_time_worked(starts, ended), 90)
+
+    def test_workcalculator_uneven(self):
+        #print('Testing time calculator')
+        starts = ['[davidcarl][start]08-08-2018/12:34', '[davidcarl][start]08-08-2018/13:40', '[davidcarl][start]08-08-2018/15:00']
+        ended = ['[davidcarl][end]08-08-2018/13:34', '[davidcarl][end]08-08-2018/15:30']
+        self.assertEqual(metadata.calc_time_worked(starts, ended), 170)
+
+    def test_log_write(self):
+        self.assertEqual(metadata.log('start'), True)
+
+    def test_log_start_end_logging(self):
+        metadata.log('start')
+        self.assertEqual(metadata.log('end'), True)
+
+    def test_log_double_start_logging(self):
+        metadata.log('start')
+        self.assertEqual(metadata.log('start'), False)
+
+    def test_log_double_end_logging(self):
+        metadata.log('end')
+        self.assertEqual(metadata.log('end'), False)
+
+    def test_log_3rd_party_end_self(self):
+        metadata.log('start')
+        timestore.writetofile(['[bo]][start]08-08-2018/12:34'])
+        self.assertEqual(metadata.log('end'), True)
+    
+    def test_log_3rd_party_start_self(self):
+        metadata.log('start')
+        timestore.writetofile(['[bo]][start]08-08-2018/12:34'])
+        self.assertEqual(metadata.log('start'), False)
+
+    def test_log_multiple_start_end(self):
+        metadata.log('start')
+        metadata.log('end')
+        metadata.log('start')
+        metadata.log('end')
+        metadata.log('start')
+        self.assertEqual(metadata.log('end'), True)
+
 
 class Test_shared(unittest.TestCase):
 

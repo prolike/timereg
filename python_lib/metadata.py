@@ -65,9 +65,14 @@ def log(state, **kwargs):
             note_string += time()
             timestore.writetofile([note_string])
     else:
-        s = re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', ''.join(timestore.readfromfile()[-1:]))
-        print('You already', state + 'ed your timer!', s.group(0))
-    return 1
+        try:
+            s = re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', ''.join(timestore.readfromfile()[-1:]))
+            print('You already', state + 'ed your timer!', s.group(0))
+            return False
+        except:
+            print('You already', state + 'ed your timer!', ''.join(timestore.readfromfile()[-1:]))
+            return False
+    return True
 
 def check_correct_order(username, state):
     '''
@@ -87,11 +92,18 @@ def check_correct_order(username, state):
         metadata = re.findall(r'\[(.*?)\]', element)
         if metadata[0] == username:
             last_value = idx
-    metadata = re.findall(r'\[(.*?)\]', data_list[last_value])
-    if metadata[1] == 'end' and state == 'start' or last_value is -1:
-        return True
-    elif metadata[1] == 'start' and state == 'end':
-        return True
+    try:
+        metadata = re.findall(r'\[(.*?)\]', data_list[last_value])
+    except:
+        pass
+    try:
+        if metadata[1] == 'end' and state == 'start' or last_value is -1:
+            return True
+        elif metadata[1] == 'start' and state == 'end':
+            return True
+    except:
+        if last_value is -1 and state == 'start':
+            return True   
     return False
 
 

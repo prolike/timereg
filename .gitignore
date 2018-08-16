@@ -108,3 +108,6 @@ venv.bak/
 
 #Temp storage for time values
 .time
+
+#Ignore htmlcov
+htmlcov

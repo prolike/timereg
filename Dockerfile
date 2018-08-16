@@ -18,7 +18,7 @@ RUN mkdir /home/python_lib && \
 
 COPY python_lib/* /home/python_lib/
 COPY requirements.txt /home
-COPY test/* /home/test 
+COPY test/* /home/test/
 COPY test.py /home
 COPY git-mytest.py /home
 
@@ -27,5 +27,4 @@ RUN pip3 install -r /home/requirements.txt && \
     chmod 755 /home/git-mytest.py && \
     ls -all /
 
-COPY . /
-WORKDIR /app
+WORKDIR /home

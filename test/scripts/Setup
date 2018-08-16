@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#Variables
+test_env='test/test_env'
+
+#cleanup
+rm -rf $test_env
+
+#setup folders
+mkdir $test_env
+mkdir $test_env/origin
+mkdir $test_env/clone1
+mkdir $test_env/clone2
+
+#Setup origin 
+git -C $test_env/origin init --quiet
+
+#commits on origin
+echo "1st commit" > $test_env/origin/1st
+git -C $test_env/origin add .
+git -C $test_env/origin commit -m "1st commit" --quiet
+echo "2nd commit" > $test_env/origin/2nd
+git -C $test_env/origin add .
+git -C $test_env/origin commit -m "2nd commit" --quiet
+
+#clone projects
+git clone $test_env/origin $test_env/clone1 --quiet
+git clone $test_env/origin $test_env/clone2 --quiet

@@ -1,13 +1,13 @@
 import os
 import subprocess
 
-
 gitpath = ''
 working_dir = os.getcwd()
 git_variables = {}
 
 def set_working_dir(path):
-    global working_dir
+    global working_dir, gitpath
+    gitpath = ''
     working_dir = path_routing(path)
 
 def path_routing(path):

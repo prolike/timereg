@@ -13,11 +13,12 @@ RUN echo $TZ > /etc/timezone && \
     git=1:2.17.1-1ubuntu0.1 && \
     apt-get clean
 
-RUN mkdir /home/python_lib
+RUN mkdir /home/python_lib && \
+    mkdir /home/test
 
 COPY python_lib/* /home/python_lib/
 COPY requirements.txt /home
-COPY python_lib /home
+COPY test/* /home/test 
 COPY test.py /home
 COPY git-mytest.py /home
 

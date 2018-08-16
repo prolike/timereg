@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from datetime import datetime
-from python_lib import metadata, shared, timestore
+from python_lib import metadata, shared, timestore, gitnotes
 import unittest
 import subprocess
 import os
@@ -23,6 +23,7 @@ class Test_metadata(unittest.TestCase):
             pass
 
     def setUp(self):
+        shared.set_working_dir(os.getcwd())
         print(" In method", self._testMethodName)
 
     def tearDown(self):
@@ -142,6 +143,7 @@ class Test_metadata(unittest.TestCase):
 class Test_shared(unittest.TestCase):
 
     def setUp(self):
+        shared.set_working_dir(os.getcwd())
         print(" In method", self._testMethodName)
 
     def test_set_different_path_case_root(self):
@@ -172,6 +174,7 @@ class Test_shared(unittest.TestCase):
 class Test_gitmytest(unittest.TestCase):
     
     def setUp(self):
+        shared.set_working_dir(os.getcwd())
         print(" In method", self._testMethodName)
 
     def test_runable(self):
@@ -192,6 +195,102 @@ class Test_timestore(unittest.TestCase):
         start_list, end_list = timestore.listsplitter(testdata)
         self.assertEqual(start_list, ['[davidcarl][start]08-08-2018/23:34', '[davidcarl][start]08-08-2018/15:00'])
         self.assertEqual(end_list, ['[davidcarl][end]08-08-2018/15:39', '[davidcarl][end]08-08-2018/15:00'])
+
+class Test_gitnotes(unittest.TestCase):
+
+    def setUp(self):
+        shared.set_working_dir(os.getcwd())
+        print(" In method", self._testMethodName)
+
+    def test_get_all_notes(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        subprocess.call(['bash', './test/scripts/test_get_all_notes'], stdout=None, stderr=None)
+
+        shared.set_working_dir('./test/test_env/origin')
+        result = gitnotes.get_all_notes()
+        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE).stdout.decode('utf-8').rstrip().split(' ')
+        expected = {commits[0]: ['note1', 'note2', 'note3', 'note4', 'note5', 'note6', 'note7'], 
+                    commits[1]: ['1note', '2note', '3note', '4note', '5note', '6note', '7note']}
+
+        self.assertEqual(result, expected)
+
+    def test_git_fetch_notes_no_conflict_no_notes_history(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        subprocess.call(['bash', './test/scripts/test_fetch_no_conflict_no_notes_history'], stdout=None, stderr=None)
         
+        shared.set_working_dir('./test/test_env/clone1')
+        gitnotes.fetch_notes()
+
+        with open('./test/test_env/origin/.git/refs/notes/commits', 'r') as f:
+            origin = f.read()        
+        with open('./test/test_env/clone1/.git/refs/notes/commits', 'r') as f:
+            clone = f.read()        
+        self.assertEqual(origin, clone)
+    
+    def test_git_push_notes_no_conflict(self):
+        subprocess.call(['bash', './test/scripts/test_push_no_conflict_no_notes_history'])
+
+        shared.set_working_dir('./test/test_env/clone1')
+        gitnotes.push_notes()
+
+        with open('./test/test_env/origin/.git/refs/notes/commits', 'r') as f:
+            origin = f.read()        
+        with open('./test/test_env/clone1/.git/refs/notes/commits', 'r') as f:
+            clone = f.read()        
+        self.assertEqual(origin, clone)
+
+    def test_git_fetch_merge_conflict_different_commits_no_notes_history(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)    
+        subprocess.call(['bash', './test/scripts/test_fetch_merge_conflict_different_commits_no_notes_history'],\
+                            stdout=None, stderr=None)
+        shared.set_working_dir('./test/test_env/clone1')
+        gitnotes.fetch_notes()
+        
+        call = ['git', '-C', './teset/test_env/origin', 'notes', 'list']
+        origin = subprocess.run(call, stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
+        call[2] = './teset/test_env/clone1'
+        clone = subprocess.run(call, stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
+
+        for line in origin:
+            if line not in clone:
+                self.fail("missing notes from origin")
+        
+    def test_git_fetch_merge_conflict_same_commits_no_notes_history(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)    
+        subprocess.call(['bash', './test/scripts/test_fetch_merge_conflict_same_commit_no_notes_history'], \
+                            stdout=None, stderr=None)
+        shared.set_working_dir('./test/test_env/clone1')
+        gitnotes.fetch_notes()
+
+        clone = gitnotes.get_all_notes()
+        shared.set_working_dir('./test/test_env/origin')
+        origin = gitnotes.get_all_notes()
+        
+        for key, notelist in origin.items():
+            clone_list = clone[key]
+            for note in notelist:
+                if note not in clone_list:
+                    self.fail("missing notes from origin")
+
+
+    def test_git_push_merge_conflict_same_commit_with_notes_history(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)    
+        subprocess.call(['bash', './test/scripts/test_push_merge_conflict_same_commit_with_notes_history'], \
+                            stdout=None, stderr=None)
+        shared.set_working_dir('./test/test_env/clone1')
+        gitnotes.push_notes()
+
+        clone = gitnotes.get_all_notes()
+        shared.set_working_dir('./test/test_env/origin')
+        origin = gitnotes.get_all_notes()
+        
+        for key, notelist in origin.items():
+            clone_list = clone[key]
+            for note in notelist:
+                if note not in clone_list:
+                    self.fail("missing notes from origin")
+
+
+
 if __name__ == '__main__':
     unittest.main()

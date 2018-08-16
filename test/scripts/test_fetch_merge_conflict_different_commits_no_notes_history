@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#Variables
+test_env='./test/test_env'
+
+#move origin out of master branch to allow push
+git -C $test_env/origin checkout -b temp --quiet
+
+git -C $test_env/origin notes append -m "origin note"
+
+commit_sha1=$(egrep "[0-9a-f]{40}" <(git -C $test_env/clone1 log) | tail -n 1 | awk "{ print \$2 }")
+
+# git -C $test_env/clone1 notes append -m "clone note" ${commit_sha1:7:40}
+git -C $test_env/clone1 notes append -m "clone note" $commit_sha1
+# python3 git-mytest.py -C $test_env/clone1 -f

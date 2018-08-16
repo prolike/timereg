@@ -10,11 +10,11 @@ def push_notes():
     and deals with any merge issues that may occur.
     '''
     fetch = fetch_notes_call()
-    if fetch.returncode == 1:
+    if fetch.returncode == 0:
+        push = push_notes_call()
+    elif fetch.returncode == 1:
         logging.debug('fetch failed')
         notes_merge()
-        push = push_notes_call()
-    elif fetch.returncode == 0:
         push = push_notes_call()
     
     if push.returncode != 0:
@@ -108,13 +108,16 @@ def __merge_notes_conflicts(local_name):
     
     local = extract_git_tree_object(extract_git_commit_object(local)['tree'])
     remote = extract_git_tree_object(extract_git_commit_object(remote)['tree'])
-    split_point = extract_git_tree_object(extract_git_commit_object(split_point)['tree'])
-
-
-    remote_split_point_diff = tree_hash_refrence_difference(remote, split_point)
-    local_split_point_diff = tree_hash_refrence_difference(local, split_point)
-
-    distinct, overlapping = dict_find_distinct_and_overlapping(local_split_point_diff, remote_split_point_diff)
+    
+    #in case the clone have no notes before
+    if split_point is None:
+        split_point = {}
+        distinct, overlapping = dict_find_distinct_and_overlapping(local, remote)        
+    else:
+        split_point = extract_git_tree_object(extract_git_commit_object(split_point)['tree'])
+        remote_split_point_diff = tree_hash_refrence_difference(remote, split_point)
+        local_split_point_diff = tree_hash_refrence_difference(local, split_point)
+        distinct, overlapping = dict_find_distinct_and_overlapping(local_split_point_diff, remote_split_point_diff)
 
     for key in distinct:
         if key in local:

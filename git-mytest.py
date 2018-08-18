@@ -15,18 +15,20 @@ def main():
         shared.set_working_dir(args.path)
 
     if args.logtimestart:
+        logging.debug('Calling: metadata.log() with paramenter start')
         if args.custom:
             metadata.log('start', value=args.custom)
         else:    
             metadata.log('start')
-    if args.logtimeend:        
+    if args.logtimeend:
+        logging.debug('Calling: metadata.log() with parameter end')
         if args.custom:
             metadata.log('end', value=args.custom)
         else:    
             metadata.log('end')
     if args.checktime:
         starts, ended = timestore.listsplitter(timestore.readfromfile())
-        logging.debug('calling: calc_time_worked')
+        logging.debug('Calling: metadata.calc_time_worked()')
         l = metadata.calc_time_worked(starts, ended)
         print(l)
     if args.push:

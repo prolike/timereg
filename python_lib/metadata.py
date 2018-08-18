@@ -42,24 +42,29 @@ def log(state, **kwargs):
         str: Returns a string with meta data including, git username, state (start or end),
         and timestamp with date (from the time method)
     '''
+    logging.debug('Calling: shared.get_git_variables() to get username')
     username = shared.get_git_variables()['username']
     note_string = '[' + username + '][' + state + ']'
     value = kwargs.get('value', None)
+    logging.debug('Calling: check_correct_order()')
     if check_correct_order(username, state) is True:
         try:
             if re.search(r'([01]\d|2[0-3]):[0-5]\d', value):
                 chour = value.split(':')[0]
                 cminute = value.split(':')[1]
                 note_string += time(chour=chour, cminute=cminute)
+                logging.debug('Calling: timestore.writetofile() to tempstore times')
                 timestore.writetofile([note_string])
             elif re.search(r'([01]\d|2[0-3])?[0-5]\d', value):
                 if len(value) is 3:
                     note_string += time(cminute=value[-2:], chour=value[:1])
                 else:
                     note_string += time(cminute=value[-2:], chour=value[:2])
+                logging.debug('Calling: timestore.writetofile() to tempstore times')
                 timestore.writetofile([note_string])
         except:
             note_string += time()
+            logging.debug('Calling: timestore.writetofile() to tempstore times')
             timestore.writetofile([note_string])
     else:
         try:
@@ -83,6 +88,7 @@ def check_correct_order(username, state):
     Return:
         bool: true or false depending on the criterias
     '''
+    logging.debug('Calling: timestore.readfromfile() to get tempdata from file')
     data_list = timestore.readfromfile()
     last_value = -1
     for idx, element in enumerate(data_list):
@@ -118,9 +124,11 @@ def calc_time_worked(started, ended):
     fmt = '%d-%m-%Y/%H:%M'
     total_min_worked = 0
 
-    logging.debug('Cleaning metadata')
+    logging.debug('Calling: timestore.writetofile() to tempstore times')
     name = get_clean_name_meta_data(started)
+    logging.debug('Calling: timestore.writetofile() to tempstore times')
     clean_start = get_clean_time_meta_data(started)
+    logging.debug('Calling: timestore.writetofile() to tempstore times')
     clean_end = get_clean_time_meta_data(ended)
     
     logging.debug('Checking for missing timestamps')

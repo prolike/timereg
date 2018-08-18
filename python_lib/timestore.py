@@ -21,6 +21,7 @@ def writetofile(time_list):
     Args:
         param1(list): time_list - Takes list with strings that its supposed to write to file
     '''
+    logging.debug('Calling: createfolder()')
     createfolder()
     with open(shared.get_gitpath()[:-5] + '.time/tempfile', 'a') as f:
         for string in time_list:
@@ -33,6 +34,7 @@ def readfromfile():
     Return:
         list: Returns a list with meta data thats been temp saved.
     '''
+    logging.debug('Calling: shared.get_gitpath()')
     if not os.path.exists(shared.get_gitpath()[:-5] + '.time/tempfile'):
         pass
     else:

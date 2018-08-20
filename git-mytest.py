@@ -13,6 +13,8 @@ def main():
     
     if args.path:
         shared.set_working_dir(args.path)
+    if args.quiet:
+        shared.set_quiet_mode(True)
 
     if args.logtimestart:
         logging.debug('Calling: metadata.log() with paramenter start')
@@ -49,6 +51,7 @@ def arguments():
     parser.add_argument('-ct', '--checktime', action='store_true', help='Check how much time you used')
     parser.add_argument('-p', '--push', action='store_true', help='Push git notes')
     parser.add_argument('-f', '--fetch', action='store_true', help='Fetch git notes')
+    parser.add_argument('-q', '--quiet', action='store_true', help='Removes console output from git commads')
     
     args = parser.parse_args()
 

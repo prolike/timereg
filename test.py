@@ -198,8 +198,16 @@ class Test_timestore(unittest.TestCase):
 
 class Test_gitnotes(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
+        shared.set_quiet_mode(True)
+
+    @classmethod
+    def tearDownClass(self):
         shared.set_working_dir(os.getcwd())
+        subprocess.call(['rm', '-rf', './test/test_env'], stdout=None, stderr=None)    
+
+    def setUp(self):
         print(" In method", self._testMethodName)
 
     def test_get_all_notes(self):

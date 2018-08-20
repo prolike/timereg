@@ -4,13 +4,28 @@ import subprocess
 gitpath = ''
 working_dir = os.getcwd()
 git_variables = {}
+quiet_mode = False
 
 def set_working_dir(path):
+    '''
+    Changes the working directory to the provided path.
+    Works with full path and relative from current working directory.
+    Used in the -C parameter to use git commands from other folders than the current
+    '''
     global working_dir, gitpath
     gitpath = ''
     working_dir = path_routing(path)
 
 def path_routing(path):
+    '''
+    Takes a path and find the full path for the directory. 
+
+    Args:
+        param1(str): path
+
+    Retrun:
+        str: Returns a string with the full path
+    '''
     if path[-1] == '/':
         path = path[:-1]
 
@@ -38,6 +53,22 @@ def get_gitpath():
         gitpath = find_git(working_dir)
 
     return gitpath    
+
+def set_quiet_mode(mode):
+    global quiet_mode
+    quiet_mode = mode
+
+def git_suffix():
+    '''
+    Send a list of suffixes in this case --quiet to mute commands if quiet mode is turned on
+
+    Return:
+        list: Returns a list of suffixes to git commands
+    '''
+    if quiet_mode:
+        return ['--quiet']
+    else:
+        return []
 
 def find_git(path):    
     '''

@@ -39,7 +39,7 @@ def fetch_notes_call():
         subprocess: with a stdout to access the output
     '''
     logging.debug('Call: git fetch origin refs/notes/commits:refs/notes/commits')
-    return subprocess.run(shared.git_prefix() + ['fetch', 'origin', 'refs/notes/commits:refs/notes/commits'], stdout=subprocess.PIPE)  
+    return subprocess.run(shared.git_prefix() + ['fetch', 'origin', 'refs/notes/commits:refs/notes/commits'] + shared.git_suffix(), stdout=subprocess.PIPE)  
 
 def push_notes_call():
     '''
@@ -49,7 +49,7 @@ def push_notes_call():
         subprocess: with a stdout to access the output
     '''
     logging.debug('Call: git push origin refs/notes/commits')
-    return subprocess.run(shared.git_prefix() + ['push', 'origin', 'refs/notes/commits'], stdout=subprocess.PIPE)
+    return subprocess.run(shared.git_prefix() + ['push', 'origin', 'refs/notes/commits'] + shared.git_suffix(), stdout=subprocess.PIPE)
     
 def rename_refs_notes_file(old_name, new_name):
     '''
@@ -195,11 +195,12 @@ def notes_add_force_call(commit_hashname, msglist):
         param1(str): commit_hashname - The name of the commit
         param2(list): msglist - The list of strings (notes) which is to be added to the commit
     '''
-    call = shared.git_prefix() + ['notes', 'add', '-f']
+    call = shared.git_prefix() + ['notes', 'add', '-f'] 
     for msg in msglist:
         call.append('-m')
         call.append(f'{msg}')
     call.append(commit_hashname)
+    # call += shared.git_suffix()
     update = subprocess.run(call, stdout=subprocess.PIPE)
     if update.returncode != 0:
         logging.error('Was unable to add on commit')

@@ -33,6 +33,9 @@ def main():
         logging.debug('Calling: metadata.calc_time_worked()')
         l = metadata.calc_time_worked(starts, ended)
         print(l)
+    if args.dump:
+        timestore.dump()    
+
     if args.push:
         gitnotes.push_notes()
     if args.fetch:
@@ -49,6 +52,7 @@ def arguments():
     parser.add_argument('-le', '--logtimeend', action='store_true', help='Log the end time you used on the current issue')
     parser.add_argument('-c', '--custom', help='Define a custom time', type=str)
     parser.add_argument('-ct', '--checktime', action='store_true', help='Check how much time you used')
+    parser.add_argument('-d', '--dump', action='store_true', help='Dump timelog on current commit')
     parser.add_argument('-p', '--push', action='store_true', help='Push git notes')
     parser.add_argument('-f', '--fetch', action='store_true', help='Fetch git notes')
     parser.add_argument('-q', '--quiet', action='store_true', help='Removes console output from git commads')

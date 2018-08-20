@@ -359,6 +359,13 @@ def extract_git_notes_commits(commit_hashname):
     output = subprocess.run(shared.git_prefix() + ['log', commit_hashname], stdout=subprocess.PIPE).stdout.decode('utf-8').split('commit ')[1:]
     return list(map(lambda x: x.split('\n')[0], output))    
 
+def git_notes_append_file_call(path):
+    call = shared.git_prefix() + ['notes', 'append', '-F', path]
+    append_notes = subprocess.run(call, stdout=subprocess.PIPE)
+    if append_notes.returncode == 0:
+        return True
+    else:
+        return False
 
 def get_all_notes():
     '''
@@ -367,6 +374,9 @@ def get_all_notes():
     Return:
         dict: Returns a dictonary with the key being a reference to a commit and the value being a list of nodes on the commit
     '''
+    if not os.path.isfile(shared.get_gitpath() +'refs/notes/commits'):
+        return {}
+        
     with open(shared.get_gitpath() +'refs/notes/commits') as f:
         for line in f:
             commit = line.rstrip()

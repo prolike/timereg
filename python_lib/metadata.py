@@ -211,3 +211,11 @@ def cleaner(data_element):
     except:
         return True
     return False
+
+def check_all_closed(time_list):
+    time_list = clean_meta_list(time_list)
+    start, end = timestore.listsplitter(time_list)
+    if len(start) is len(end):
+        return True
+    else:
+        return False

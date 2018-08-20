@@ -1,0 +1,10 @@
+#!/bin/bash
+
+test_env='./test/test_env'
+
+mkdir $test_env/clone1/.time
+
+echo "[alfen321][start]20-08-2018/13:14
+[alfen321][end]20-08-2018/13:14
+[alfen321][start]20-08-2018/13:33
+[alfen321][end]20-08-2018/13:33" > $test_env/clone1/.time/tempfile

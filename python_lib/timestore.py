@@ -1,4 +1,4 @@
-from python_lib import shared
+from python_lib import shared, gitnotes, metadata
 import os
 import re
 import logging
@@ -67,3 +67,15 @@ def listsplitter(los):
         elif metatag[1] == 'end':
             end_list.append(string)
     return start_list, end_list
+
+def dump():
+    '''
+    Dumps the tempfiles content on the latest commit as notes
+    '''
+    if metadata.check_all_closed(readfromfile()):
+        path = shared.get_gitpath()[:-5] + '.time/tempfile'
+        if gitnotes.git_notes_append_file_call(path):
+            os.remove(shared.get_gitpath()[:-5] + '.time/tempfile')
+    else:
+        logging.warning('Unclosed time logs')
+        logging.warning('Run a timereg -le then timereg -d')

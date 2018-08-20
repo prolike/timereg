@@ -10,6 +10,7 @@ class Test_metadata(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
+        shared.set_working_dir(os.getcwd())
         try:
             os.rename(shared.get_gitpath()[:-5] + '.time', shared.get_gitpath()[:-5] + '.time.save')
         except:
@@ -23,7 +24,6 @@ class Test_metadata(unittest.TestCase):
             pass
 
     def setUp(self):
-        shared.set_working_dir(os.getcwd())
         print(" In method", self._testMethodName)
 
     def tearDown(self):
@@ -139,12 +139,36 @@ class Test_metadata(unittest.TestCase):
 
     def test_log_with_custom_time_t4(self):
         self.assertEqual(metadata.log('start'), True)
+    
+    def test_check_all_closed_good_data(self):
+        data = ['[alfen321][start]20-08-2018/13:14','[alfen321][end]20-08-2018/13:14',\
+                '[alfen321][start]20-08-2018/13:33','[alfen321][end]20-08-2018/13:33']
+        self.assertTrue(metadata.check_all_closed(data))
+
+    def test_check_all_closed_bad_data(self):
+        data = ['[alfen321][start]20-08-2018/13:14','[alfen321][end]20-08-2018/13:14',\
+                'some random note', 'something else that has nothing to do with timereg',\
+                '[alfen321][start]20-08-2018/13:33','[alfen321][end]20-08-2018/13:33']
+        self.assertTrue(metadata.check_all_closed(data))
+
+    def test_check_all_closed_missing_end(self):
+        data = ['[alfen321][start]20-08-2018/13:14','[alfen321][end]20-08-2018/13:14',\
+                '[alfen321][start]20-08-2018/13:33']
+        self.assertFalse(metadata.check_all_closed(data))
+  
+    def test_check_all_closed_missing_start(self):
+        data = ['[alfen321][start]20-08-2018/13:14','[alfen321][end]20-08-2018/13:14',\
+                '[alfen321][end]20-08-2018/13:33']
+        self.assertFalse(metadata.check_all_closed(data))
 
 class Test_shared(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         shared.set_working_dir(os.getcwd())
-        print(" In method", self._testMethodName)
+
+    def setUp(self):
+        print(' In method', self._testMethodName)
 
     def test_set_different_path_case_root(self):
         shared.set_working_dir('/home/usr/Documents')
@@ -167,7 +191,6 @@ class Test_shared(unittest.TestCase):
         self.assertEqual(result['url'], expected)
 
     def test_git_path_finding(self):
-        #print('Testing git path finding')
         expected = os.getcwd() + "/.git/"
         self.assertEqual(shared.get_gitpath(), expected)
 
@@ -183,6 +206,11 @@ class Test_gitmytest(unittest.TestCase):
 
 class Test_timestore(unittest.TestCase):
 
+    @classmethod
+    def tearDownClass(self):
+        shared.set_working_dir(os.getcwd())
+        subprocess.call(['rm', '-rf', './test/test_env'], stdout=None, stderr=None)
+
     def setUp(self):
         shared.set_working_dir(os.getcwd())
         print(' In method', self._testMethodName)
@@ -196,6 +224,32 @@ class Test_timestore(unittest.TestCase):
         self.assertEqual(start_list, ['[davidcarl][start]08-08-2018/23:34', '[davidcarl][start]08-08-2018/15:00'])
         self.assertEqual(end_list, ['[davidcarl][end]08-08-2018/15:39', '[davidcarl][end]08-08-2018/15:00'])
 
+    def test_dump_no_data(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+        shared.set_working_dir('./test/test_env/clone1')
+        timestore.dump()
+
+    def test_dump_good_data(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        subprocess.call(['bash', './test/scripts/timestore_data_good_data'], stdout=None, stderr=None)
+        shared.set_working_dir('./test/test_env/clone1')
+        timestore.dump()
+        notes = gitnotes.get_all_notes()
+        for key, value in notes.items():
+            self.assertEqual(len(value), 4)
+        self.assertFalse(os.path.isfile('./test/test_env/clone1/.time/tempfile'))
+
+
+    def test_dump_bad_data(self):
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        subprocess.call(['bash', './test/scripts/timestore_data_bad_data'], stdout=None, stderr=None)
+        shared.set_working_dir('./test/test_env/clone1')
+        timestore.dump()
+        notes = gitnotes.get_all_notes()
+        self.assertFalse(notes)
+        self.assertTrue(os.path.isfile('./test/test_env/clone1/.time/tempfile'))
+        
+    
 class Test_gitnotes(unittest.TestCase):
 
     @classmethod
@@ -297,7 +351,6 @@ class Test_gitnotes(unittest.TestCase):
             for note in notelist:
                 if note not in clone_list:
                     self.fail("missing notes from origin")
-
 
 
 if __name__ == '__main__':

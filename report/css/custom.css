@@ -1,0 +1,36 @@
+html {
+    height: 90%;
+}
+
+body {
+    background-color: aliceblue;
+    margin: auto;
+    width: 1200px;
+    height: 100%;
+}
+
+.center-text {
+    /*background-color: blueviolet;*/
+    text-align: center;
+}
+
+.right-text {
+    text-align: right;
+}
+
+.right-left {
+    text-align: left;
+}
+
+.info-section {
+    padding-left: 170px; /*180 without td padding (in tables.css)*/
+}
+
+ul {
+    list-style: none;
+}
+
+a:link, a:visited, a:hover, a:active {
+    text-decoration: underline;
+    color: black;
+}

@@ -104,9 +104,15 @@ def find_git_variables():
         'branch', 'url', 'username'
     '''
     variables_temp = {}
-    branch = subprocess.run(git_prefix() + ['rev-parse', '--abbrev-ref', 'HEAD', '--'], stdout=subprocess.PIPE)
-    url = subprocess.run(git_prefix() + ['config', '--get', 'remote.origin.url'], stdout=subprocess.PIPE)
-    username = subprocess.run(git_prefix() + ['config', 'github.user'], stdout=subprocess.PIPE)
+    branch = subprocess.run(git_prefix() + \
+                            ['rev-parse', '--abbrev-ref', 'HEAD', '--'], \
+                            stdout=subprocess.PIPE)
+    url = subprocess.run(git_prefix() + \
+                         ['config', '--get', 'remote.origin.url'], \
+                         stdout=subprocess.PIPE)
+    username = subprocess.run(git_prefix() + \
+                              ['config', 'github.user'], \
+                              stdout=subprocess.PIPE)
     variables_temp['branch'] = branch.stdout.decode('utf-8').rstrip()[:-3]
     variables_temp['url'] = url.stdout.decode('utf-8').rstrip()
     variables_temp['username'] = username.stdout.decode('utf-8').rstrip()

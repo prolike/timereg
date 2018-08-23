@@ -68,7 +68,8 @@ def log(state, **kwargs):
             timestore.writetofile([note_string])
     else:
         try:
-            s = re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', ''.join(timestore.readfromfile()[-1:]))
+            s = re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', \
+                          ''.join(timestore.readfromfile()[-1:]))
             print('You already', state + 'ed your timer!', s.group(0))
             return False
         except:
@@ -153,7 +154,8 @@ def get_clean_time_meta_data(meta_data):
     '''
     cleaned_data = []
     for data in meta_data:
-        cleaned_data.append(re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', data).group(0)) #Very brittle!
+        cleaned_data.append(re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', \
+                            data).group(0)) #Very brittle!
     return cleaned_data
 
 def get_clean_name_meta_data(meta_data):

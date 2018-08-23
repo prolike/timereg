@@ -39,7 +39,9 @@ def fetch_notes_call():
         subprocess: with a stdout to access the output
     '''
     logging.debug('Call: git fetch origin refs/notes/commits:refs/notes/commits')
-    return subprocess.run(shared.git_prefix() + ['fetch', 'origin', 'refs/notes/commits:refs/notes/commits'] + shared.git_suffix(), stdout=subprocess.PIPE)  
+    return subprocess.run(shared.git_prefix() + \
+                          ['fetch', 'origin', 'refs/notes/commits:refs/notes/commits'] + \
+                          shared.git_suffix(), stdout=subprocess.PIPE)  
 
 def push_notes_call():
     '''
@@ -49,7 +51,9 @@ def push_notes_call():
         subprocess: with a stdout to access the output
     '''
     logging.debug('Call: git push origin refs/notes/commits')
-    return subprocess.run(shared.git_prefix() + ['push', 'origin', 'refs/notes/commits'] + shared.git_suffix(), stdout=subprocess.PIPE)
+    return subprocess.run(shared.git_prefix() + \
+                          ['push', 'origin', 'refs/notes/commits'] + \
+                          shared.git_suffix(), stdout=subprocess.PIPE)
     
 def rename_refs_notes_file(old_name, new_name):
     '''
@@ -117,7 +121,8 @@ def __merge_notes_conflicts(local_name):
         split_point = extract_git_tree_object(extract_git_commit_object(split_point)['tree'])
         remote_split_point_diff = tree_hash_refrence_difference(remote, split_point)
         local_split_point_diff = tree_hash_refrence_difference(local, split_point)
-        distinct, overlapping = dict_find_distinct_and_overlapping(local_split_point_diff, remote_split_point_diff)
+        distinct, overlapping = dict_find_distinct_and_overlapping(local_split_point_diff, \
+                                                                    remote_split_point_diff)
 
     for key in distinct:
         if key in local:
@@ -135,7 +140,10 @@ def __merge_notes_conflicts(local_name):
 
 
 
-def merge_conflict_overlap(commit_hashname, split_point_blob_hashname, remote_blob_hashname, local_blob_hashname):
+def merge_conflict_overlap(commit_hashname, \
+                           split_point_blob_hashname, \
+                           remote_blob_hashname, \
+                           local_blob_hashname):
     '''
     Merges the notes via the commit split point, remote and local blobs and force adds it to the commit
 
@@ -214,7 +222,9 @@ def update_hashpointer_commit_call(commit, blob):
         param1(str): commit - The hashname of the commit (git object)
         param1(str): blob - the hashname of the blob (git object)
     '''
-    update = subprocess.run(shared.git_prefix() + ['notes', 'add', '-f', '-C', blob, commit], stdout=subprocess.PIPE)
+    update = subprocess.run(shared.git_prefix() + \
+                            ['notes', 'add', '-f', '-C', blob, commit], \
+                            stdout=subprocess.PIPE)
     if update.returncode != 0:
         logging.error('Was unable to change blob on commit')
         sys.exit(1)
@@ -343,7 +353,9 @@ def extract_git_object(object_name):
     Return:
         str: Returns a string with the objects content
     '''
-    return subprocess.run(shared.git_prefix() + ['cat-file', '-p', object_name], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    return subprocess.run(shared.git_prefix() + \
+                          ['cat-file', '-p', object_name], \
+                          stdout=subprocess.PIPE).stdout.decode('utf-8')
 
 def extract_git_notes_commits(commit_hashname):
     '''
@@ -356,7 +368,9 @@ def extract_git_notes_commits(commit_hashname):
     Return:
         list: Returns a list of strings with the hashnames of the commits
     '''
-    output = subprocess.run(shared.git_prefix() + ['log', commit_hashname], stdout=subprocess.PIPE).stdout.decode('utf-8').split('commit ')[1:]
+    output = subprocess.run(shared.git_prefix() + \
+                            ['log', commit_hashname], \
+                            stdout=subprocess.PIPE).stdout.decode('utf-8').split('commit ')[1:]
     return list(map(lambda x: x.split('\n')[0], output))    
 
 def git_notes_append_file_call(path):

@@ -1,6 +1,7 @@
 from python_lib import shared, timestore
 from datetime import datetime
 from time import mktime as mktime
+from collections import defaultdict
 import sys
 import os
 import re
@@ -221,3 +222,12 @@ def check_all_closed(time_list):
         return True
     else:
         return False
+
+def get_date(string):
+    return re.search(r'((\d{2}-){2}(\d{4}))', string).group(0)
+
+def split_on_days(time_list):
+    diff_days = defaultdict(list)
+    for each1 in time_list:
+        diff_days[get_date(each1)].append(each1)  
+    return diff_days

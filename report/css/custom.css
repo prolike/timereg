@@ -1,5 +1,6 @@
 html {
-    height: 90%;
+    min-height: 100%;
+    position: relative;
 }
 
 body {
@@ -7,6 +8,7 @@ body {
     margin: auto;
     width: 1200px;
     height: 100%;
+    padding-bottom: 50px;
 }
 
 .center-text {
@@ -33,4 +35,19 @@ ul {
 a:link, a:visited, a:hover, a:active {
     text-decoration: underline;
     color: black;
+}
+
+footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    font-size: 15px;
+    height: 20px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.datetime {
+    padding-left: 210px;
 }

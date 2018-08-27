@@ -16,6 +16,10 @@ def push_notes():
         logging.debug('fetch failed')
         notes_merge()
         push = push_notes_call()
+    try:
+        push
+    except UnboundLocalError:
+        push = push_notes_call()
     
     if push.returncode != 0:
         logging.error('something went wrong in the push')
@@ -208,7 +212,6 @@ def notes_add_force_call(commit_hashname, msglist):
         call.append('-m')
         call.append(f'{msg}')
     call.append(commit_hashname)
-    # call += shared.git_suffix()
     update = subprocess.run(call, stdout=subprocess.PIPE)
     if update.returncode != 0:
         logging.error('Was unable to add on commit')
@@ -270,7 +273,8 @@ def tree_hash_refrence_difference(new, original):
     '''
     diff = {}
     for key, value in new.items():
-        if original[key] != value:
+
+        if key not in original or original[key] != value:
             diff[key] = value
     return diff
 

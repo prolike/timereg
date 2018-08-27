@@ -5,7 +5,6 @@ import subprocess
 
 
 doc, tag, text = Doc().tagtext()
-
 #start_list, end_list = timestore.listsplitter(timestore.readfromfile())
 username = shared.get_git_variables()['username']
 url = shared.get_git_variables()['url']

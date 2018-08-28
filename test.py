@@ -363,3 +363,4 @@ class Test_gitnotes(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    

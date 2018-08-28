@@ -74,7 +74,7 @@ jobs:
       - run:
           name: Running test 
           command: |
-            python3 /home/circleci/project/test.py
+            sudo python3 /home/circleci/project/test.py
 
 workflows:
   version: 2

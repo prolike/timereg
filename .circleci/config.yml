@@ -68,8 +68,8 @@ jobs:
       - run:
           name: Git setup
           command: |
-            git config --global user.email "spam@spammerino.com"
-            git config --global user.name "test McTest"
+            sudo git config --global user.email "spam@spammerino.com"
+            sudo git config --global user.name "test McTest"
       - run: sudo pip3 install -r /home/circleci/project/requirements.txt
       - run:
           name: Running test 

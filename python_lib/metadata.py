@@ -2,10 +2,12 @@ from python_lib import shared, timestore
 from datetime import datetime
 from time import mktime as mktime
 from collections import defaultdict
+from tzlocal import get_localzone
 import sys
 import os
 import re
 import logging
+import pytz
 
 
 time_format = shared.get_time_format()
@@ -24,8 +26,11 @@ def time(**kwargs):
     '''
     chour = kwargs.get('chour', None)
     cminute = kwargs.get('cminute', None)
+    local_tz = get_localzone()
+    tz = pytz.timezone(str(local_tz))
     format = time_format
     now = datetime.utcnow()
+    now = tz.localize(now)
     if chour is not None:
         now = now.replace(hour=int(chour))
     if cminute is not None:
@@ -71,7 +76,7 @@ def log(state, **kwargs):
             timestore.writetofile([note_string])
     else:
         try:
-            s = re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', \
+            s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', \
                           ''.join(timestore.readfromfile()[-1:]))
             print('You already', state + 'ed your timer!', s.group(0))
             return False
@@ -125,7 +130,7 @@ def calc_time_worked(started, ended):
     Return:
         str: Returns a string with amount of minutes worked with the provided information
     '''
-    fmt = '%d-%m-%Y/%H:%M'
+    fmt = time_format
     total_min_worked = 0
 
     logging.debug('Calling: timestore.writetofile() to tempstore times')
@@ -157,7 +162,7 @@ def get_clean_time_meta_data(meta_data):
     '''
     cleaned_data = []
     for data in meta_data:
-        cleaned_data.append(re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', \
+        cleaned_data.append(re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', \
                             data).group(0)) #Very brittle!
     return cleaned_data
 
@@ -211,7 +216,7 @@ def cleaner(data_element):
             return True
         if len(metatag[0]) == 0 or len(metatag[0]) > 39:
             return True    
-        date = re.search(r'((\d{2}-){2}(\d{4}))/(([01]\d|2[0-3]):[0-5]\d)', data_element).group(0)
+        date = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', data_element).group(0)
         datetime.strptime(date, format)
     except:
         return True

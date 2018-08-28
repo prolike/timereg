@@ -70,7 +70,7 @@ jobs:
           command: |
             git config --global user.email "spam@spammerino.com"
             git config --global user.name "test McTest"
-      - run: pip3 install -r /home/circleci/project/requirements.txt
+      - run: sudo pip3 install -r /home/circleci/project/requirements.txt
       - run:
           name: Running test 
           command: |

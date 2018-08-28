@@ -5,6 +5,7 @@ gitpath = ''
 working_dir = os.getcwd()
 git_variables = {}
 quiet_mode = False
+time_format = '%Y-%m-%dT%H:%M:%S%z'
 
 def set_working_dir(path):
     '''
@@ -128,3 +129,6 @@ def git_prefix():
     if os.getcwd() != working_dir:
         return ['git', '-C', working_dir]
     return ['git']
+
+def get_time_format():
+    return time_format

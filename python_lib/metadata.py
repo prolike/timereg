@@ -8,6 +8,8 @@ import re
 import logging
 
 
+time_format = shared.get_time_format()
+
 def time(**kwargs):
     '''
     Makes custom time format with date, and possibility of using,
@@ -22,8 +24,8 @@ def time(**kwargs):
     '''
     chour = kwargs.get('chour', None)
     cminute = kwargs.get('cminute', None)
-    format = '%d-%m-%Y/%H:%M'
-    now = datetime.now()
+    format = time_format
+    now = datetime.utcnow()
     if chour is not None:
         now = now.replace(hour=int(chour))
     if cminute is not None:
@@ -202,7 +204,7 @@ def cleaner(data_element):
     Return:
         bool: Returns True or False depending on how the test goes
     '''
-    format = '%d-%m-%Y/%H:%M'
+    format = time_format
     metatag = re.findall(r'\[(.*?)\]', data_element)
     try:
         if metatag[1] != 'start' and metatag[1] != 'end':

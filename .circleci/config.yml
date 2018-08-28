@@ -47,7 +47,7 @@ jobs:
           command: |
             git config --global user.email "spam@spammerino.com"
             git config --global user.name "test McTest"
-      - run: pip3 install -r ./requirements.txt
+      - run: sudo pip3 install -r ./requirements.txt
       - run: python3 ./test.py
       - run:
           name: Intro

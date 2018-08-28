@@ -96,6 +96,6 @@ with tag('html'):
         with tag('a'):
             text('github')
             doc.attr(href = 'https://github.com/prolike/timereg')
-with open('report/index.html', 'w') as f:
+with open(shared.get_gitpath + 'report/index.html', 'w') as f:
     f.write(indent(doc.getvalue()))
-subprocess.call(['xdg-open', 'report/index.html'])
+subprocess.call(['xdg-open', shared.get_gitpath + 'report/index.html'])

@@ -109,7 +109,7 @@ def check_correct_order(username, state):
     except:
         pass
     try:
-        if metadata[1] == 'end' and state == 'start' or last_value is -1:
+        if metadata[1] == 'end' and state == 'start' or metadata[1] == 'end' and state == 'did' or last_value is -1:
             return True
         elif metadata[1] == 'start' and state == 'end':
             return True

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from datetime import datetime
-from python_lib import metadata, shared, timestore, gitnotes
+from python_lib import metadata, shared, timestore, gitnotes, timelog
 from tzlocal import get_localzone
 import unittest
 import subprocess
@@ -104,49 +104,49 @@ class Test_metadata(unittest.TestCase):
         self.assertEqual(metadata.calc_time_worked(starts, ended), 170)
 
     def test_log_write(self):
-        self.assertEqual(metadata.log('start'), True)
+        self.assertEqual(timelog.log_type('start'), True)
 
     def test_log_start_end_logging(self):
-        metadata.log('start')
-        self.assertEqual(metadata.log('end'), True)
+        timelog.log_type('start')
+        self.assertEqual(timelog.log_type('end'), True)
 
     def test_log_double_start_logging(self):
-        metadata.log('start')
-        self.assertEqual(metadata.log('start'), False)
+        timelog.log_type('start')
+        self.assertEqual(timelog.log_type('start'), False)
 
     def test_log_double_end_logging(self):
-        metadata.log('end')
-        self.assertEqual(metadata.log('end'), False)
+        timelog.log_type('end')
+        self.assertEqual(timelog.log_type('end'), False)
 
     def test_log_3rd_party_end_self(self):
-        metadata.log('start')
-        timestore.writetofile(['[bo]][start]08-08-2018/12:34'])
-        self.assertEqual(metadata.log('end'), True)
+        timelog.log_type('start')
+        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+        self.assertEqual(timelog.log_type('end'), True)
     
     def test_log_3rd_party_start_self(self):
-        metadata.log('start')
-        timestore.writetofile(['[bo]][start]08-08-2018/12:34'])
-        self.assertEqual(metadata.log('start'), False)
+        timelog.log_type('start')
+        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+        self.assertEqual(timelog.log_type('start'), False)
 
     def test_log_multiple_start_end(self):
-        metadata.log('start')
-        metadata.log('end')
-        metadata.log('start')
-        metadata.log('end')
-        metadata.log('start')
-        self.assertEqual(metadata.log('end'), True)
+        timelog.log_type('start')
+        timelog.log_type('end')
+        timelog.log_type('start')
+        timelog.log_type('end')
+        timelog.log_type('start')
+        self.assertEqual(timelog.log_type('end'), True)
 
     def test_log_with_custom_time_t1(self):
-        self.assertEqual(metadata.log('start', value="1400"), True)
+        self.assertEqual(timelog.log_type('start', value="1400"), True)
 
     def test_log_with_custom_time_t2(self):
-        self.assertEqual(metadata.log('start', value="140"), True)
+        self.assertFalse(timelog.log_type('start', value="140"))
 
     def test_log_with_custom_time_t3(self):
-        self.assertEqual(metadata.log('start', value="14:00"), True)
+        self.assertEqual(timelog.log_type('start', value="14:00"), True)
 
     def test_log_with_custom_time_t4(self):
-        self.assertEqual(metadata.log('start'), True)
+        self.assertEqual(timelog.log_type('start'), True)
     
     def test_check_all_closed_good_data(self):
         data = ['[alfen321][start]2018-08-28T13:14:45+0200','[alfen321][end]2018-08-28T13:14:45+0200',\

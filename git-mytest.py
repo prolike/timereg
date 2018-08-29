@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-from python_lib import metadata, gitnotes, shared, timestore
+from python_lib import metadata, gitnotes, shared, timestore, timelog
 import argparse
 import logging
+import re
+
 
 def main():
     arguments()
@@ -19,15 +21,22 @@ def main():
     if args.logtimestart:
         logging.debug('Calling: metadata.log() with paramenter start')
         if args.custom:
-            metadata.log('start', value=args.custom)
+            #metadata.log('start', value=args.custom)
+            if re.search(r'((\d){1,2})([h]|[H])', args.custom):
+                timelog.log_type('did', value=args.custom)
+            else:
+                timelog.log_type('start', value=args.custom)
         else:    
-            metadata.log('start')
+            #metadata.log('start')
+            timelog.log_type('start')
     if args.logtimeend:
         logging.debug('Calling: metadata.log() with parameter end')
         if args.custom:
-            metadata.log('end', value=args.custom)
+            #metadata.log('end', value=args.custom)
+            timelog.log_type('end', value=args.custom)
         else:    
-            metadata.log('end')
+            #metadata.log('end')
+            timelog.log_type('end')
     if args.checktime:
         starts, ended = timestore.listsplitter(timestore.readfromfile())
         logging.debug('Calling: metadata.calc_time_worked()')

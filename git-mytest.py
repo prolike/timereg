@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from python_lib import metadata, gitnotes, shared, timestore, timelog
+from python_lib import metadata, gitnotes, shared, timestore, timelog, visualhtml
 import argparse
 import logging
 import re
@@ -41,7 +41,8 @@ def main():
         starts, ended = timestore.listsplitter(timestore.readfromfile())
         logging.debug('Calling: metadata.calc_time_worked()')
         l = metadata.calc_time_worked(starts, ended)
-        print(l)
+        #print(l)
+        visualhtml.main()
     if args.dump:
         timestore.dump()    
 

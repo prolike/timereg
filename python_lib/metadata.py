@@ -3,6 +3,7 @@ from datetime import datetime
 from time import mktime as mktime
 from collections import defaultdict
 from tzlocal import get_localzone
+import datetime as dt
 import sys
 import os
 import re
@@ -26,6 +27,8 @@ def time(**kwargs):
     '''
     chour = kwargs.get('chour', None)
     cminute = kwargs.get('cminute', None)
+    cday = kwargs.get('cday', None)
+    cmonth = kwargs.get('cmonth', None)
     local_tz = get_localzone()
     tz = pytz.timezone(str(local_tz))
     format = time_format
@@ -35,6 +38,10 @@ def time(**kwargs):
         now = now.replace(hour=int(chour))
     if cminute is not None:
         now = now.replace(minute=int(cminute))
+    if cday is not None:
+        now = now.replace(day=int(cday))
+    if cmonth is not None:
+        now = now.replace(month=int(cmonth))
     return now.strftime(format)
 
 def log(state, **kwargs):
@@ -131,7 +138,7 @@ def calc_time_worked(started, ended):
         str: Returns a string with amount of minutes worked with the provided information
     '''
     fmt = time_format
-    total_min_worked = 0
+    sec_worked = 0
 
     logging.debug('Calling: timestore.writetofile() to tempstore times')
     name = get_clean_name_meta_data(started)
@@ -147,8 +154,8 @@ def calc_time_worked(started, ended):
     for start_time, end_time in zip(clean_start, clean_end):
         d1 = mktime(datetime.strptime(start_time, fmt).timetuple())
         d2 = mktime(datetime.strptime(end_time, fmt).timetuple())
-        total_min_worked += (int(d2-d1) / 60) #Prints time worken in min
-    return total_min_worked
+        sec_worked += (int(d2-d1))
+    return sec_worked
 
 def get_clean_time_meta_data(meta_data):
     '''
@@ -231,10 +238,26 @@ def check_all_closed(time_list):
         return False
 
 def get_date(string):
-    return re.search(r'((\d{2}-){2}(\d{4}))', string).group(0)
+    return re.search(r'(\d{4}(-\d{2}){2})', string).group(0)
 
 def split_on_days(time_list):
+    time_list = order_days(time_list)
     diff_days = defaultdict(list)
     for each1 in time_list:
         diff_days[get_date(each1)].append(each1)  
     return diff_days
+
+def order_days(value):
+    dates = value
+    dates.sort(key=lambda date: datetime.strptime(extract_timestamp(date)[:-5], '%Y-%m-%dT%H:%M:%S'))
+    return dates
+
+def extract_time(value):
+    return re.search(r'(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
+
+def extract_timestamp(value):
+    print(value)
+    return re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
+
+def seconds_to_timestamp(value):
+    return str(dt.timedelta(seconds=value))

@@ -95,13 +95,13 @@ class Test_metadata(unittest.TestCase):
         #print('Testing time calculator')
         starts = ['[davidcarl][start]2018-08-28T12:34:45+0200', '[davidcarl][start]2018-08-28T15:00:45+0200']
         ended = ['[davidcarl][end]2018-08-28T13:34:45+0200', '[davidcarl][end]2018-08-28T15:30:45+0200']
-        self.assertEqual(metadata.calc_time_worked(starts, ended), 90)
+        self.assertEqual(metadata.calc_time_worked(starts, ended), 5400)
 
     def test_workcalculator_uneven(self):
         #print('Testing time calculator')
         starts = ['[davidcarl][start]2018-08-28T12:34:45+0200', '[davidcarl][start]2018-08-28T13:40:45+0200', '[davidcarl][start]2018-08-28T16:34:45+0200']
         ended = ['[davidcarl][end]2018-08-28T13:34:45+0200', '[davidcarl][end]2018-08-28T15:30:45+0200']
-        self.assertEqual(metadata.calc_time_worked(starts, ended), 170)
+        self.assertEqual(metadata.calc_time_worked(starts, ended), 10200)
 
     def test_log_write(self):
         self.assertEqual(timelog.log_type('start'), True)

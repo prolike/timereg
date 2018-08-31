@@ -1,7 +1,6 @@
 from python_lib import shared, timestore, metadata
 from datetime import datetime
-import re
-import logging
+import re, logging
 
 
 time_format = shared.get_time_format()[:-2]

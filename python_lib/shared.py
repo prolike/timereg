@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+
 gitpath = ''
 working_dir = os.getcwd()
 git_variables = {}

@@ -25,7 +25,7 @@ body {
 }
 
 .info-section {
-    padding-left: 170px; /*180 without td padding (in tables.css)*/
+    padding-left: 270px; /*180 without td padding (in tables.css)*/
 }
 
 ul {
@@ -49,5 +49,5 @@ footer {
 }
 
 .datetime {
-    padding-left: 210px;
+    padding-left: 310px;
 }

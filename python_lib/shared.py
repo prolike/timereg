@@ -123,11 +123,11 @@ def find_git_variables():
 def _get_http_link(url):
     if url[:4] == 'git@':
         url = url.split(':')[1]
-        print('https://www.github.com/' + url[:-4])
+        #print('https://www.github.com/' + url[:-4])
         return 'https://www.github.com/' + url[:-4]
     elif url[:4] == 'http':
         url = url.split('/')
-        print('https://www.github.com/' + url[3] + '/' + url[4][:-4])
+        #print('https://www.github.com/' + url[3] + '/' + url[4][:-4])
         return 'https://www.github.com/' + url[3] + '/' + url[4][:-4]
 
 def git_prefix():

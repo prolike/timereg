@@ -141,7 +141,7 @@ def calc_time_worked(started, ended):
     sec_worked = 0
 
     logging.debug('Calling: timestore.writetofile() to tempstore times')
-    name = get_clean_name_meta_data(started)
+    #name = get_clean_name_meta_data(started)
     logging.debug('Calling: timestore.writetofile() to tempstore times')
     clean_start = get_clean_time_meta_data(started)
     logging.debug('Calling: timestore.writetofile() to tempstore times')

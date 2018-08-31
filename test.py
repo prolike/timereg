@@ -195,7 +195,7 @@ class Test_shared(unittest.TestCase):
 
     def test_git_variables(self):
         result = shared.get_git_variables()
-        expected = 'git@github.com:prolike/timereg.git'
+        expected = 'https://www.github.com/prolike/timereg'
         self.assertEqual(result['url'], expected)
 
     def test_git_path_finding(self):
@@ -363,5 +363,3 @@ class Test_gitnotes(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    
-    

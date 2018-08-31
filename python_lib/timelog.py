@@ -55,7 +55,7 @@ def _did_test(value):
         test_time = metadata.time()[:-5]
         hour = datetime.strptime(test_time, time_format).strftime('%H')
         mmin = datetime.strptime(test_time, time_format).strftime('%M')
-        msec = datetime.strptime(test_time, time_format).strftime('%S')
+        #msec = datetime.strptime(test_time, time_format).strftime('%S')
         mhour = int(hour) - int(value2[:-1])
         if mhour < 10:
             tempstr = '0' + str(mhour) + str(mmin)

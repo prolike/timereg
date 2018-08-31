@@ -38,14 +38,10 @@ def main():
                     with tag('li'):
                         text('Working on ')
                         with tag('a'):
-                            if url[:4] == 'git@':
-                                url = url.split(':')[1]
-                                text(url.split('/')[1][:-4])
-                                doc.attr(href = 'https://www.github.com/' + url[:-4])
-                            elif url[:4] == 'http':
+                            if True: #For now, need to find a fix on this if statement
                                 urls = url.split('/')
-                                text(urls[4][:-4])
-                                doc.attr(href = url[:-4])
+                                text(urls[4])
+                                doc.attr(href = url)
                             else:
                                 text('project not found!')
                     with tag('li'):
@@ -111,7 +107,7 @@ def main():
                 doc.attr(href = 'https://github.com/prolike/timereg')
     with open(shared.get_gitpath()[:-5] + 'report/index.html', 'w') as f:
         f.write(indent(doc.getvalue()))
-    #subprocess.call(['xdg-open', shared.get_gitpath()[:-5] + 'report/index.html'])
+    subprocess.call(['xdg-open', shared.get_gitpath()[:-5] + 'report/index.html'])
 
 if __name__ == '__main__':
     main()

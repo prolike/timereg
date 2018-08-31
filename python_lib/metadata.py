@@ -256,7 +256,6 @@ def extract_time(value):
     return re.search(r'(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
 
 def extract_timestamp(value):
-    print(value)
     return re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
 
 def seconds_to_timestamp(value):

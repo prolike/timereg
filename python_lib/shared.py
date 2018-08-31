@@ -116,9 +116,19 @@ def find_git_variables():
                               ['config', 'github.user'], \
                               stdout=subprocess.PIPE)
     variables_temp['branch'] = branch.stdout.decode('utf-8').rstrip()[:-3]
-    variables_temp['url'] = url.stdout.decode('utf-8').rstrip()
+    variables_temp['url'] = _get_http_link(url.stdout.decode('utf-8').rstrip())
     variables_temp['username'] = username.stdout.decode('utf-8').rstrip()
     return variables_temp
+
+def _get_http_link(url):
+    if url[:4] == 'git@':
+        url = url.split(':')[1]
+        print('https://www.github.com/' + url[:-4])
+        return 'https://www.github.com/' + url[:-4]
+    elif url[:4] == 'http':
+        url = url.split('/')
+        print('https://www.github.com/' + url[3] + '/' + url[4][:-4])
+        return 'https://www.github.com/' + url[3] + '/' + url[4][:-4]
 
 def git_prefix():
     '''

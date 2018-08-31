@@ -41,7 +41,7 @@ def main():
         starts, ended = timestore.listsplitter(timestore.readfromfile())
         logging.debug('Calling: metadata.calc_time_worked()')
         l = metadata.calc_time_worked(starts, ended)
-        #print(l)
+        print('seconds worked', l)
         visualhtml.main()
     if args.dump:
         timestore.dump()    

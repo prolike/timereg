@@ -5,47 +5,51 @@ import logging
 
 
 def createfolder():
+    logging.debug(f'Calling: timestore.createfolder()')
     '''
     Makes .time folder if it doesnt exist already.
     '''
-    if not os.path.exists(shared.get_gitpath()[:-5] + '.time'):
+    path = shared.get_gitpath()[:-5]
+    if not os.path.exists(path + '.time'):
         try:
-            os.makedirs(shared.get_gitpath()[:-5] + '.time')
+            os.makedirs(path + '.time')
         except:
             logging.error('Failed to make folder')
 
 def writetofile(time_list):
+    logging.debug(f'Calling: timestore.writetofile({time_list})')
     '''
     Writes to a tempfile in the .time folder, to save what the user has worked in hours
 
     Args:
         param1(list): time_list - Takes list with strings that its supposed to write to file
     '''
-    logging.debug('Calling: createfolder()')
     createfolder()
     with open(shared.get_gitpath()[:-5] + '.time/tempfile', 'a') as f:
         for string in time_list:
             f.write(string + '\n')
 
 def readfromfile():
+    logging.debug(f'Calling: timestore.readfromfile')
     '''
     Collects all the lines in tempfile and puts them in a list
 
     Return:
         list: Returns a list with meta data thats been temp saved.
     '''
-    logging.debug('Calling: shared.get_gitpath()')
-    if not os.path.exists(shared.get_gitpath()[:-5] + '.time/tempfile'):
+    path = shared.get_gitpath()[:-5]
+    if not os.path.exists(path + '.time/tempfile'):
         pass
     else:
         times = []
-        with open(shared.get_gitpath()[:-5] + '.time/tempfile', 'r') as f:
+        with open(path + '.time/tempfile', 'r') as f:
             for line in f:
                 times.append(line.split('\n')[0])
             return times 
     return []
 
 def listsplitter(los):
+    logging.debug(f'Calling: timestore.listsplitter({los})')
     '''
     Take whatever content we have in tempfile and sorts it in our
     2 different tags so we can play nice with them.
@@ -69,6 +73,7 @@ def listsplitter(los):
     return start_list, end_list
 
 def dump():
+    logging.debug(f'Calling: timestore.dump()')
     '''
     Dumps the tempfiles content on the latest commit as notes
     '''

@@ -14,6 +14,7 @@ import pytz
 time_format = shared.get_time_format()
 
 def time(**kwargs):
+    logging.debug(f'Calling: metadata.time()')
     '''
     Makes custom time format with date, and possibility of using,
     custom hour and minute
@@ -44,55 +45,8 @@ def time(**kwargs):
         now = now.replace(month=int(cmonth))
     return now.strftime(format)
 
-def log(state, **kwargs):
-    '''
-    Makes our meta data string, that we are gonna use for logging time in git notes.
-
-    Args:
-        param1(str): state - if you 'start' the time log or 'end' it
-        param2(str): chour - custom hour for the time returned
-        param3(str): cminute - custom minute for the time returned
-
-    Return:
-        str: Returns a string with meta data including, git username, state (start or end),
-        and timestamp with date (from the time method)
-    '''
-    logging.debug('Calling: shared.get_git_variables() to get username')
-    username = shared.get_git_variables()['username']
-    note_string = '[' + username + '][' + state + ']'
-    value = kwargs.get('value', None)
-    logging.debug('Calling: check_correct_order()')
-    if check_correct_order(username, state) is True:
-        try:
-            if re.search(r'([01]\d|2[0-3]):[0-5]\d', value):
-                chour = value.split(':')[0]
-                cminute = value.split(':')[1]
-                note_string += time(chour=chour, cminute=cminute)
-                logging.debug('Calling: timestore.writetofile() to tempstore times')
-                timestore.writetofile([note_string])
-            elif re.search(r'([01]\d|2[0-3])?[0-5]\d', value):
-                if len(value) is 3:
-                    note_string += time(cminute=value[-2:], chour=value[:1])
-                else:
-                    note_string += time(cminute=value[-2:], chour=value[:2])
-                logging.debug('Calling: timestore.writetofile() to tempstore times')
-                timestore.writetofile([note_string])
-        except:
-            note_string += time()
-            logging.debug('Calling: timestore.writetofile() to tempstore times')
-            timestore.writetofile([note_string])
-    else:
-        try:
-            s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', \
-                          ''.join(timestore.readfromfile()[-1:]))
-            print('You already', state + 'ed your timer!', s.group(0))
-            return False
-        except:
-            print('You already', state + 'ed your timer!', ''.join(timestore.readfromfile()[-1:]))
-            return False
-    return True
-
 def check_correct_order(username, state):
+    logging.debug(f'Calling: metadata.check_correct_order({username}, {state})')
     '''
     Checks if the user already has a 'open' time log or open 'end' log
     and makes sure they dont double open or double closes
@@ -104,7 +58,6 @@ def check_correct_order(username, state):
     Return:
         bool: true or false depending on the criterias
     '''
-    logging.debug('Calling: timestore.readfromfile() to get tempdata from file')
     data_list = timestore.readfromfile()
     last_value = -1
     for idx, element in enumerate(data_list):
@@ -127,6 +80,7 @@ def check_correct_order(username, state):
 
 
 def calc_time_worked(started, ended):
+    logging.debug(f'Calling: metadata.calc_time_worked({started}, {ended})')
     '''
     Calculates the time spent working from the metadata in the git notes
 
@@ -140,17 +94,12 @@ def calc_time_worked(started, ended):
     fmt = time_format
     sec_worked = 0
 
-    logging.debug('Calling: timestore.writetofile() to tempstore times')
     #name = get_clean_name_meta_data(started)
-    logging.debug('Calling: timestore.writetofile() to tempstore times')
     clean_start = get_clean_time_meta_data(started)
-    logging.debug('Calling: timestore.writetofile() to tempstore times')
     clean_end = get_clean_time_meta_data(ended)
     
-    logging.debug('Checking for missing timestamps')
     if len(started) > len(ended):
         logging.warning('You are missing some timestamps!')
-    logging.debug('Calculating time worked')
     for start_time, end_time in zip(clean_start, clean_end):
         d1 = mktime(datetime.strptime(start_time, fmt).timetuple())
         d2 = mktime(datetime.strptime(end_time, fmt).timetuple())
@@ -158,6 +107,7 @@ def calc_time_worked(started, ended):
     return sec_worked
 
 def get_clean_time_meta_data(meta_data):
+    logging.debug(f'Calling: metadata.get_clean_time_meta_data({meta_data})')
     '''
     Seperating the good metadata timewise and the bad metadata timewise
 
@@ -174,6 +124,7 @@ def get_clean_time_meta_data(meta_data):
     return cleaned_data
 
 def get_clean_name_meta_data(meta_data):
+    logging.debug(f'Calling: metadata.get_clean_name_meta_data({meta_data})')
     '''
     Seperating username from rest of the metadata
 
@@ -186,6 +137,7 @@ def get_clean_name_meta_data(meta_data):
     return re.findall(r'\[(.+?)\]', meta_data[0])[0]
 
 def clean_meta_list(dirtylist):
+    logging.debug(f'Calling: metadata.clean_meta_list({dirtylist})')
     '''
     Seperating the good metadata timewise and the bad metadata timewise
 
@@ -205,7 +157,8 @@ def clean_meta_list(dirtylist):
         del clean_list[idx]
     return clean_list
 
-def cleaner(data_element):    
+def cleaner(data_element):  
+    logging.debug(f'Calling: metadata.cleaner({data_element})')  
     '''
     Making sure all the data in the data_element is valid, and telling if the provided
     string should be allowed to continue or deleted
@@ -230,6 +183,7 @@ def cleaner(data_element):
     return False
 
 def check_all_closed(time_list):
+    logging.debug(f'Calling: metadata.check_all_closed({time_list})')
     time_list = clean_meta_list(time_list)
     start, end = timestore.listsplitter(time_list)
     if len(start) is len(end):
@@ -238,9 +192,11 @@ def check_all_closed(time_list):
         return False
 
 def get_date(string):
+    logging.debug(f'Calling: metadata.get_date({string}))')
     return re.search(r'(\d{4}(-\d{2}){2})', string).group(0)
 
 def split_on_days(time_list):
+    logging.debug(f'Calling: metadata.split_on_days({time_list})')
     time_list = order_days(time_list)
     diff_days = defaultdict(list)
     for each1 in time_list:
@@ -248,15 +204,19 @@ def split_on_days(time_list):
     return diff_days
 
 def order_days(value):
+    logging.debug(f'Calling: metadata.order_days({value})')
     dates = value
     dates.sort(key=lambda date: datetime.strptime(extract_timestamp(date)[:-5], '%Y-%m-%dT%H:%M:%S'))
     return dates
 
 def extract_time(value):
+    logging.debug(f'Calling: metadata.extract_time({value})')
     return re.search(r'(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
 
 def extract_timestamp(value):
+    logging.debug(f'Calling: metadata.extract_timestamp({value})')
     return re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
 
 def seconds_to_timestamp(value):
+    logging.debug(f'Calling: metadata.seconds_to_timestamp{value})')
     return str(dt.timedelta(seconds=value))

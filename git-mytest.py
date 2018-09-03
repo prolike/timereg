@@ -3,10 +3,12 @@ from python_lib import metadata, gitnotes, shared, timestore, timelog, visualhtm
 import argparse
 import logging
 import re
+import importlib
 
 
 def main():
     arguments()
+    importlib.reload(logging)
 
     if args.verbose:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
@@ -19,21 +21,22 @@ def main():
         shared.set_quiet_mode(True)
 
     if args.logtimestart:
-        logging.debug('Calling: metadata.log() with paramenter start')
+        logging.debug(f'Calling: args.logtimestart')
         if args.custom:
             if re.search(r'((\d){1,2})([h]|[H])', args.custom):
                 timelog.log_type('did', value=args.custom)
             else:
                 timelog.log_type('start', value=args.custom)
-        else:    
+        else:
             timelog.log_type('start')
     if args.logtimeend:
-        logging.debug('Calling: metadata.log() with parameter end')
+        logging.debug(f'Calling: args.logtimeend')
         if args.custom:
             timelog.log_type('end', value=args.custom)
-        else:    
+        else:
             timelog.log_type('end')
     if args.checktime:
+        logging.debug(f'Calling: args.checktime')
         visualconsole.main()
         visualhtml.main()
     if args.dump:

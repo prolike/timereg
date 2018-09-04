@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from python_lib import metadata, gitnotes, shared, timestore, timelog, visualhtml, visualconsole
+from python_lib import metadata, gitnotes, shared, timestore, timelog, visualhtml, visualconsole, dbook
 import argparse
 import logging
 import re
@@ -46,6 +46,8 @@ def main():
         gitnotes.push_notes()
     if args.fetch:
         gitnotes.fetch_notes()
+    if args.test:
+        dbook.test()
 
 
 
@@ -62,6 +64,7 @@ def arguments():
     parser.add_argument('-p', '--push', action='store_true', help='Push git notes')
     parser.add_argument('-f', '--fetch', action='store_true', help='Fetch git notes')
     parser.add_argument('-q', '--quiet', action='store_true', help='Removes console output from git commads')
+    parser.add_argument('-t', '--test', action='store_true', help='Removes console output from git commads')
     
     args = parser.parse_args()
 

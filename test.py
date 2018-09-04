@@ -8,6 +8,80 @@ import os
 import pytz
 
 
+class Test_timelog(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(self):
+        shared.set_working_dir(os.getcwd())
+        try:
+            os.rename(shared.get_gitpath()[:-5] + '.time', shared.get_gitpath()[:-5] + '.time.save')
+        except:
+            pass
+
+    @classmethod
+    def tearDownClass(self):
+        try:
+            os.rename(shared.get_gitpath()[:-5] + '.time.save', shared.get_gitpath()[:-5] + '.time')
+        except:
+            pass
+
+    def setUp(self):
+        print(" In method", self._testMethodName)
+
+    def tearDown(self):
+        try:
+            os.remove(shared.get_gitpath()[:-5] + '.time/tempfile')
+        except:
+            pass
+
+    def test_log_write(self):
+        self.assertEqual(timelog.log_type('start'), True)
+
+    def test_log_start_end_logging(self):
+        timelog.log_type('start')
+        self.assertEqual(timelog.log_type('end'), True)
+
+    def test_log_double_start_logging(self):
+        timelog.log_type('start')
+        self.assertEqual(timelog.log_type('start'), False)
+
+    def test_log_double_end_logging(self):
+        timelog.log_type('end')
+        self.assertEqual(timelog.log_type('end'), False)
+
+    def test_log_3rd_party_end_self(self):
+        timelog.log_type('start')
+        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+        self.assertEqual(timelog.log_type('end'), True)
+    
+    def test_log_3rd_party_start_self(self):
+        timelog.log_type('start')
+        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+        self.assertEqual(timelog.log_type('start'), False)
+
+    def test_log_multiple_start_end(self):
+        timelog.log_type('start')
+        timelog.log_type('end')
+        timelog.log_type('start')
+        timelog.log_type('end')
+        timelog.log_type('start')
+        self.assertEqual(timelog.log_type('end'), True)
+
+    def test_log_with_custom_time_t1(self):
+        self.assertTrue(timelog.log_type('start', value="1400"))
+
+    def test_log_with_custom_time_t2(self):
+        self.assertFalse(timelog.log_type('start', value="140"))
+
+    def test_log_with_custom_time_t3(self):
+        self.assertTrue(timelog.log_type('start', value="14:00"))
+
+    def test_log_with_custom_time_t4(self):
+        self.assertTrue(timelog.log_type('start'))
+    
+    def test_log_with_custom_time_t5(self):
+        self.assertTrue(timelog.log_type('did', value = "2h"))
+
 class Test_metadata(unittest.TestCase):
 
     @classmethod
@@ -102,51 +176,6 @@ class Test_metadata(unittest.TestCase):
         starts = ['[davidcarl][start]2018-08-28T12:34:45+0200', '[davidcarl][start]2018-08-28T13:40:45+0200', '[davidcarl][start]2018-08-28T16:34:45+0200']
         ended = ['[davidcarl][end]2018-08-28T13:34:45+0200', '[davidcarl][end]2018-08-28T15:30:45+0200']
         self.assertEqual(metadata.calc_time_worked(starts, ended), 10200)
-
-    def test_log_write(self):
-        self.assertEqual(timelog.log_type('start'), True)
-
-    def test_log_start_end_logging(self):
-        timelog.log_type('start')
-        self.assertEqual(timelog.log_type('end'), True)
-
-    def test_log_double_start_logging(self):
-        timelog.log_type('start')
-        self.assertEqual(timelog.log_type('start'), False)
-
-    def test_log_double_end_logging(self):
-        timelog.log_type('end')
-        self.assertEqual(timelog.log_type('end'), False)
-
-    def test_log_3rd_party_end_self(self):
-        timelog.log_type('start')
-        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
-        self.assertEqual(timelog.log_type('end'), True)
-    
-    def test_log_3rd_party_start_self(self):
-        timelog.log_type('start')
-        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
-        self.assertEqual(timelog.log_type('start'), False)
-
-    def test_log_multiple_start_end(self):
-        timelog.log_type('start')
-        timelog.log_type('end')
-        timelog.log_type('start')
-        timelog.log_type('end')
-        timelog.log_type('start')
-        self.assertEqual(timelog.log_type('end'), True)
-
-    def test_log_with_custom_time_t1(self):
-        self.assertEqual(timelog.log_type('start', value="1400"), True)
-
-    def test_log_with_custom_time_t2(self):
-        self.assertFalse(timelog.log_type('start', value="140"))
-
-    def test_log_with_custom_time_t3(self):
-        self.assertEqual(timelog.log_type('start', value="14:00"), True)
-
-    def test_log_with_custom_time_t4(self):
-        self.assertEqual(timelog.log_type('start'), True)
     
     def test_check_all_closed_good_data(self):
         data = ['[alfen321][start]2018-08-28T13:14:45+0200','[alfen321][end]2018-08-28T13:14:45+0200',\

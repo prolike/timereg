@@ -105,9 +105,11 @@ def main():
             with tag('a'):
                 text('github')
                 doc.attr(href = 'https://github.com/prolike/timereg')
-    with open(shared.get_gitpath()[:-5] + 'report/index.html', 'w') as f:
+    path = shared.get_gitpath() + 'report/index.html'
+    with open(path, 'w') as f:
         f.write(indent(doc.getvalue()))
-    subprocess.call(['xdg-open', shared.get_gitpath()[:-5] + 'report/index.html'])
+    print(f'Copy the URL into your browser: {path}')
+    #subprocess.call(['xdg-open', shared.get_gitpath() + 'report/index.html'])
 
 if __name__ == '__main__':
     main()

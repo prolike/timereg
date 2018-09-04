@@ -6,8 +6,7 @@ import re, logging
 time_format = shared.get_time_format()[:-2]
 
 def log_type(state, **kwargs):
-    value = kwargs.get('value', None)
-    logging.debug(f'Calling: timelog.log_type({state}, {value})')
+    logging.debug(f'Calling: timelog.log_type({state}, {kwargs})')
     '''
     Makes our meta data string, that we are gonna use for logging time in git notes.
 
@@ -20,6 +19,7 @@ def log_type(state, **kwargs):
         str: Returns a string with meta data including, git username, state (start or end),
         and timestamp with date (from the time method)
     '''
+    value = kwargs.get('value', None)
     username = shared.get_git_variables()['username']
     note_string = '[' + username + '][' + state + ']'
     if metadata.check_correct_order(username, state) is True:
@@ -34,7 +34,7 @@ def log_type(state, **kwargs):
 def _state_types(state, value, note_string):
     logging.debug(f'Calling: timelog._state_types({state}, {value}, {note_string})')
     if state == 'did':
-        _did_test(value)
+        return _did_test(value)
     elif state == 'end' or state == 'start':
         if _custom_check(value) is False:
             return False
@@ -67,6 +67,8 @@ def _did_test(value):
             tempstr = str(mhour) + str(mmin)
         log_type('start', value = tempstr)
         log_type('end')
+        return True
+    return False
 
 def _write_note(note_string, value):
     logging.debug(f'Calling: timelog._write_note({note_string}, {value})')

@@ -4,17 +4,13 @@ from time import mktime as mktime
 from collections import defaultdict
 from tzlocal import get_localzone
 import datetime as dt
-import sys
-import os
-import re
-import logging
-import pytz
+import sys, os, re, logging, pytz
 
 
 time_format = shared.get_time_format()
 
 def time(**kwargs):
-    logging.debug(f'Calling: metadata.time()')
+    logging.debug(f'Calling: metadata.time({kwargs})')
     '''
     Makes custom time format with date, and possibility of using,
     custom hour and minute
@@ -31,7 +27,9 @@ def time(**kwargs):
     cday = kwargs.get('cday', None)
     cmonth = kwargs.get('cmonth', None)
     local_tz = get_localzone()
+    #print(f'local_tz, {local_tz}')
     tz = pytz.timezone(str(local_tz))
+    #print(f'tz, {tz}')
     format = time_format
     now = datetime.utcnow()
     now = tz.localize(now)
@@ -191,32 +189,58 @@ def check_all_closed(time_list):
     else:
         return False
 
-def get_date(string):
-    logging.debug(f'Calling: metadata.get_date({string}))')
-    return re.search(r'(\d{4}(-\d{2}){2})', string).group(0)
+def get_date(value):
+    logging.debug(f'Calling: metadata.get_date({value}))')
+    if type(value) is str:
+        return re.search(r'(\d{4}(-\d{2}){2})', value).group(0)
+    elif type(value) is list:
+        res = []
+        for each in value:
+            res.append(re.search(r'(\d{4}(-\d{2}){2})', each).group(0))
+        return res
+
 
 def split_on_days(time_list):
     logging.debug(f'Calling: metadata.split_on_days({time_list})')
     time_list = order_days(time_list)
     diff_days = defaultdict(list)
-    for each1 in time_list:
-        diff_days[get_date(each1)].append(each1)  
+    d_list = get_date(time_list)
+    for each, each_date in zip(time_list, d_list):
+        diff_days[each_date].append(each)  
     return diff_days
 
-def order_days(value):
+def order_days(value): #TODO Make single extract call!
     logging.debug(f'Calling: metadata.order_days({value})')
+    dates2 = extract_timestamp(value)
     dates = value
-    dates.sort(key=lambda date: datetime.strptime(extract_timestamp(date)[:-5], '%Y-%m-%dT%H:%M:%S'))
-    return dates
+    dates2.sort(key=lambda date: datetime.strptime(date[:-5], '%Y-%m-%dT%H:%M:%S'))
+    test_dates = []
+    for each2 in dates2:
+        for each in dates:
+            if each2 in each:
+                test_dates.append(each)
+    return test_dates
 
 def extract_time(value):
     logging.debug(f'Calling: metadata.extract_time({value})')
-    return re.search(r'(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
+    if type(value) is str:
+        return re.search(r'(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
+    elif type(value) is list:
+        res = []
+        for each in value:
+            res.append(re.search(r'(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', each).group(0))
+        return res
 
 def extract_timestamp(value):
     logging.debug(f'Calling: metadata.extract_timestamp({value})')
-    return re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
+    if type(value) is str:
+        return re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
+    elif type(value) is list:
+        res = []
+        for each in value:
+            res.append(re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', each).group(0))
+        return res
 
 def seconds_to_timestamp(value):
-    logging.debug(f'Calling: metadata.seconds_to_timestamp{value})')
+    logging.debug(f'Calling: metadata.seconds_to_timestamp({value})')
     return str(dt.timedelta(seconds=value))

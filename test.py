@@ -79,8 +79,8 @@ class Test_timelog(unittest.TestCase):
     def test_log_with_custom_time_t4(self):
         self.assertTrue(timelog.log_type('start'))
     
-    def test_log_with_custom_time_t5(self):
-        self.assertTrue(timelog.log_type('did', value = "2h"))
+    #def test_log_with_custom_time_t5(self):
+    #    self.assertTrue(timelog.log_type('did', value = "2h"))
 
 class Test_metadata(unittest.TestCase):
 

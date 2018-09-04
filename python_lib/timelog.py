@@ -49,8 +49,8 @@ def _custom_check(value):
         if re.search(r'([01]\d|2[0-3])(:*)\d', value):
             print('Seems like you forgot a digit!\nPlease use the following format: hh:mm or hhmm')
             return False
-        else:
-            return False
+        #else:
+        #    return False
 
 def _did_test(value):
     logging.debug(f'Calling: timelog._did_test({value})')

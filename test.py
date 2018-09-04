@@ -2,6 +2,7 @@
 from datetime import datetime
 from python_lib import metadata, shared, timestore, gitnotes, timelog
 from tzlocal import get_localzone
+from collections import defaultdict
 import unittest
 import subprocess
 import os
@@ -68,19 +69,25 @@ class Test_timelog(unittest.TestCase):
         self.assertEqual(timelog.log_type('end'), True)
 
     def test_log_with_custom_time_t1(self):
-        self.assertTrue(timelog.log_type('start', value="1400"))
+        self.assertTrue(timelog.log_type('start', value='1400'))
 
     def test_log_with_custom_time_t2(self):
-        self.assertFalse(timelog.log_type('start', value="140"))
+        self.assertFalse(timelog.log_type('start', value='140'))
 
     def test_log_with_custom_time_t3(self):
-        self.assertTrue(timelog.log_type('start', value="14:00"))
+        self.assertTrue(timelog.log_type('start', value='14:00'))
 
     def test_log_with_custom_time_t4(self):
         self.assertTrue(timelog.log_type('start'))
     
-    #def test_log_with_custom_time_t5(self):
-    #    self.assertTrue(timelog.log_type('did', value = "2h"))
+    def test_log_with_custom_time_t5(self):
+        self.assertTrue(timelog.log_type('did', value = '2h'))
+
+    def test_log_with_custom_time_t6(self):
+        self.assertFalse(timelog.log_type('did', value = ''))
+
+    def test_log_with_custom_time_t7(self):
+        self.assertTrue(timelog.log_type('did', value = '12h'))
 
 class Test_metadata(unittest.TestCase):
 
@@ -197,6 +204,53 @@ class Test_metadata(unittest.TestCase):
         data = ['[alfen321][start]2018-08-28T13:14:45+0200','[alfen321][end]2018-08-28T13:14:45+0200',\
                 '[alfen321][end]2018-08-28T13:33:45+0200']
         self.assertFalse(metadata.check_all_closed(data))
+
+    def test_get_date_string(self):
+        self.assertEqual(metadata.get_date('[alfen321][start]2018-08-28T13:14:45+0200'), '2018-08-28')
+    
+    def test_get_date_list(self):
+        data = ['[alfen321][start]2018-08-28T13:14:45+0200','[alfen321][end]2018-08-28T13:14:45+0200']
+        res = ['2018-08-28', '2018-08-28']
+        #res = ['2018-08-28T13:14:45+0200', '2018-08-28T13:14:45+0200']
+        self.assertEqual(metadata.get_date(data), res)
+
+    def test_order_days(self):
+        data = ['[davidcarl][start]2018-09-04T09:00:00+0200',
+                '[davidcarl][end]2018-09-04T09:10:00+0200',
+                'davidcarl][start]2018-09-01T09:00:00+0200',
+                '[davidcarl][end]2018-09-01T09:10:00+0200']
+        res = ['davidcarl][start]2018-09-01T09:00:00+0200',
+                '[davidcarl][end]2018-09-01T09:10:00+0200',
+                '[davidcarl][start]2018-09-04T09:00:00+0200',
+                '[davidcarl][end]2018-09-04T09:10:00+0200']
+        self.assertEqual(metadata.order_days(data), res)
+    
+    def test_extract_time_string(self):
+        self.assertEqual(metadata.extract_time('[alfen321][start]2018-08-28T13:14:45+0200'), '13:14:45+0200')
+
+    def test_extract_time_list(self):
+        data = ['[alfen321][start]2018-08-28T13:14:45+0200','[alfen321][end]2018-08-28T13:14:45+0200']
+        res = ['13:14:45+0200', '13:14:45+0200']
+        #res = ['2018-08-28T13:14:45+0200', '2018-08-28T13:14:45+0200']
+        self.assertEqual(metadata.extract_time(data), res)
+
+    def test_extract_timestamp_string(self):
+        self.assertEqual(metadata.extract_timestamp('[alfen321][start]2018-08-28T13:14:45+0200'), '2018-08-28T13:14:45+0200')
+
+    def test_seconds_to_timestamp(self):
+        self.assertEqual(metadata.seconds_to_timestamp(10000), '2:46:40')
+
+    def test_split_on_days(self):
+        data = ['[davidcarl][start]2018-09-04T09:00:00+0200',
+                '[davidcarl][end]2018-09-04T09:10:00+0200',
+                '[davidcarl][start]2018-09-01T09:00:00+0200',
+                '[davidcarl][end]2018-09-01T09:10:00+0200']
+        res = defaultdict(list)
+        res['2018-09-01'].append('[davidcarl][start]2018-09-01T09:00:00+0200')
+        res['2018-09-01'].append('[davidcarl][end]2018-09-01T09:10:00+0200')
+        res['2018-09-04'].append('[davidcarl][start]2018-09-04T09:00:00+0200')
+        res['2018-09-04'].append('[davidcarl][end]2018-09-04T09:10:00+0200')
+        self.assertEqual(metadata.split_on_days(data), res)
 
 class Test_shared(unittest.TestCase):
 

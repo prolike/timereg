@@ -38,9 +38,11 @@ def time(**kwargs):
     if cminute is not None:
         now = now.replace(minute=int(cminute))
     if cday is not None:
-        now = now.replace(day=int(cday))
+        pass
+        #now = now.replace(day=int(cday)) #TODO IMPLEMENT LATER
     if cmonth is not None:
-        now = now.replace(month=int(cmonth))
+        pass
+        #now = now.replace(month=int(cmonth)) #TODO IMPLEMENT LATER
     return now.strftime(format)
 
 def check_correct_order(username, state):
@@ -72,7 +74,7 @@ def check_correct_order(username, state):
         elif metadata[1] == 'start' and state == 'end':
             return True
     except:
-        if last_value is -1 and state == 'start':
+        if last_value is -1 and state == 'start' or last_value is -1 and state == 'did':
             return True   
     return False
 

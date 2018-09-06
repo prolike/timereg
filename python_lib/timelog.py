@@ -27,11 +27,9 @@ def log_type(state, **kwargs):
         #return _state_types(state, value, note_string, cday = cday)
         try:
             if cday is None:
-                #print(cday)
                 return _state_types(state, value, note_string)
             return _state_types(state, value, note_string, cday = cday)
         except:
-            #print('crash')
             _write_note(note_string, value)
     else:
         return _error(state)
@@ -49,13 +47,12 @@ def _state_types(state, value, note_string, **kwargs):
         return True
 
 def _custom_check(value):
-    #print(value)
     logging.debug(f'Calling: timelog._custom_check({value})')
     if re.search(r'([01]\d|2[0-3])(:*)[0-5]\d', value):
         return True
     else:
         if re.search(r'([01]\d|2[0-3])(:*)\d', value):
-            #print('Seems like you forgot a digit!\nPlease use the following format: hh:mm or hhmm')
+            print('Seems like you forgot a digit!\nPlease use the following format: hh:mm or hhmm')
             return False
         #else:
         #    return False
@@ -75,10 +72,8 @@ def _did_test(value):
             new_date = '0' + str((int(date) - 1))
         if mhour < 10:
             tempstr = '0' + str(mhour) + str(mmin)
-            #print(tempstr)
         else:
             tempstr = str(mhour) + str(mmin)
-        #print(tempstr)
         if 'new_date' in locals():
             log_type('start', value = tempstr, date = new_date)
         else:

@@ -11,7 +11,7 @@ import pytz
 import importlib
 
 
-# uncommenent to enable verbose :)
+# uncommenent to enable verbose :)  
 #importlib.reload(logging)
 #logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
@@ -122,7 +122,6 @@ class Test_metadata(unittest.TestCase):
             pass
 
     def test_time_format(self):
-        #print('Testing time format')
         format = shared.get_time_format()
         
         local_tz = get_localzone()
@@ -134,17 +133,14 @@ class Test_metadata(unittest.TestCase):
         self.assertEqual(metadata.time(chour=10, cminute=10), expected.strftime(format))
 
     def test_meta_data_cleaner_time(self):
-        #print('Testing time regex cleaner')
         starts = ['[davidcarl][start]2018-08-28T08:19:45+0200', '[davidcarl][start]2018-08-28T15:00:45+0200']
         self.assertEqual(metadata.get_clean_time_meta_data(starts), ['2018-08-28T08:19:45+0200', '2018-08-28T15:00:45+0200'])
 
     def test_meta_data_cleaner_name(self):
-        #print('Testing name regex cleaner')
         starts = ['[davidcarl][start]08-08-2018/12:34', '[davidcarl][start]08-08-2018/15:00']
         self.assertEqual(metadata.get_clean_name_meta_data(starts), 'davidcarl')
 
     def test_clean_meta_list_username(self):
-        #print('Testing clean meta list username')
         testdata = ['[][end]2018-08-28T15:00:45+0200',
         '[asdasdasdasdasdasdasdasdasdasdasdasdasdasd][start]2018-08-28T15:00:45+0200',
         '[davidcarl][end]2018-08-28T15:00:45+0200']
@@ -152,7 +148,6 @@ class Test_metadata(unittest.TestCase):
         self.assertEqual(metadata.clean_meta_list(testdata), result)
 
     def test_clean_meta_list_time(self):
-        #print('Testing clean meta list time')
         testdata = ['[davidcarl][end]2018-08-28T15:00:45+0200', 
         '[davidcarl][end]2018-08-28T15:60:45+0200', 
         '[davidcarl][start]2018-08-28T24:34:45+0200',
@@ -162,7 +157,6 @@ class Test_metadata(unittest.TestCase):
         self.assertEqual(metadata.clean_meta_list(testdata), result)
 
     def test_clean_meta_list_tag(self):
-        #print('Testing clean meta list tag')
         testdata = ['[davidcarl][end]2018-08-28T15:00:45+0200', 
         '[davidcarl][en]2018-08-28T15:34:45+0200', 
         '[davidcarl][start]2018-08-28T12:34:45+0200',
@@ -172,20 +166,17 @@ class Test_metadata(unittest.TestCase):
         self.assertEqual(metadata.clean_meta_list(testdata), result)
 
     def test_clean_meta_list_user_note(self):
-        #print('Testing clean meta list user notes')
         testdata = ['Tester det her',
         '[davidcarl][end]2018-08-28T15:00:45+0200']
         result = ['[davidcarl][end]2018-08-28T15:00:45+0200']
         self.assertEqual(metadata.clean_meta_list(testdata), result)
 
     def test_workcalculator(self):
-        #print('Testing time calculator')
         starts = ['[davidcarl][start]2018-08-28T12:34:45+0200', '[davidcarl][start]2018-08-28T15:00:45+0200']
         ended = ['[davidcarl][end]2018-08-28T13:34:45+0200', '[davidcarl][end]2018-08-28T15:30:45+0200']
         self.assertEqual(metadata.calc_time_worked(starts, ended), 5400)
 
     def test_workcalculator_uneven(self):
-        #print('Testing time calculator')
         starts = ['[davidcarl][start]2018-08-28T12:34:45+0200', '[davidcarl][start]2018-08-28T13:40:45+0200', '[davidcarl][start]2018-08-28T16:34:45+0200']
         ended = ['[davidcarl][end]2018-08-28T13:34:45+0200', '[davidcarl][end]2018-08-28T15:30:45+0200']
         self.assertEqual(metadata.calc_time_worked(starts, ended), 10200)
@@ -217,7 +208,6 @@ class Test_metadata(unittest.TestCase):
     def test_get_date_list(self):
         data = ['[alfen321][start]2018-08-28T13:14:45+0200','[alfen321][end]2018-08-28T13:14:45+0200']
         res = ['2018-08-28', '2018-08-28']
-        #res = ['2018-08-28T13:14:45+0200', '2018-08-28T13:14:45+0200']
         self.assertEqual(metadata.get_date(data), res)
 
     def test_order_days(self):
@@ -237,7 +227,6 @@ class Test_metadata(unittest.TestCase):
     def test_extract_time_list(self):
         data = ['[alfen321][start]2018-08-28T13:14:45+0200','[alfen321][end]2018-08-28T13:14:45+0200']
         res = ['13:14:45+0200', '13:14:45+0200']
-        #res = ['2018-08-28T13:14:45+0200', '2018-08-28T13:14:45+0200']
         self.assertEqual(metadata.extract_time(data), res)
 
     def test_extract_timestamp_string(self):

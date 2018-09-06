@@ -3,11 +3,17 @@ from datetime import datetime
 from python_lib import metadata, shared, timestore, gitnotes, timelog
 from tzlocal import get_localzone
 from collections import defaultdict
+import logging
 import unittest
 import subprocess
 import os
 import pytz
+import importlib
 
+
+# uncommenent to enable verbose :)
+#importlib.reload(logging)
+#logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 class Test_timelog(unittest.TestCase):
 

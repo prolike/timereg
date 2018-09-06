@@ -20,34 +20,42 @@ def log_type(state, **kwargs):
         and timestamp with date (from the time method)
     '''
     value = kwargs.get('value', None)
+    cday = kwargs.get('date', None)
     username = shared.get_git_variables()['username']
     note_string = '[' + username + '][' + state + ']'
     if metadata.check_correct_order(username, state) is True:
+        #return _state_types(state, value, note_string, cday = cday)
         try:
-            return _state_types(state, value, note_string)
+            if cday is None:
+                #print(cday)
+                return _state_types(state, value, note_string)
+            return _state_types(state, value, note_string, cday = cday)
         except:
+            #print('crash')
             _write_note(note_string, value)
     else:
         return _error(state)
     return True
 
-def _state_types(state, value, note_string):
-    logging.debug(f'Calling: timelog._state_types({state}, {value}, {note_string})')
+def _state_types(state, value, note_string, **kwargs):
+    logging.debug(f'Calling: timelog._state_types({state}, {value}, {note_string}, {kwargs})')
+    cday = kwargs.get('cday', None)
     if state == 'did':
         return _did_test(value)
     elif state == 'end' or state == 'start':
         if _custom_check(value) is False:
             return False
-        _write_note(note_string, value)
+        _write_note(note_string, value, cday = cday)
         return True
 
 def _custom_check(value):
+    #print(value)
     logging.debug(f'Calling: timelog._custom_check({value})')
     if re.search(r'([01]\d|2[0-3])(:*)[0-5]\d', value):
         return True
     else:
         if re.search(r'([01]\d|2[0-3])(:*)\d', value):
-            print('Seems like you forgot a digit!\nPlease use the following format: hh:mm or hhmm')
+            #print('Seems like you forgot a digit!\nPlease use the following format: hh:mm or hhmm')
             return False
         #else:
         #    return False
@@ -59,22 +67,35 @@ def _did_test(value):
         test_time = metadata.time()[:-5]
         hour = datetime.strptime(test_time, time_format).strftime('%H')
         mmin = datetime.strptime(test_time, time_format).strftime('%M')
+        date = datetime.strptime(test_time, time_format).strftime('%d') #%Y-%m-%d
         #msec = datetime.strptime(test_time, time_format).strftime('%S')
         mhour = int(hour) - int(value2[:-1])
+        if mhour < 0:
+            mhour = 24 + mhour
+            new_date = '0' + str((int(date) - 1))
         if mhour < 10:
             tempstr = '0' + str(mhour) + str(mmin)
+            #print(tempstr)
         else:
             tempstr = str(mhour) + str(mmin)
-        log_type('start', value = tempstr)
+        #print(tempstr)
+        if 'new_date' in locals():
+            log_type('start', value = tempstr, date = new_date)
+        else:
+            log_type('start', value = tempstr)
         log_type('end')
         return True
     return False
 
-def _write_note(note_string, value):
-    logging.debug(f'Calling: timelog._write_note({note_string}, {value})')
+def _write_note(note_string, value, **kwargs):
+    logging.debug(f'Calling: timelog._write_note({note_string}, {value}, {kwargs})')
+    cday = kwargs.get('cday', None)
     if value is not None:
         chour, cminute = _split_time_value(value)
-        note_string += metadata.time(chour=chour, cminute=cminute)
+        if cday is not None:
+            note_string += metadata.time(chour=chour, cminute=cminute, cday=cday)
+        else:
+            note_string += metadata.time(chour=chour, cminute=cminute)
     else:
         note_string += metadata.time()
     timestore.writetofile([note_string])
@@ -90,7 +111,7 @@ def _split_time_value(value):
 def _error(state):
     logging.debug(f'Calling: timelog._error({state})')
     try:
-        s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', \
+        s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
                     ''.join(timestore.readfromfile()[-1:]))
         print('You already', state + 'ed your timer!', s.group(0))
         return False

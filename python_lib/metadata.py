@@ -38,8 +38,7 @@ def time(**kwargs):
     if cminute is not None:
         now = now.replace(minute=int(cminute))
     if cday is not None:
-        pass
-        #now = now.replace(day=int(cday)) #TODO IMPLEMENT LATER
+        now = now.replace(day=int(cday)) #TODO IMPLEMENT LATER
     if cmonth is not None:
         pass
         #now = now.replace(month=int(cmonth)) #TODO IMPLEMENT LATER
@@ -119,7 +118,7 @@ def get_clean_time_meta_data(meta_data):
     '''
     cleaned_data = []
     for data in meta_data:
-        cleaned_data.append(re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', \
+        cleaned_data.append(re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
                             data).group(0)) #Very brittle!
     return cleaned_data
 
@@ -176,7 +175,7 @@ def cleaner(data_element):
             return True
         if len(metatag[0]) == 0 or len(metatag[0]) > 39:
             return True    
-        date = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', data_element).group(0)
+        date = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', data_element).group(0)
         datetime.strptime(date, format)
     except:
         return True
@@ -236,11 +235,11 @@ def extract_time(value):
 def extract_timestamp(value):
     logging.debug(f'Calling: metadata.extract_timestamp({value})')
     if type(value) is str:
-        return re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', value).group(0)
+        return re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', value).group(0)
     elif type(value) is list:
         res = []
         for each in value:
-            res.append(re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', each).group(0))
+            res.append(re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', each).group(0))
         return res
 
 def seconds_to_timestamp(value):

@@ -200,14 +200,28 @@ def get_date(value):
             res.append(re.search(r'(\d{4}(-\d{2}){2})', each).group(0))
         return res
 
+def get_type(value):
+    logging.debug(f'Calling: metadata.get_type({value}))')
+    if type(value) is str:
+        return re.findall(r'\[(.*?)\]', value)[1]
+    # elif type(value) is list: #Not used yet, and to lazy to write test to it
+    #     res = []
+    #     for each in value:
+    #         res.append(re.findall(r'\[(.*?)\]', value)[1]
+    #     return res
 
-def split_on_days(time_list):
+def split_on_days(time_list): #Make this only count the start time!
     logging.debug(f'Calling: metadata.split_on_days({time_list})')
     time_list = order_days(time_list)
     diff_days = defaultdict(list)
     d_list = get_date(time_list)
+    earlier_day = ''
     for each, each_date in zip(time_list, d_list):
-        diff_days[each_date].append(each)  
+        if get_type(each) == 'end':
+            diff_days[earlier_day].append(each)
+        else:
+            diff_days[each_date].append(each)
+            earlier_day = each_date
     return diff_days
 
 def order_days(value): #TODO Make single extract call!

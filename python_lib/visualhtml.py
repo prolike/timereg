@@ -63,7 +63,7 @@ def main():
                             with tag('th'):
                                 doc.attr(klass = 'worked')
                                 text('Time worked')   
-                        start_list, end_list = timestore.listsplitter(split_days[key])         
+                        start_list, end_list = timestore.listsplitter(split_days[key])
                         for start_time, end_time in zip(start_list, end_list):
                             with tag('tr'):
                                 with tag('td'):

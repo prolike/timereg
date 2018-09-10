@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from python_lib import metadata, gitnotes, shared, timestore, timelog, visualhtml, visualconsole, dbook
 import argparse
 import logging
 import re
 import importlib
+from python_lib import metadata, shared, timestore, timelog, visualhtml, visualconsole, dbook, git_timestore_calls as gtc
 
 
 def main():
@@ -39,17 +39,22 @@ def main():
         logging.debug(f'Calling: args.checktime')
         visualconsole.main()
         visualhtml.main()
-    if args.dump:
-        timestore.dump()    
-
+    
     if args.push:
-        gitnotes.push_notes()
+        gtc.push()
     if args.fetch:
-        gitnotes.fetch_notes()
+        gtc.fetch()
+
     if args.test:
         dbook.test()
 
-
+    if args.save:
+        if args.commit:
+            gtc.store(args.message, commit=args.commit)
+        elif args.issue:
+            gtc.store(args.message, issue=args.issue)
+        elif args.issuecomment:
+            gtc.store(args.message, issue_comment=args.issuecomment)
 
 def arguments():
     global args
@@ -60,12 +65,18 @@ def arguments():
     parser.add_argument('-le', '--logtimeend', action='store_true', help='Log the end time you used on the current issue')
     parser.add_argument('-c', '--custom', help='Define a custom time', type=str)
     parser.add_argument('-ct', '--checktime', action='store_true', help='Check how much time you used')
-    parser.add_argument('-d', '--dump', action='store_true', help='Dump timelog on current commit')
+    
     parser.add_argument('-p', '--push', action='store_true', help='Push git notes')
     parser.add_argument('-f', '--fetch', action='store_true', help='Fetch git notes')
     parser.add_argument('-q', '--quiet', action='store_true', help='Removes console output from git commads')
     parser.add_argument('-t', '--test', action='store_true', help='Removes console output from git commads')
     
+    parser.add_argument('-s', '--save', action='store_true', help='Saves in our custom objects')    
+    parser.add_argument('-m', '--message', help='message', type=str, action='append')    
+    parser.add_argument('--commit', help='commit', type=str)    
+    parser.add_argument('-i', '--issue', help='issue', type=int)    
+    parser.add_argument('-ic', '--issuecomment', help='issue comment', type=str)    
+
     args = parser.parse_args()
 
 if __name__ == '__main__':

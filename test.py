@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 from datetime import datetime
-from python_lib import metadata, shared, timestore, gitnotes, timelog
+from python_lib import metadata, shared, timestore, timelog
+from python_lib import git_timestore_calls as gtc, git_objects, git_timestore
 from tzlocal import get_localzone
 from collections import defaultdict
 import logging
 import unittest
 import subprocess
-import os
+import os, sys
 import pytz
 import importlib
 
@@ -309,34 +310,8 @@ class Test_timestore(unittest.TestCase):
         start_list, end_list = timestore.listsplitter(testdata)
         self.assertEqual(start_list, ['[davidcarl][start]08-08-2018/23:34', '[davidcarl][start]08-08-2018/15:00'])
         self.assertEqual(end_list, ['[davidcarl][end]08-08-2018/15:39', '[davidcarl][end]08-08-2018/15:00'])
-
-    def test_dump_no_data(self):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
-        shared.set_working_dir('./test/test_env/clone1')
-        timestore.dump()
-
-    def test_dump_good_data(self):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
-        subprocess.call(['bash', './test/scripts/timestore_data_good_data'], stdout=None, stderr=None)
-        shared.set_working_dir('./test/test_env/clone1')
-        timestore.dump()
-        notes = gitnotes.get_all_notes()
-        for key, value in notes.items():
-            self.assertEqual(len(value), 4)
-        self.assertFalse(os.path.isfile('./test/test_env/clone1/.time/tempfile'))
-
-
-    def test_dump_bad_data(self):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
-        subprocess.call(['bash', './test/scripts/timestore_data_bad_data'], stdout=None, stderr=None)
-        shared.set_working_dir('./test/test_env/clone1')
-        timestore.dump()
-        notes = gitnotes.get_all_notes()
-        self.assertFalse(notes)
-        self.assertTrue(os.path.isfile('./test/test_env/clone1/.time/tempfile'))
         
-    
-class Test_gitnotes(unittest.TestCase):
+class Test_git_timestore(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
@@ -350,94 +325,252 @@ class Test_gitnotes(unittest.TestCase):
     def setUp(self):
         print(" In method", self._testMethodName)
 
-    def test_get_all_notes(self):
+    def test_simple_tests(self):
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
-        subprocess.call(['bash', './test/scripts/test_get_all_notes'], stdout=None, stderr=None)
+        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
 
+        #test call no object arg
+        try:
+            gtc.store(['dd'])
+        except:
+            self.assertEqual(str(sys.exc_info()[1]), '1')
+
+        #test commit first time and the commit arg    
+        shared.set_working_dir('./test/test_env/clone1')
+        gtc.store(['some comment'], commit=commits[0])
+        timecommit_name = git_timestore.get_current_ref()
+        self.assertTrue(timecommit_name is not None)
+        expected = {commits[0]: ['some comment']}
+        self.assertEqual(gtc.get_all(), expected)
+
+        #test push commit first time
+        shared.set_working_dir('./test/test_env/clone1')
+        gtc.push()
         shared.set_working_dir('./test/test_env/origin')
-        result = gitnotes.get_all_notes()
-        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE).stdout.decode('utf-8').rstrip().split(' ')
-        expected = {commits[0]: ['note1', 'note2', 'note3', 'note4', 'note5', 'note6', 'note7'], 
-                    commits[1]: ['1note', '2note', '3note', '4note', '5note', '6note', '7note']}
+        timecommit_name = git_timestore.get_current_ref()
+        self.assertTrue(timecommit_name is not None)
+        expected = {commits[0]: ['some comment']}
+        self.assertEqual(gtc.get_all(), expected)
 
-        self.assertEqual(result, expected)
+        #test fetch first time no ref
+        shared.set_working_dir('./test/test_env/clone2')
+        gtc.fetch()
+        timecommit_name = git_timestore.get_current_ref()
+        self.assertTrue(timecommit_name is not None)
+        expected = {commits[0]: ['some comment']}
+        self.assertEqual(gtc.get_all(), expected)
 
-    def test_git_fetch_notes_no_conflict_no_notes_history(self):
+        #test issue arg and next time commit
+        shared.set_working_dir('./test/test_env/clone1')
+        timecommit_name = git_timestore.get_current_ref()
+        gtc.store(['issue comment'], issue=4)
+        #checking commit history
+        old_timecommit_name = timecommit_name
+        timecommit = git_timestore.load_git_commit_by_hash_name(git_timestore.get_current_ref())
+        self.assertEqual(timecommit.parent, old_timecommit_name)
+        #Check entries
+        issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
+        expected = {issue: ['issue comment'],\
+                    commits[0]: ['some comment']}
+        self.assertEqual(gtc.get_all(), expected)
+
+
+        #test push with refs on origin        
+        shared.set_working_dir('./test/test_env/origin')
+        timecommit_name = git_timestore.get_current_ref()
+        shared.set_working_dir('./test/test_env/clone1')
+        gtc.push()
+        shared.set_working_dir('./test/test_env/origin')
+        #checking commit history
+        old_timecommit_name = timecommit_name
+        timecommit = git_timestore.load_git_commit_by_hash_name(git_timestore.get_current_ref())
+        self.assertEqual(timecommit.parent, old_timecommit_name)
+        #Check entries
+        issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
+        expected = {issue: ['issue comment'],\
+                    commits[0]: ['some comment']}
+        self.assertEqual(gtc.get_all(), expected)
+
+
+    def test_merge_local_and_push(self):
+        #setup test env
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
-        subprocess.call(['bash', './test/scripts/test_fetch_no_conflict_no_notes_history'], stdout=None, stderr=None)
+        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
+        shared.set_working_dir('./test/test_env/clone1')
+        gtc.store(['issue comment'], issue=4)
+        gtc.push()
+
+        #test of appending comment to allready exsisting blob
+        shared.set_working_dir('./test/test_env/clone1')        
+        gtc.store(['issue comment 2'], issue=4)
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 1)
+        #Check entries
+        issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
+        expected = {issue: ['issue comment', 'issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)
         
-        shared.set_working_dir('./test/test_env/clone1')
-        gitnotes.fetch_notes()
-
-        with open('./test/test_env/origin/.git/refs/notes/commits', 'r') as f:
-            origin = f.read()        
-        with open('./test/test_env/clone1/.git/refs/notes/commits', 'r') as f:
-            clone = f.read()        
-        self.assertEqual(origin, clone)
-    
-    def test_git_push_notes_no_conflict(self):
-        subprocess.call(['bash', './test/scripts/test_push_no_conflict_no_notes_history'])
-
-        shared.set_working_dir('./test/test_env/clone1')
-        gitnotes.push_notes()
-
-        with open('./test/test_env/origin/.git/refs/notes/commits', 'r') as f:
-            origin = f.read()        
-        with open('./test/test_env/clone1/.git/refs/notes/commits', 'r') as f:
-            clone = f.read()        
-        self.assertEqual(origin, clone)
-
-    def test_git_fetch_merge_conflict_different_commits_no_notes_history(self):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)    
-        subprocess.call(['bash', './test/scripts/test_fetch_merge_conflict_different_commits_no_notes_history'],\
-                            stdout=None, stderr=None)
-        shared.set_working_dir('./test/test_env/clone1')
-        gitnotes.fetch_notes()
-        
-        call = ['git', '-C', './teset/test_env/origin', 'notes', 'list']
-        origin = subprocess.run(call, stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
-        call[2] = './teset/test_env/clone1'
-        clone = subprocess.run(call, stdout=subprocess.PIPE).stdout.decode('utf-8').split('\n')
-
-        for line in origin:
-            if line not in clone:
-                self.fail("missing notes from origin")
-        
-    def test_git_fetch_merge_conflict_same_commits_no_notes_history(self):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)    
-        subprocess.call(['bash', './test/scripts/test_fetch_merge_conflict_same_commit_no_notes_history'], \
-                            stdout=None, stderr=None)
-        shared.set_working_dir('./test/test_env/clone1')
-        gitnotes.fetch_notes()
-
-        clone = gitnotes.get_all_notes()
+        #push time on object that allready exist on origin
+        shared.set_working_dir('./test/test_env/clone1')        
+        gtc.push()
         shared.set_working_dir('./test/test_env/origin')
-        origin = gitnotes.get_all_notes()
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 1)
+        #Check entries
+        issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
+        expected = {issue: ['issue comment', 'issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)
+
+    def test_merge_conflict_different_objects(self):
+        #setup test env
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
+        shared.set_working_dir('./test/test_env/clone2')
+        gtc.store(['issue comment'], issue=2)
+        gtc.push()
+
+        issue2 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/2'))
+        issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
         
-        for key, notelist in origin.items():
-            clone_list = clone[key]
-            for note in notelist:
-                if note not in clone_list:
-                    self.fail("missing notes from origin")
-
-
-    def test_git_push_merge_conflict_same_commit_with_notes_history(self):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)    
-        subprocess.call(['bash', './test/scripts/test_push_merge_conflict_same_commit_with_notes_history'], \
-                            stdout=None, stderr=None)
-        shared.set_working_dir('./test/test_env/clone1')
-        gitnotes.push_notes()
-
-        clone = gitnotes.get_all_notes()
+        #test of appending comment to allready exsisting blob
+        shared.set_working_dir('./test/test_env/clone1')        
+        gtc.store(['issue comment 2'], issue=4)
+        gtc.push()
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 2)
+        #Check entries
+        expected = {issue2: ['issue comment'], issue4: ['issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)
+        
+        #chek origin
         shared.set_working_dir('./test/test_env/origin')
-        origin = gitnotes.get_all_notes()
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 2)
+        #Check entries
+        expected = {issue2: ['issue comment'], issue4: ['issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)    
         
-        for key, notelist in origin.items():
-            clone_list = clone[key]
-            for note in notelist:
-                if note not in clone_list:
-                    self.fail("missing notes from origin")
+    def test_merge_fetch_conflict_different_objects(self):
+        #setup test env
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
+        shared.set_working_dir('./test/test_env/clone2')
+        gtc.store(['issue comment'], issue=2)
+        gtc.push()
 
+        issue2 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/2'))
+        issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
+        
+        #test of appending comment to allready exsisting blob
+        shared.set_working_dir('./test/test_env/clone1')        
+        gtc.store(['issue comment 2'], issue=4)
+        gtc.fetch()
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 2)
+        #Check entries
+        expected = {issue2: ['issue comment'], issue4: ['issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)
+        
+        #chek origin
+        shared.set_working_dir('./test/test_env/origin')
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 1)
+        #Check entries
+        expected = {issue2: ['issue comment']}
+        self.assertEqual(gtc.get_all(), expected)    
+        
+
+    def test_merge_conflict_same_objects(self):
+        #setup test env
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
+        shared.set_working_dir('./test/test_env/clone2')
+        gtc.store(['issue comment'], issue=4)
+        gtc.push()
+
+        issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
+        
+        #test of appending comment to allready exsisting blob
+        shared.set_working_dir('./test/test_env/clone1')        
+        gtc.store(['issue comment 2'], issue=4)
+        gtc.push()
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 1)
+        #Check entries
+        expected = {issue4: ['issue comment', 'issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)
+        
+        #chek origin
+        shared.set_working_dir('./test/test_env/origin')
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 1)
+        #Check entries
+        expected = {issue4: ['issue comment', 'issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)
+
+    def test_merge_conflict_same_objects_with_history(self):
+        #setup test env
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
+        shared.set_working_dir('./test/test_env/clone2')
+        gtc.store(['issue comment'], issue=4)
+        gtc.push()
+        shared.set_working_dir('./test/test_env/clone1')
+        gtc.fetch()
+        shared.set_working_dir('./test/test_env/clone2')
+        gtc.store(['issue comment 1'], issue=4)
+        gtc.push()
+        
+        issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
+        
+        #test of appending comment to allready exsisting blob
+        shared.set_working_dir('./test/test_env/clone1')        
+        gtc.store(['issue comment 2'], issue=4)
+        gtc.push()
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 1)
+        #Check entries
+        expected = {issue4: ['issue comment', 'issue comment 1', 'issue comment 2']}
+        self.assertEqual(gtc.get_all(), expected)
+        
+        #chek origin
+        shared.set_working_dir('./test/test_env/origin')
+        #check tree
+        timecommit_name = git_timestore.get_current_ref()
+        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        self.assertTrue(len(tree.get_all_entries()) is 1)
+        #Check entries
+        expected = {issue4: ['issue comment', 'issue comment 1', 'issue comment 2']}        
+        self.assertEqual(gtc.get_all(), expected)
+        
 
 if __name__ == '__main__':
     unittest.main()

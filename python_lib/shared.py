@@ -139,6 +139,8 @@ def _get_http_link(url):
     elif url[:4] == 'http':
         url = url.split('/')
         return 'https://www.github.com/' + url[3] + '/' + url[4][:-4]
+    elif url[:1] == '/':
+        return url
 
 def git_prefix():
     logging.debug(f'Calling: shared.git_prefix()')

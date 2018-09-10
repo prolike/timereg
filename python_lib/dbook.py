@@ -9,7 +9,7 @@ def test():
     print(check_booked_time(timestore.readfromfile(), metadata.time()))
 
 def check_booked_time(t_list, value):
-    logging.debug(f'Calling: dbook.check_booked_time({t_list}, {value})')
+    logging.debug(f'dbook.check_booked_time({t_list}, {value})')
     date = metadata.get_date(value)
     d_list = get_list_of_day(t_list, date)
     start_date, end_date = timestore.listsplitter(d_list)
@@ -22,7 +22,7 @@ def check_booked_time(t_list, value):
     return True
 
 def get_list_of_day(t_list, date):
-    logging.debug(f'Calling: dbook.get_list_of_day({t_list}, {date})')
+    logging.debug(f'dbook.get_list_of_day({t_list}, {date})')
     o_list = []
     d_list = metadata.get_date(t_list)
     for each, each_date in zip(t_list, d_list):
@@ -31,7 +31,7 @@ def get_list_of_day(t_list, date):
     return o_list
 
 def checker(start, end, value):
-    logging.debug(f'Calling: dbook.checker({start}, {end}, {value})')
+    logging.debug(f'dbook.checker({start}, {end}, {value})')
     if start < value > end:
         pass
     else:

@@ -5,10 +5,10 @@ import logging
 
 
 def createfolder():
-    logging.debug(f'Calling: timestore.createfolder()')
     '''
     Makes .time folder if it doesnt exist already.
     '''
+    logging.debug(f'timestore.createfolder()')
     path = shared.get_gitpath()[:-5]
     if not os.path.exists(path + '.time'):
         try:
@@ -17,26 +17,26 @@ def createfolder():
             logging.error('Failed to make folder')
 
 def writetofile(time_list):
-    logging.debug(f'Calling: timestore.writetofile({time_list})')
     '''
     Writes to a tempfile in the .time folder, to save what the user has worked in hours
 
     Args:
         param1(list): time_list - Takes list with strings that its supposed to write to file
     '''
+    logging.debug(f'timestore.writetofile({time_list})')
     createfolder()
     with open(shared.get_gitpath()[:-5] + '.time/tempfile', 'a') as f:
         for string in time_list:
             f.write(string + '\n')
 
 def readfromfile():
-    logging.debug(f'Calling: timestore.readfromfile')
     '''
     Collects all the lines in tempfile and puts them in a list
 
     Return:
         list: Returns a list with meta data thats been temp saved.
     '''
+    logging.debug(f'timestore.readfromfile')
     path = shared.get_gitpath()[:-5]
     if not os.path.exists(path + '.time/tempfile'):
         pass
@@ -49,7 +49,6 @@ def readfromfile():
     return []
 
 def listsplitter(los):
-    logging.debug(f'Calling: timestore.listsplitter({los})')
     '''
     Take whatever content we have in tempfile and sorts it in our
     2 different tags so we can play nice with them.
@@ -62,6 +61,7 @@ def listsplitter(los):
         list: start_list - A list with all the meta tags start
         list: end_list - A list with all the meta tags end
     '''
+    logging.debug(f'timestore.listsplitter({los})')
     start_list = []
     end_list = []
     for string in los:

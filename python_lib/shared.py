@@ -10,18 +10,17 @@ quiet_mode = False
 time_format = '%Y-%m-%dT%H:%M:%S%z'
 
 def set_working_dir(path):
-    logging.debug(f'Calling: shared.set_working_dir({path})')
     '''
     Changes the working directory to the provided path.
     Works with full path and relative from current working directory.
     Used in the -C parameter to use git commands from other folders than the current
     '''
+    logging.debug(f'shared.set_working_dir({path})')
     global working_dir, gitpath
     gitpath = ''
     working_dir = path_routing(path)
 
 def path_routing(path):
-    logging.debug(f'Calling: shared.path_routing({path})')
     '''
     Takes a path and find the full path for the directory. 
 
@@ -31,6 +30,7 @@ def path_routing(path):
     Retrun:
         str: Returns a string with the full path
     '''
+    logging.debug(f'shared.path_routing({path})')
     if path[-1] == '/':
         path = path[:-1]
 
@@ -44,18 +44,18 @@ def path_routing(path):
     return os.getcwd() + path
 
 def path_up_level(cwd, path):
-    logging.debug(f'Calling: shared.path_up_level({cwd}, {path})')
+    logging.debug(f'shared.path_up_level({cwd}, {path})')
     if path[:3] == '../':
         return path_up_level('/'.join(cwd.split('/')[:-1]), path.split('/',1)[1])
     else:
         return cwd + '/' + path
 
 def get_work_dir():
-    logging.debug(f'Calling: shared.get_work_dir()')
+    logging.debug(f'shared.get_work_dir()')
     return working_dir
 
 def get_gitpath():
-    logging.debug(f'Calling: shared.get_gitpath()')
+    logging.debug(f'shared.get_gitpath()')
     global gitpath
     if gitpath == '':
         gitpath = find_git(working_dir)
@@ -63,25 +63,24 @@ def get_gitpath():
     return gitpath    
 
 def set_quiet_mode(mode):
-    logging.debug(f'Calling: shared.set_quiet_mode({mode})')
+    logging.debug(f'shared.set_quiet_mode({mode})')
     global quiet_mode
     quiet_mode = mode
 
 def git_suffix():
-    logging.debug(f'Calling: shared.git_suffix()')
     '''
     Send a list of suffixes in this case --quiet to mute commands if quiet mode is turned on
 
     Return:
         list: Returns a list of suffixes to git commands
     '''
+    logging.debug(f'shared.git_suffix()')
     if quiet_mode:
         return ['--quiet']
     else:
         return []
 
 def find_git(path):    
-    logging.debug(f'Calling: shared.find_git({path})')
     '''
     Finds the full path to the .git folder in the suppiled path,
     this function starts in the supplied folder and move out untill it finds the .git folder
@@ -92,6 +91,7 @@ def find_git(path):
     Return:
         str: Returns a string of the path to the .git folder
     '''
+    logging.debug(f'shared.find_git({path})')
     if os.path.isdir(path + '/.git/'):
         return path + '/.git/'
     else:
@@ -100,7 +100,7 @@ def find_git(path):
         return find_git(newpath)
 
 def get_git_variables():
-    logging.debug(f'Calling: shared.get_git_variables()')
+    logging.debug(f'shared.get_git_variables()')
     global git_variables
     if git_variables == {}:
         git_variables = find_git_variables()
@@ -108,7 +108,6 @@ def get_git_variables():
     return git_variables
 
 def find_git_variables():
-    logging.debug(f'Calling: shared.get_git_variables()')
     '''
     Makes a dictonary containing information fetched from different git configs
 
@@ -116,6 +115,7 @@ def find_git_variables():
         dictonary: returns branch, url, and git username, with the following keys:
         'branch', 'url', 'username'
     '''
+    logging.debug(f'shared.get_git_variables()')
     variables_temp = {}
     branch = subprocess.run(git_prefix() + \
                             ['rev-parse', '--abbrev-ref', 'HEAD', '--'], \
@@ -132,7 +132,7 @@ def find_git_variables():
     return variables_temp
 
 def _get_http_link(url):
-    logging.debug(f'Calling: shared._get_http_link({url})')
+    logging.debug(f'shared._get_http_link({url})')
     if url[:4] == 'git@':
         url = url.split(':')[1]
         return 'https://www.github.com/' + url[:-4]
@@ -143,17 +143,17 @@ def _get_http_link(url):
         return url
 
 def git_prefix():
-    logging.debug(f'Calling: shared.git_prefix()')
     '''
     Makes the prefix -C param if needed to use all git commands in another folder than the cwd
 
     Retrun:
         list: Returns a list with the prefixes for git calls 
     '''
+    logging.debug(f'shared.git_prefix()')
     if os.getcwd() != working_dir:
         return ['git', '-C', working_dir]
     return ['git']
 
 def get_time_format():
-    logging.debug(f'Calling: shared.get_time_format()')
+    logging.debug(f'shared.get_time_format()')
     return time_format

@@ -1,4 +1,4 @@
-import logging, subprocess, os
+import logging, subprocess, os, sys
 from . import shared, git_objects as go, git_timestore as gt
 
 
@@ -62,7 +62,7 @@ def merge_timeentries():
         _merge_time_conflicts('temp')
     else:
         logging.error('Unable to fix merge conflicts, restoring files')
-        rename_refs_notes_file('temp', 'commits')
+        _rename_ref_time_file('temp', 'commits')
         sys.exit(1)
 
 

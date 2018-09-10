@@ -10,7 +10,7 @@ def main():
     arguments()
     importlib.reload(logging)
 
-    if args.verbose:
+    if args.debug:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
     else:
         logging.basicConfig(format='%(levelname)s: %(message)s')      
@@ -21,7 +21,6 @@ def main():
         shared.set_quiet_mode(True)
 
     if args.logtimestart:
-        logging.debug(f'Calling: args.logtimestart')
         if args.custom:
             if re.search(r'((\d){1,2})([h]|[H])', args.custom):
                 timelog.log_type('did', value=args.custom)
@@ -30,13 +29,11 @@ def main():
         else:
             timelog.log_type('start')
     if args.logtimeend:
-        logging.debug(f'Calling: args.logtimeend')
         if args.custom:
             timelog.log_type('end', value=args.custom)
         else:
             timelog.log_type('end')
     if args.checktime:
-        logging.debug(f'Calling: args.checktime')
         visualconsole.main()
         visualhtml.main()
     
@@ -59,7 +56,7 @@ def main():
 def arguments():
     global args
     parser = argparse.ArgumentParser(prog='Git extension POC')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Outputs verbose data')
+    parser.add_argument('-d', '--debug', action='store_true', help='Outputs debug data')
     parser.add_argument('-C', '--path', help='Define a path', type=str)    
     parser.add_argument('-ls', '--logtimestart', action='store_true', help='Log the start time you used on the current issue')
     parser.add_argument('-le', '--logtimeend', action='store_true', help='Log the end time you used on the current issue')

@@ -1,8 +1,10 @@
 import os
 import subprocess
 import logging
+import re
 
 
+issue_number = 0
 gitpath = ''
 working_dir = os.getcwd()
 git_variables = {}
@@ -157,3 +159,13 @@ def git_prefix():
 def get_time_format():
     logging.debug(f'shared.get_time_format()')
     return time_format
+
+def get_issue_number():
+    global issue_number
+    if issue_number is 0:
+        with open(get_gitpath() + 'HEAD') as f:
+            line = f.readline()
+            temp = re.search(r'((heads\/)\d+(-))', line).group(0)
+            temp = temp[6:-1]
+            issue_number = int(temp)
+    return issue_number

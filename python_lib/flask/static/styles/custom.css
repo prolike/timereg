@@ -1,0 +1,53 @@
+html {
+    min-height: 100%;
+    position: relative;
+}
+
+body {
+    background-color: aliceblue;
+    margin: auto;
+    width: 1200px;
+    height: 100%;
+    padding-bottom: 50px;
+}
+
+.center-text {
+    /*background-color: blueviolet;*/
+    text-align: center;
+}
+
+.right-text {
+    text-align: right;
+}
+
+.right-left {
+    text-align: left;
+}
+
+.info-section {
+    padding-left: 270px; /*180 without td padding (in tables.css)*/
+}
+
+ul {
+    list-style: none;
+}
+
+a:link, a:visited, a:hover, a:active {
+    text-decoration: underline;
+    color: black;
+}
+
+footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    font-size: 15px;
+    height: 20px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.datetime {
+    padding-left: 310px;
+}

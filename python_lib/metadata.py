@@ -219,6 +219,26 @@ def split_on_days(time_list): #Make this only count the start time!
             earlier_day = each_date
     return diff_days
 
+def match_month(value, month):
+    if month == 'this':
+        month = datetime.utcnow().strftime('%m')
+        print(type(month))
+    res = []
+    for each in value:
+        try:
+            re.search(r'(\d{4}(-(' + month + r'))(-\d{2}))', each).group(0)
+            res.append(each)
+        except:
+            pass
+    return res
+
+def match_week(value, week):
+    if week == 'this':
+        week = datetime.utcnow().isocalendar()[1]
+    for each in value:
+        if str(datetime.strptime(get_date(each), '%Y-%m-%d').isocalendar()[1]) == str(week):
+            print(each)
+
 def order_days(value): #TODO Make single extract call!
     logging.debug(f'metadata.order_days({value})')
     dates2 = extract_timestamp(value)

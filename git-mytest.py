@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+from python_lib import metadata, shared, timestore, timelog, visualhtml, visualconsole, dbook, git_timestore_calls as gtc
+from python_lib.flask import app
 import argparse
 import logging
 import re
 import importlib
-from python_lib import metadata, shared, timestore, timelog, visualhtml, visualconsole, dbook, git_timestore_calls as gtc
 
 
 def main():
@@ -35,15 +36,12 @@ def main():
             timelog.log_type('end')
     if args.checktime:
         visualconsole.main()
-        visualhtml.main()
+        app.main()
     
     if args.push:
         gtc.push()
     if args.fetch:
         gtc.fetch()
-
-    if args.test:
-        dbook.test()
 
     if args.save:
         if args.commit:
@@ -66,7 +64,6 @@ def arguments():
     parser.add_argument('-p', '--push', action='store_true', help='Push git notes')
     parser.add_argument('-f', '--fetch', action='store_true', help='Fetch git notes')
     parser.add_argument('-q', '--quiet', action='store_true', help='Removes console output from git commads')
-    parser.add_argument('-t', '--test', action='store_true', help='Removes console output from git commads')
     
     parser.add_argument('-s', '--save', action='store_true', help='Saves in our custom objects')    
     parser.add_argument('-m', '--message', help='message', type=str, action='append')    

@@ -281,6 +281,10 @@ class Test_shared(unittest.TestCase):
         expected = os.getcwd() + "/.git/"
         self.assertEqual(shared.get_gitpath(), expected)
 
+    def test_get_http_link(self):
+        url = 'https://github.com/regebro/tzlocal.git'
+        self.assertEqual(shared._get_http_link(url), 'https://www.github.com/regebro/tzlocal')
+
 class Test_gitmytest(unittest.TestCase):
     
     def setUp(self):

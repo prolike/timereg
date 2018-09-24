@@ -1,21 +1,22 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div class = 'center-text'>
+<div class='center-text'>
     <h1>Work time table</h1>
-</div>    
-<div class = 'info-section'>
+</div>
+<div class='info-section'>
     <ul>
         <li>
-            User <a href = 'https://www.github.com/{{ username }}'>{{ username }}</a>
+            User <a href='https://www.github.com/{{ username }}'>{{ username }}</a>
         </li>
         <li>
-            Working on <a href = '{{ url }}'>{{ url }}</a>
+            Working on <a href='{{ url }}'>{{ url }}</a>
         </li>
         <li>
-            <input id='tzTran' type='checkbox'/> Convert times to registred timezone
+            <input id='tzTran' type='checkbox' /> Convert times to registred timezone
         </li>
     </ul>
+    <button type="button" id="timebutton">Add time</button>
 </div>
 <div id='table-section'>
 
@@ -25,28 +26,27 @@
     tablesection = document.getElementById('table-section')
     var jsonArray = JSON.parse('{{ split | safe}}');
     tHTML = ''
-    for(var k in jsonArray['split_days']){
-        console.log(jsonArray['split_days'][k])
+    for (var k in jsonArray['split_days']) {
         n = 0
         var cHTML = ''
         var tWorked = 0
-        cHTML += '<p class = "datetime">' + k + '</p>' +
+        cHTML += '<div><p class = "datetime">' + k + '</p></div>' +
             '<div class = "timetable">' +
-            '<table>' + 
-            '<tr>' + 
-            '<th>Started</th>' + 
-            '<th>Ended</th>' + 
+            '<table>' +
+            '<tr>' +
+            '<th>Started</th>' +
+            '<th>Ended</th>' +
             '<th class = "worked">Time Worked</th>' +
             '</tr>'
-        for(var i in jsonArray['split_days'][k]){
-            if((n % 2) == 0){
+        for (var i in jsonArray['split_days'][k]) {
+            if ((n % 2) == 0) {
                 var regexDate = /\[(.*?)\]\[(.*?)\](\d{4}(-\d{2}){2})T/
                 var regexBrackets = /\[(.*?)\]\[(.*?)\]/
                 var regexTz = /[+-](\d{4})/
-                
+
                 strm1 = jsonArray['split_days'][k][n].replace(regexDate, '')
                 strm2 = jsonArray['split_days'][k][n + 1].replace(regexDate, '')
-                
+
                 dt1 = jsonArray['split_days'][k][n].replace(regexBrackets, '')
                 dt2 = jsonArray['split_days'][k][n + 1].replace(regexBrackets, '')
                 dt1 = dt1.replace(regexTz, '')
@@ -54,19 +54,19 @@
                 var d1 = new Date(dt1)
                 var d2 = new Date(dt2)
                 var worked = new Date(d2.getTime() - d1.getTime())
-                cHTML += '<tr>' + 
+                cHTML += '<tr>' +
                     '<td class = "center-text timeconvert">' + strm1 + '</td>' +
                     '<td class = "center-text timeconvert">' + strm2 + '</td>' +
-                    '<td class = "center-text worked">' + writeUTCtime(worked) + '</td>' + 
+                    '<td class = "center-text worked">' + writeUTCtime(worked) + '</td>' +
                     '</tr>'
                 tWorked += worked.getTime()
             }
             n++
         }
         cHTML += '</table>' +
-            '<table>' + 
-            '<tr>' + 
-            '<td class = "right-left double-size-table">Time worked this day</td>' + 
+            '<table>' +
+            '<tr>' +
+            '<td class = "right-left double-size-table">Time worked this day</td>' +
             '<td class = "center-text worked">' + writeUTCtime(new Date(tWorked)) + '</td>' +
             '</tr>' +
             '</table>' +
@@ -75,27 +75,54 @@
     }
 
     cHTML += '<div class = "totalwork">' +
-            '<table>' + 
-            '<tr>' + 
-            '<td class = "right-left double-size-table">Total time worked</td>' + 
-            '<td class = "center-text worked">' + jsonArray['total_time_worked'] + '</td>' +
-            '</tr>' + 
-            '</table>' +
-            '</div>'
-        
+        '<table>' +
+        '<tr>' +
+        '<td class = "right-left double-size-table">Total time worked</td>' +
+        '<td class = "center-text worked">' + jsonArray['total_time_worked'] + '</td>' +
+        '</tr>' +
+        '</table>' +
+        '</div>'
+
     tHTML += cHTML
     tablesection.innerHTML = tHTML
- 
-    function writeUTCtime(date){
+
+    function writeUTCtime(date) {
         var hour = addZeroBefore(date.getUTCHours())
         var min = addZeroBefore(date.getUTCMinutes())
         var seconds = addZeroBefore(date.getUTCSeconds())
-        return hour + ':' + min  + ':' + seconds
+        return hour + ':' + min + ':' + seconds
     }
 
     function addZeroBefore(n) {
         return (n < 10 ? '0' : '') + n;
     }
 </script>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add a date</h2>
+        <p>Select the date and time where you wanna add you time!</p>
+        <p>Please input your issue number</p>
+        <input type='number' id='issueID'/>
+        <p>Start time and date:</p>
+        <div id="picker-start"> </div>
+        <input type="hidden" id="res1" value="">
+        <p>End time and date:</p>
+        <div id="picker-end"> </div>
+        <input type="hidden" id="res2" value="">
+        <br>
+        <button type='button' id='test'>Click here!</button>
+    </div>
+
+</div>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment-with-locales.min.js"></script>
+<script src="{{ url_for('static',filename='js/datetimepicker.js') }}"></script>
 <script src="{{ url_for('static',filename='js/main.js') }}"></script>
+<script src="{{ url_for('static',filename='js/button.js') }}"></script>
 {% endblock %}

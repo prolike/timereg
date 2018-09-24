@@ -12,7 +12,7 @@ def main():
     importlib.reload(logging)
 
     if args.debug:
-        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.debug)
     else:
         logging.basicConfig(format='%(levelname)s: %(message)s')      
     

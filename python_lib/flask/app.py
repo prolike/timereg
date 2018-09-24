@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify
 from python_lib import shared, metadata, timestore
-import os, json
+import json
 
 
 app = Flask(__name__)
@@ -24,7 +24,6 @@ def index():
 @app.route('/api/test')
 def api_test():
     try:
-        os.makedirs('testfolder')
         return jsonify({'state': 'Succes!'})
     except:
         return jsonify({'state': 'Failed!'})

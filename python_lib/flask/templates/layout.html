@@ -1,18 +1,23 @@
 <!DOCTYPE <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Timereg</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/datetimepicker.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/custom.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/table.css') }}" />
 </head>
-<body class = 'center-site'>
+
+<body class='center-site'>
     {% include 'title.html' %}
     {% block body %}{% endblock %}
 </body>
 <!--<footer>
     Open source project <a href = 'https://github.com/prolike/timereg'>Github</a>
 </footer>-->
+
 </html>

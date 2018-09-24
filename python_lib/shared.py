@@ -2,6 +2,7 @@ import os
 import subprocess
 import logging
 import re
+import hashlib
 
 
 issue_number = 0
@@ -165,7 +166,30 @@ def get_issue_number():
     if issue_number is 0:
         with open(get_gitpath() + 'HEAD') as f:
             line = f.readline()
-            temp = re.search(r'((heads\/)\d+(-))', line).group(0)
-            temp = temp[6:-1]
-            issue_number = int(temp)
+            try:
+                temp = re.search(r'((heads\/)\d+(-))', line).group(0)
+                temp = temp[6:-1]
+                issue_number = int(temp)
+            except:
+                print('You must be in a branch!')
     return issue_number
+
+def set_issue_number(number):
+    global issue_number
+    issue_number = number
+
+def generate_git_sha1_issue(number):
+    url = (get_git_variables()['url'] + '/issue/' + str(number))
+    content = ('blob ' + str(len(url)) + '\0' + url)
+    return sha1_gen(content)
+
+def sha1_gen(content):
+    sha1 = hashlib.sha1()
+    sha1.update(str.encode(content))
+    return sha1.hexdigest()
+
+def sha1_gen_dict(content):
+    content = str(content)
+    sha1 = hashlib.sha1()
+    sha1.update(str.encode(content))
+    return sha1.hexdigest()

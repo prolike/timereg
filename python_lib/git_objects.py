@@ -1,4 +1,5 @@
-from . import git_timestore
+from . import git_timestore, shared
+import json
 
 
 class Tree:
@@ -80,3 +81,20 @@ class Entry:
 
     def __str__(self):
         return f'{self.p2_type} {self.p1_type} {self.p1}\t{self.p2}\n'
+
+
+class Time_entry:
+    def __init__(self):
+        self.repo = ''
+        self.parent = ''
+        self.content = {}
+
+    def __str__(self):
+        return str(self.content).replace('\'','"')
+
+    def load_from_json(self, json_string):
+        json_data = json.loads(json_string)
+        self.content = json_data['content']
+
+    def contenthash(self):
+        return shared.sha1_gen(str(self.content))

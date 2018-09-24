@@ -1,4 +1,4 @@
-import logging, subprocess, os, sys
+import logging, subprocess, os, sys, json
 from . import shared, git_objects as go, git_timestore as gt
 
 
@@ -123,8 +123,6 @@ def _merge_time_conflicts(local_name):
 
     for key in overlapping:
         if key in split_point_dict:
-
-            out = split_point_dict[key]
             new_blob = gt.treeway_merge_blobs(split_point_dict[key], remote_dict[key], local_dict[key])
         else:
             new_blob = gt.treeway_merge_blobs(None, remote_dict[key], local_dict[key])

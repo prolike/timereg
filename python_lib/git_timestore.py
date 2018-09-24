@@ -1,10 +1,11 @@
-import os, sys, subprocess, logging, signal
+import os, sys, subprocess, logging, re, json
 from python_lib import shared 
-from .git_objects import Entry, Blob, Commit, Tree
+from .git_objects import Entry, Blob, Commit, Tree, Time_entry
 
 tree_codes = {
     'commit':   100644,
-    'file':     100644
+    'file':     100644,
+    'ref':      100644
 }
 
 def save_git_object(obj):
@@ -55,7 +56,6 @@ def load_git_tree_by_hash_name(name):
     logging.debug(f'git_timestore.load_git_tree_by_hash_name({name})')
     tree = Tree()
     lines = read_git_object_content(name)
-    entries = []
     for line in lines:
         if line == '':
             continue
@@ -71,6 +71,13 @@ def load_git_tree_by_hash_name(name):
 def load_git_blob_by_hash_name(name):
     logging.debug(f'git_timestore.load_git_blob_by_hash_name({name})')
     return read_git_object_content(name)
+
+def load_git_jsonblob_by_hash_name(name):
+    '''
+    Returns a dict in form of the json
+    '''
+    logging.debug(f'git_timestore.load_git_jsonblob_by_hash_name({name})')
+    return json.loads(''.join(read_git_object_content(name)))
 
 def load_git_commit_by_hash_name(name):
     logging.debug(f'git_timestore.load_git_commit_by_hash_name({name})')
@@ -102,18 +109,57 @@ def commit_tree(tree_hashname):
     commit = Commit(tree_hashname, parent, 'added timestamps')
     return save_git_commit(commit)
 
-def save_timeentry(messages, kwargs):
-    '''
-    Args: 
-        param1(list): messages list og strings
-        param2(str): String containing hash to a or commit or starts with issue
-    '''
-    logging.debug(f'git_timestore.save_timeentry({messages}, {kwargs})')
-    tree = load_latest_tree()
 
-    issue = kwargs.get('issue', None)
-    issue_comment = kwargs.get('issue_comment', None)
-    commit = kwargs.get('commit', None)
+def edit_json_git_blob(args):
+    target = args.get('target', None)
+    remove = args.get('remove', None)
+    new_entry = args.get('entry', None)
+    tree = args['tree']
+    if target:
+        target_entry = tree.get_entry_by_key(target)
+        if target_entry:
+            target_blob_ref = target_entry.p1
+            entries = load_git_jsonblob_by_hash_name(target_blob_ref)
+
+            if remove:
+                entries.pop(remove)
+            if new_entry:
+                entries[shared.sha1_gen_dict(new_entry)] = new_entry
+            
+            #TODO sort entries by timestamp before writing to blob
+            
+            blob = Blob(str(entries).replace('\'','"'))
+            new_blob_ref = save_git_blob(blob)
+            target_entry.p1 = new_blob_ref
+
+            tree.change_entry_by_key(target_entry.p2 ,target_entry)
+            tree_ref = tree.save_tree()
+            commit_ref = commit_tree(tree_ref)
+            save_commit_ref(commit_ref)
+        else:
+            entries = {}
+            if new_entry:
+                entries[shared.sha1_gen_dict(new_entry)] = new_entry
+            blob = Blob(str(entries).replace('\'','"'))
+            new_blob_ref = save_git_blob(blob)
+            target_entry = Entry('blob', new_blob_ref, tree_codes['ref'], target)
+            tree.add_entry(target_entry)
+            tree_ref = tree.save_tree()
+            commit_ref = commit_tree(tree_ref)
+            save_commit_ref(commit_ref)
+    else:
+        logging.error('Missing args')
+        return
+
+def target_obj(args):
+    '''
+    Determins if a reference to object is send in or if it has to make a new git object.
+    And returns the reference of the target git object
+    '''
+    logging.debug(f'git_timestore.target_obj({args})')
+    issue = args.get('issue', None)
+    issue_comment = args.get('issue_comment', None)
+    commit = args.get('commit', None)
     #TODO add calendar/slack and files
 
     #create obj depending on args
@@ -130,53 +176,210 @@ def save_timeentry(messages, kwargs):
     if 'obj' not in locals():
         logging.error('Missing placement argument')
         sys.exit(1)
-
-    #append new timestamps to blob with reference to the object
-    for index, entry in enumerate(tree.get_all_entries()):
-        if entry.p2 == obj:
-            place = index
-    
-    if 'place' in locals():
-        entry = tree.get_entry_by_index(place)
-        msg_list = load_git_blob_by_hash_name(entry.p1)
-        msg_list = list(filter(None, msg_list))
     else:
-        msg_list = []
-        entry = Entry('blob', None, tree_codes['commit'], obj)
-    
-    #Update old entry with new
-    blob = save_git_blob(Blob('\n'.join(msg_list + messages))) 
-    entry.p1 = blob
+        return obj
 
-    if 'place' in locals():
-        tree.change_entry_by_index(place, entry)
-    else:
-        tree.add_entry(entry)
+def save_entry(kwargs):
+    '''
+    new time entry:
+        json(str) or entry(Time_entry)
+        issue(number), commit(ref) or target(blob ref)
+
+    remove time entry:
+        issue(number), commit(ref) or target(blob ref)
+        remove(line hash value)
     
-    tree_hashname = tree.save_tree()
-    commit_hash = commit_tree(tree_hashname)
-    save_commit_ref(commit_hash)
+    remove time entry can be done at the sametime as new time entry like an edit
+    '''
+    
+    logging.debug(f'git_timestore.save_timeentry({kwargs})')
+    
+    json_string = kwargs.get('json', None)
+    entry = kwargs.get('entry', None)
+    target = kwargs.get('target', None)
+    
+    kwargs['tree'] = load_latest_tree()
+
+    if json_string and not entry:
+        json_data = json.loads(json_string)
+        entry = json_data['content']
+        kwargs['entry'] = entry
+
+    if not target:
+        target = target_obj(kwargs)
+        kwargs['target'] = target
+
+    edit_json_git_blob(kwargs)
+
+
+# def target_obj(args): # dupe save
+#     '''
+#     Determins if a reference to object is send in or if it has to make a new git object.
+#     And returns the reference of the target git object
+#     '''
+#     logging.debug(f'git_timestore.target_obj({args})')
+#     issue = args.get('issue', None)
+#     issue_comment = args.get('issue_comment', None)
+#     commit = args.get('commit', None)
+#     #TODO add calendar/slack and files
+
+#     #create obj depending on args
+#     if commit:
+#         #TODO verify git object exsist
+#         obj = commit
+#     elif issue:
+#         url = shared.find_git_variables()['url'] + '/issue/' + str(issue)
+#         obj = save_git_blob(Blob(url))
+#     elif issue_comment:
+#         url = shared.find_git_variables()['url'] + '/issue/' + issue_comment
+#         obj = save_git_blob(Blob(url))
+
+#     if 'obj' not in locals():
+#         logging.error('Missing placement argument')
+#         sys.exit(1)
+#     else:
+#         return obj
+
+# def save_timeentry(messages, kwargs):
+#     '''
+#     Args: 
+#         param1(list): messages list og strings
+#         param2(str): String containing hash to a or commit or starts with issue
+#     '''
+#     logging.debug(f'git_timestore.save_timeentry({messages}, {kwargs})')
+#     tree = load_latest_tree()
+
+#     obj = target_obj(kwargs)
+
+#     #append new timestamps to blob with reference to the object
+#     for index, entry in enumerate(tree.get_all_entries()):
+#         if entry.p2 == obj:
+#             place = index
+    
+#     if 'place' in locals():
+#         entry = tree.get_entry_by_index(place)
+#         msg_list = load_git_blob_by_hash_name(entry.p1)
+#         msg_list = list(filter(None, msg_list))
+#     else:
+#         msg_list = []
+#         entry = Entry('blob', None, tree_codes['commit'], obj)
+    
+#     #Update old entry with new
+#     blob = save_git_blob(Blob('\n'.join(msg_list + messages))) 
+#     entry.p1 = blob
+
+#     if 'place' in locals():
+#         tree.change_entry_by_index(place, entry)
+#     else:
+#         tree.add_entry(entry)
+    
+#     tree_hashname = tree.save_tree()
+#     commit_hash = commit_tree(tree_hashname)
+#     save_commit_ref(commit_hash)
 
 def extract_entries():
     logging.debug(f'git_timestore.extract_entries()')
     result = {}
     tree = load_latest_tree()
     for entry in tree.get_all_entries():
-        result[entry.p2] = load_git_blob_by_hash_name(entry.p1)
+        result[entry.p2] = load_git_jsonblob_by_hash_name(entry.p1)
     return result
+
+def extract_entries_by_hash(hashname):
+    tree = load_latest_tree()
+    entry = tree.get_entry_by_key(hashname)
+    data = load_git_jsonblob_by_hash_name(entry.p1)
+    return data
+
+def entries_all_as_list():
+    entries = []
+    temp = extract_entries()
+    
+    for value in temp.values():
+        for val in value:
+            entries += val
+    return entries
+
+# def listsplitter(los):
+#     '''
+#     Take whatever content we have in tempfile and sorts it in our
+#     2 different tags so we can play nice with them.
+
+#     Args:
+#         param1(list): los - los or list of strings is a as the name says
+#         a list of string with our meta data.
+
+#     Return:
+#         list: start_list - A list with all the meta tags start
+#         list: end_list - A list with all the meta tags end
+#     '''
+#     logging.debug(f'git_timestore.listsplitter({los})')
+#     start_list = []
+#     end_list = []
+#     for string in los:
+#         metatag = re.findall(r'\[(.*?)\]', string)
+#         if metatag[1] == 'start':
+#             start_list.append(string)
+#         elif metatag[1] == 'end':
+#             end_list.append(string)
+#     return start_list, end_list
 
 def treeway_merge_blobs(base, remote, local):
     logging.debug(f'git_timestore.extract_entries()')
     if base is not None:
-        base = load_git_blob_by_hash_name(base)
+        base = load_git_jsonblob_by_hash_name(base)
     else:
         base = []
-    remote = load_git_blob_by_hash_name(remote)
-    local = load_git_blob_by_hash_name(local)
+    remote = load_git_jsonblob_by_hash_name(remote)
+    local = load_git_jsonblob_by_hash_name(local)
 
-    content = merge_list_content(base, remote, local)
-    blob = Blob('\n'.join(content))
+    content = merge_dict_content(base, remote, local)
+    blob = Blob(str(content).replace('\'','"'))
     return save_git_blob(blob)
+
+def merge_dict_content(base, remote, local):
+    '''
+    Merges 2 list of strings together by looking at the split point they both originated from hashname
+    Args:
+        param1(dict containing strings): base - The dict of strings the two other dict originated from
+        param2(dict containing strings): remote - A dict of strings
+        param3(dict containing strings): local - A dict of strings
+    
+    Return:
+        list: Returns a list containing strings 
+    '''
+    logging.debug(f'git_timestore.merge_list_content({base}, {remote}, {local})')
+
+    local_removed, local_added = dict_diff(base, local)
+    #TODO modify remote with the lines removed and lines added
+    for key in local_removed:
+        remote.pop(key)
+    for key in local_added:
+        remote[key] = local[key]
+    return remote 
+
+def dict_diff(dict1, dict2):
+    '''
+    Takes 2 dicts and sort the keys dict2 has remove and added into 2 list of strings
+    Args:
+        param1(list): dict1 - origin
+        param2(list): dict2 - list that is an extension of origin
+
+    Return:
+        list, list: Returns 2 list of keys, with the 1st being what dict2 has removed and the 2nd being what it has added
+    '''
+    logging.debug(f'git_timestore.list_diff({dict1}, {dict2})')
+    #TODO find added and removed keys
+    removed = []
+    for key in dict1:
+        if key not in dict2:
+            removed.append(key)
+    added = []
+    for key in dict2:
+        if key not in dict1:
+            added.append(key)
+    
+    return removed, added
 
 
 def merge_list_content(base, remote, local):

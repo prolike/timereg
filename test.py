@@ -13,88 +13,114 @@ import importlib
 
 
 # uncommenent to enable verbose :)  
-#importlib.reload(logging)
-#logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.debug)
+# importlib.reload(logging)
+# logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
-class Test_timelog(unittest.TestCase):
+# class Test_timelog(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(self):
-        shared.set_working_dir(os.getcwd())
-        try:
-            os.rename(shared.get_gitpath()[:-5] + '.time', shared.get_gitpath()[:-5] + '.time.save')
-        except:
-            pass
+#     @classmethod
+#     def setUpClass(self):
+#         shared.set_working_dir(os.getcwd())
+#         shared.set_quiet_mode(True)
+#         try:
+#             os.rename(shared.get_gitpath()[:-5] + '.time', shared.get_gitpath()[:-5] + '.time.save')
+#         except:
+#             pass
 
-    @classmethod
-    def tearDownClass(self):
-        try:
-            os.rename(shared.get_gitpath()[:-5] + '.time.save', shared.get_gitpath()[:-5] + '.time')
-        except:
-            pass
+#     @classmethod
+#     def tearDownClass(self):
+#         shared.set_working_dir(os.getcwd())
+#         subprocess.call(['rm', '-rf', './test/test_env'], stdout=None, stderr=None)  
+#         try:
+#             os.rename(shared.get_gitpath()[:-5] + '.time.save', shared.get_gitpath()[:-5] + '.time')
+#         except:
+#             pass
 
-    def setUp(self):
-        print(" In method", self._testMethodName)
+#     def setUp(self):
+#         print(" In method", self._testMethodName)
 
-    def tearDown(self):
-        try:
-            os.remove(shared.get_gitpath()[:-5] + '.time/tempfile')
-        except:
-            pass
+#     def tearDown(self):
+#         try:
+#             os.remove(shared.get_gitpath()[:-5] + '.time/tempfile')
+#         except:
+#             pass
 
-    def test_log_write(self):
-        self.assertEqual(timelog.log_type('start'), True)
+#     def test_log_start_end_logging(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         self.assertTrue(timelog.log_type('start'))
+#         self.assertTrue(timelog.log_type('end'))
 
-    def test_log_start_end_logging(self):
-        timelog.log_type('start')
-        self.assertEqual(timelog.log_type('end'), True)
+#     def test_log_double_start_logging(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         timelog.log_type('start')
+#         self.assertEqual(timelog.log_type('start'), False)
 
-    def test_log_double_start_logging(self):
-        timelog.log_type('start')
-        self.assertEqual(timelog.log_type('start'), False)
+#     def test_log_double_end_logging(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         timelog.log_type('end')
+#         self.assertEqual(timelog.log_type('end'), False)
 
-    def test_log_double_end_logging(self):
-        timelog.log_type('end')
-        self.assertEqual(timelog.log_type('end'), False)
-
-    def test_log_3rd_party_end_self(self):
-        timelog.log_type('start')
-        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
-        self.assertEqual(timelog.log_type('end'), True)
+#     def test_log_3rd_party_end_self(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         timelog.log_type('start')
+#         timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+#         self.assertEqual(timelog.log_type('end'), True)
     
-    def test_log_3rd_party_start_self(self):
-        timelog.log_type('start')
-        timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
-        self.assertEqual(timelog.log_type('start'), False)
+#     def test_log_3rd_party_start_self(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         timelog.log_type('start')
+#         timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+#         self.assertEqual(timelog.log_type('start'), False)
 
-    def test_log_multiple_start_end(self):
-        timelog.log_type('start')
-        timelog.log_type('end')
-        timelog.log_type('start')
-        timelog.log_type('end')
-        timelog.log_type('start')
-        self.assertEqual(timelog.log_type('end'), True)
+#     def test_log_multiple_start_end(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         timelog.log_type('start')
+#         timelog.log_type('end')
+#         timelog.log_type('start')
+#         timelog.log_type('end')
+#         timelog.log_type('start')
+#         self.assertEqual(timelog.log_type('end'), True)
 
-    def test_log_with_custom_time_t1(self):
-        self.assertTrue(timelog.log_type('start', value='1400'))
+#     def test_log_with_custom_time_t1(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         self.assertTrue(timelog.log_type('start', value='14:00'))
+#         self.assertEqual(len(gtc.get_all_as_list()), 1)
+#         self.assertTrue(timelog.log_type('end', value='1405'))
+#         self.assertEqual(len(gtc.get_all_as_list()), 2)
+#         self.assertFalse(timelog.log_type('start', value='145'))
+#         self.assertEqual(len(gtc.get_all_as_list()), 2)
+#         self.assertTrue(timelog.log_type('start', value='1405'))
+#         self.assertTrue(timelog.log_type('end', value='1410'))
+#         self.assertEqual(len(gtc.get_all_as_list()), 4)
 
-    def test_log_with_custom_time_t2(self):
-        self.assertFalse(timelog.log_type('start', value='140'))
-
-    def test_log_with_custom_time_t3(self):
-        self.assertTrue(timelog.log_type('start', value='14:00'))
-
-    def test_log_with_custom_time_t4(self):
-        self.assertTrue(timelog.log_type('start'))
-    
-    def test_log_with_custom_time_t5(self):
-        self.assertTrue(timelog.log_type('did', value = '2h'))
-
-    def test_log_with_custom_time_t6(self):
-        self.assertFalse(timelog.log_type('did', value = ''))
-
-    def test_log_with_custom_time_t7(self):
-        self.assertTrue(timelog.log_type('did', value = '12h'))
+#     def test_log_with_custom_time_t2(self):
+#         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)        
+#         shared.set_working_dir('./test/test_env/clone2')
+#         shared.set_issue_number(1)
+#         self.assertFalse(timelog.log_type('did', value = ''))
+#         self.assertEqual(len(gtc.get_all_as_list()), 0)
+#         self.assertTrue(timelog.log_type('did', value = '2h'))
+#         self.assertEqual(len(gtc.get_all_as_list()), 2)
+#         shared.set_working_dir('./test/test_env/clone1')
+#         self.assertEqual(len(gtc.get_all_as_list()), 0)
+#         self.assertTrue(timelog.log_type('did', value = '12h'))
+#         self.assertEqual(len(gtc.get_all_as_list()), 2)
+#         self.assertTrue(timelog.log_type('start'))
+#         self.assertTrue(timelog.log_type('end'))
 
 class Test_metadata(unittest.TestCase):
 
@@ -333,19 +359,19 @@ class Test_git_timestore(unittest.TestCase):
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
         commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
 
-        #test call no object arg
         try:
-            gtc.store(['dd'])
+            gtc.store()
         except:
             self.assertEqual(str(sys.exc_info()[1]), '1')
 
         #test commit first time and the commit arg    
         shared.set_working_dir('./test/test_env/clone1')
-        gtc.store(['some comment'], commit=commits[0])
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:10:00+0200'}
+        gtc.store(entry=content, commit=commits[0])
         timecommit_name = git_timestore.get_current_ref()
         self.assertTrue(timecommit_name is not None)
-        expected = {commits[0]: ['some comment']}
-        self.assertEqual(gtc.get_all(), expected)
+        expected = {commits[0]: {shared.sha1_gen_dict(content): content}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
 
         #test push commit first time
         shared.set_working_dir('./test/test_env/clone1')
@@ -353,33 +379,38 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/origin')
         timecommit_name = git_timestore.get_current_ref()
         self.assertTrue(timecommit_name is not None)
-        expected = {commits[0]: ['some comment']}
-        self.assertEqual(gtc.get_all(), expected)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:10:00+0200'}
+        expected = {commits[0]: {shared.sha1_gen_dict(content): content}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
 
         #test fetch first time no ref
         shared.set_working_dir('./test/test_env/clone2')
         gtc.fetch()
         timecommit_name = git_timestore.get_current_ref()
         self.assertTrue(timecommit_name is not None)
-        expected = {commits[0]: ['some comment']}
-        self.assertEqual(gtc.get_all(), expected)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:10:00+0200'}
+        expected = {commits[0]: {shared.sha1_gen_dict(content): content}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
 
         #test issue arg and next time commit
         shared.set_working_dir('./test/test_env/clone1')
         timecommit_name = git_timestore.get_current_ref()
-        gtc.store(['issue comment'], issue=4)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}
+        gtc.store(entry=content, issue=4)
         #checking commit history
         old_timecommit_name = timecommit_name
         timecommit = git_timestore.load_git_commit_by_hash_name(git_timestore.get_current_ref())
         self.assertEqual(timecommit.parent, old_timecommit_name)
         #Check entries
         issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
-        expected = {issue: ['issue comment'],\
-                    commits[0]: ['some comment']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}     
+        content2 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:10:00+0200'}        
+        expected = {issue: {shared.sha1_gen_dict(content1): content1},\
+                    commits[0]: {shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
 
 
-        #test push with refs on origin        
+        # #test push with refs on origin        
         shared.set_working_dir('./test/test_env/origin')
         timecommit_name = git_timestore.get_current_ref()
         shared.set_working_dir('./test/test_env/clone1')
@@ -391,9 +422,11 @@ class Test_git_timestore(unittest.TestCase):
         self.assertEqual(timecommit.parent, old_timecommit_name)
         #Check entries
         issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
-        expected = {issue: ['issue comment'],\
-                    commits[0]: ['some comment']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}     
+        content2 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:10:00+0200'}        
+        expected = {issue: {shared.sha1_gen_dict(content1): content1},\
+                    commits[0]: {shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
 
 
     def test_merge_local_and_push(self):
@@ -401,12 +434,14 @@ class Test_git_timestore(unittest.TestCase):
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
         commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
         shared.set_working_dir('./test/test_env/clone1')
-        gtc.store(['issue comment'], issue=4)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.push()
 
         #test of appending comment to allready exsisting blob
         shared.set_working_dir('./test/test_env/clone1')        
-        gtc.store(['issue comment 2'], issue=4)
+        content = {'user':'alfen', 'state':'end', 'timestamp':'2018-09-04T09:30:00+0200'}        
+        gtc.store(entry=content, issue=4)
         #check tree
         timecommit_name = git_timestore.get_current_ref()
         commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
@@ -414,8 +449,10 @@ class Test_git_timestore(unittest.TestCase):
         self.assertTrue(len(tree.get_all_entries()) is 1)
         #Check entries
         issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
-        expected = {issue: ['issue comment', 'issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}        
+        content2 = {'user':'alfen', 'state':'end', 'timestamp':'2018-09-04T09:30:00+0200'}                
+        expected = {issue: {shared.sha1_gen_dict(content1): content1, shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
         
         #push time on object that allready exist on origin
         shared.set_working_dir('./test/test_env/clone1')        
@@ -428,23 +465,28 @@ class Test_git_timestore(unittest.TestCase):
         self.assertTrue(len(tree.get_all_entries()) is 1)
         #Check entries
         issue = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
-        expected = {issue: ['issue comment', 'issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)
-
+        content1 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}        
+        content2 = {'user':'alfen', 'state':'end', 'timestamp':'2018-09-04T09:30:00+0200'}                
+        expected = {issue: {shared.sha1_gen_dict(content1): content1, shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
+        
     def test_merge_conflict_different_objects(self):
         #setup test env
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
         commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
+        
         shared.set_working_dir('./test/test_env/clone2')
-        gtc.store(['issue comment'], issue=2)
+        content = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:30:00+0200'}        
+        gtc.store(entry=content, issue=2)
         gtc.push()
 
         issue2 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/2'))
         issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
         
-        #test of appending comment to allready exsisting blob
+        #test of comment to different blob
         shared.set_working_dir('./test/test_env/clone1')        
-        gtc.store(['issue comment 2'], issue=4)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.push()
         #check tree
         timecommit_name = git_timestore.get_current_ref()
@@ -452,8 +494,10 @@ class Test_git_timestore(unittest.TestCase):
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 2)
         #Check entries
-        expected = {issue2: ['issue comment'], issue4: ['issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:30:00+0200'}                
+        content2 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        expected = {issue2: {shared.sha1_gen_dict(content1): content1}, issue4: {shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
         
         #chek origin
         shared.set_working_dir('./test/test_env/origin')
@@ -463,23 +507,27 @@ class Test_git_timestore(unittest.TestCase):
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 2)
         #Check entries
-        expected = {issue2: ['issue comment'], issue4: ['issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)    
+        content1 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:30:00+0200'}                
+        content2 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        expected = {issue2: {shared.sha1_gen_dict(content1): content1}, issue4: {shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
         
     def test_merge_fetch_conflict_different_objects(self):
         #setup test env
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
         commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
         shared.set_working_dir('./test/test_env/clone2')
-        gtc.store(['issue comment'], issue=2)
+        content = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:30:00+0200'}        
+        gtc.store(entry=content, issue=2)
         gtc.push()
 
         issue2 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/2'))
         issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
         
-        #test of appending comment to allready exsisting blob
+        #test of comment to different blob
         shared.set_working_dir('./test/test_env/clone1')        
-        gtc.store(['issue comment 2'], issue=4)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.fetch()
         #check tree
         timecommit_name = git_timestore.get_current_ref()
@@ -487,8 +535,10 @@ class Test_git_timestore(unittest.TestCase):
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 2)
         #Check entries
-        expected = {issue2: ['issue comment'], issue4: ['issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:30:00+0200'}                
+        content2 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        expected = {issue2: {shared.sha1_gen_dict(content1): content1}, issue4: {shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
         
         #chek origin
         shared.set_working_dir('./test/test_env/origin')
@@ -497,24 +547,26 @@ class Test_git_timestore(unittest.TestCase):
         commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
-        #Check entries
-        expected = {issue2: ['issue comment']}
-        self.assertEqual(gtc.get_all(), expected)    
-        
+        #Check entries expect not to have clone1 changes    
+        content1 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:30:00+0200'}                
+        expected = {issue2: {shared.sha1_gen_dict(content1): content1}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
 
     def test_merge_conflict_same_objects(self):
         #setup test env
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
         commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
         shared.set_working_dir('./test/test_env/clone2')
-        gtc.store(['issue comment'], issue=4)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.push()
 
         issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
         
         #test of appending comment to allready exsisting blob
         shared.set_working_dir('./test/test_env/clone1')        
-        gtc.store(['issue comment 2'], issue=4)
+        content = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:55:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.push()
         #check tree
         timecommit_name = git_timestore.get_current_ref()
@@ -522,8 +574,10 @@ class Test_git_timestore(unittest.TestCase):
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         #Check entries
-        expected = {issue4: ['issue comment', 'issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        content2 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:55:00+0200'}        
+        expected = {issue4: {shared.sha1_gen_dict(content1): content1, shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
         
         #chek origin
         shared.set_working_dir('./test/test_env/origin')
@@ -533,27 +587,32 @@ class Test_git_timestore(unittest.TestCase):
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         #Check entries
-        expected = {issue4: ['issue comment', 'issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:45:00+0200'}        
+        content2 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:55:00+0200'}        
+        expected = {issue4: {shared.sha1_gen_dict(content1): content1, shared.sha1_gen_dict(content2): content2}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
 
     def test_merge_conflict_same_objects_with_history(self):
         #setup test env
         subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
         commits = subprocess.run(['bash', './test/scripts/get_commits'], stdout=subprocess.PIPE, encoding='utf-8').stdout.rstrip().split(' ')
         shared.set_working_dir('./test/test_env/clone2')
-        gtc.store(['issue comment'], issue=4)
+        content = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:55:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.push()
         shared.set_working_dir('./test/test_env/clone1')
         gtc.fetch()
         shared.set_working_dir('./test/test_env/clone2')
-        gtc.store(['issue comment 1'], issue=4)
+        content = {'user':'david', 'state':'end', 'timestamp':'2018-09-04T10:55:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.push()
         
         issue4 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/4'))
         
         #test of appending comment to allready exsisting blob
         shared.set_working_dir('./test/test_env/clone1')        
-        gtc.store(['issue comment 2'], issue=4)
+        content = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T11:55:00+0200'}        
+        gtc.store(entry=content, issue=4)
         gtc.push()
         #check tree
         timecommit_name = git_timestore.get_current_ref()
@@ -561,8 +620,13 @@ class Test_git_timestore(unittest.TestCase):
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         #Check entries
-        expected = {issue4: ['issue comment', 'issue comment 1', 'issue comment 2']}
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:55:00+0200'}        
+        content2 = {'user':'david', 'state':'end', 'timestamp':'2018-09-04T10:55:00+0200'}        
+        content3 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T11:55:00+0200'}        
+        expected = {issue4: {shared.sha1_gen_dict(content1): content1, 
+                             shared.sha1_gen_dict(content2): content2, 
+                             shared.sha1_gen_dict(content3): content3}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
         
         #chek origin
         shared.set_working_dir('./test/test_env/origin')
@@ -572,8 +636,13 @@ class Test_git_timestore(unittest.TestCase):
         tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         #Check entries
-        expected = {issue4: ['issue comment', 'issue comment 1', 'issue comment 2']}        
-        self.assertEqual(gtc.get_all(), expected)
+        content1 = {'user':'david', 'state':'start', 'timestamp':'2018-09-04T09:55:00+0200'}        
+        content2 = {'user':'david', 'state':'end', 'timestamp':'2018-09-04T10:55:00+0200'}        
+        content3 = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T11:55:00+0200'}        
+        expected = {issue4: {shared.sha1_gen_dict(content1): content1, 
+                             shared.sha1_gen_dict(content2): content2, 
+                             shared.sha1_gen_dict(content3): content3}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
         
 
 if __name__ == '__main__':

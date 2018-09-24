@@ -1,4 +1,4 @@
-from python_lib import shared, timestore, metadata
+from python_lib import shared, metadata, git_timestore_calls as gtc
 from datetime import datetime
 import re, logging
 
@@ -24,7 +24,6 @@ def log_type(state, **kwargs):
     username = shared.get_git_variables()['username']
     note_string = '[' + username + '][' + state + ']'
     if metadata.check_correct_order(username, state) is True:
-        #return _state_types(state, value, note_string, cday = cday)
         try:
             if cday is None:
                 return _state_types(state, value, note_string)
@@ -93,7 +92,9 @@ def _write_note(note_string, value, **kwargs):
             note_string += metadata.time(chour=chour, cminute=cminute)
     else:
         note_string += metadata.time()
-    timestore.writetofile([note_string])
+    
+    note_string = shared.sha1_gen(note_string) + note_string
+    gtc.store([note_string], issue=shared.get_issue_number())
 
 def _split_time_value(value):
     logging.debug(f'timelog._split_time_value({value})')
@@ -107,9 +108,8 @@ def _error(state):
     logging.debug(f'timelog._error({state})')
     try:
         s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
-                    ''.join(timestore.readfromfile()[-1:]))
+                    ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
         print('You already', state + 'ed your timer!', s.group(0))
-        return False
     except:
-        print('You already', state + 'ed your timer!', ''.join(timestore.readfromfile()[-1:]))
-        return False
+        print('You already', state + 'ed your timer!', ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
+    return False

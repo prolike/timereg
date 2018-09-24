@@ -1,4 +1,4 @@
-from python_lib import shared, timestore
+from python_lib import shared, timestore, git_timestore_calls as gtc
 from datetime import datetime
 from time import mktime as mktime
 from collections import defaultdict
@@ -57,7 +57,7 @@ def check_correct_order(username, state):
         bool: true or false depending on the criterias
     '''
     logging.debug(f'metadata.check_correct_order({username}, {state})')
-    data_list = timestore.readfromfile()
+    data_list = order_days(gtc.get_all_as_list())
     last_value = -1
     for idx, element in enumerate(data_list):
         metadata = re.findall(r'\[(.*?)\]', element)

@@ -17,7 +17,6 @@ RUN mkdir /home/python_lib && \
     mkdir /home/test && \
     mkdir /home/python_lib/flask
 
-
 COPY python_lib/flask/* /home/python_lib/flask/
 COPY python_lib/* /home/python_lib/
 COPY requirements.txt /home

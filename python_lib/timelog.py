@@ -22,27 +22,29 @@ def log_type(state, **kwargs):
     value = kwargs.get('value', None)
     cday = kwargs.get('date', None)
     username = shared.get_git_variables()['username']
-    note_string = '[' + username + '][' + state + ']'
+    note_dict = {}
+    note_dict['storage'] = {'repo': shared.get_gitpath(), 'issue': shared.get_issue_number()}
+    note_dict['content'] = {'user': username, 'state': state}    
     if metadata.check_correct_order(username, state) is True:
         try:
             if cday is None:
-                return _state_types(state, value, note_string)
-            return _state_types(state, value, note_string, cday = cday)
+                return _state_types(state, value, note_dict)
+            return _state_types(state, value, note_dict, cday = cday)
         except:
-            _write_note(note_string, value)
+            _write_note(note_dict, value)
     else:
         return _error(state)
     return True
 
-def _state_types(state, value, note_string, **kwargs):
-    logging.debug(f'timelog._state_types({state}, {value}, {note_string}, {kwargs})')
+def _state_types(state, value, note_dict, **kwargs):
+    logging.debug(f'timelog._state_types({state}, {value}, {note_dict}, {kwargs})')
     cday = kwargs.get('cday', None)
     if state == 'did':
         return _did_test(value)
     elif state == 'end' or state == 'start':
         if _custom_check(value) is False:
             return False
-        _write_note(note_string, value, cday = cday)
+        _write_note(note_dict, value, cday = cday)
         return True
 
 def _custom_check(value):
@@ -81,35 +83,45 @@ def _did_test(value):
         return True
     return False
 
-def _write_note(note_string, value, **kwargs):
-    logging.debug(f'timelog._write_note({note_string}, {value}, {kwargs})')
+def _write_note(note_dict, value, **kwargs):
+    logging.debug(f'timelog._write_note({note_dict}, {value}, {kwargs})')
     cday = kwargs.get('cday', None)
     if value is not None:
         chour, cminute = _split_time_value(value)
         if cday is not None:
-            note_string += metadata.time(chour=chour, cminute=cminute, cday=cday)
+            note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute, cday=cday)
+            # note_dict += metadata.time(chour=chour, cminute=cminute, cday=cday)
         else:
-            note_string += metadata.time(chour=chour, cminute=cminute)
+            note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute)
+            # note_dict += metadata.time(chour=chour, cminute=cminute)
     else:
-        note_string += metadata.time()
+        note_dict['content']['timestamp'] = metadata.time()
+        # note_dict += metadata.time()
+    # print(note_dict)
     
-    note_string = shared.sha1_gen(note_string) + note_string
-    gtc.store([note_string], issue=shared.get_issue_number())
+    # note_dict = shared.sha1_gen(note_dict) + note_dict
+    # gtc.store(note_dict, issue=shared.get_issue_number())
+    gtc.store_json(str(note_dict).replace('\'', '"'))
 
 def _split_time_value(value):
     logging.debug(f'timelog._split_time_value({value})')
-    time = value.split(':')
-    if len(time) is 2:
-        return time[0], time[1]
-    else:
+    try:
+        time = value.split(':')
+        if len(time) is 2:
+            return time[0], time[1]
+        else:
+            return value[:2], value[-2:]
+    except:
         return value[:2], value[-2:]
 
 def _error(state):
     logging.debug(f'timelog._error({state})')
     try:
-        s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
-                    ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
+        # s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
+        #             ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
         print('You already', state + 'ed your timer!', s.group(0))
     except:
-        print('You already', state + 'ed your timer!', ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
+        pass
+        # print('You already', state + 'ed your timer!', ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
+    print('dooo')
     return False

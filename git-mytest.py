@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 from python_lib import metadata, shared, timestore, timelog, visualconsole, dbook, git_timestore_calls as gtc
 from python_lib.flask import app
-import argparse
-import logging
-import re
-import importlib
+import argparse, logging, re, importlib, json
 
 
 def main():
     arguments()
     importlib.reload(logging)
+    importlib.reload(json)
 
     if args.debug:
-        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.debug)
+        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
     else:
         logging.basicConfig(format='%(levelname)s: %(message)s')      
     
@@ -53,8 +51,9 @@ def main():
         # ere = gtc.get_all_as_dict()
         # print(ere)
 
-        dd = '{"storage":{"repo":"'+ shared.get_gitpath() +'", "issue":1},"content":{"user": "nope","state": "end","timestamp": "' + args.custom + '"} }'        
-        gtc.store_json(dd)
+        # dd = '{"storage":{"repo":"'+ shared.get_gitpath() +'", "issue":1},'
+        # test = {"user": "davidcarl","state": "end","timestamp": metadata.time()}        
+        # gtc.store(entry=test, issue=10)
 
         print(gtc.get_all_as_dict())
 

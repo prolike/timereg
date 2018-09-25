@@ -65,9 +65,17 @@ def listsplitter(los):
     start_list = []
     end_list = []
     for string in los:
-        metatag = re.findall(r'\[(.*?)\]', string)
-        if metatag[1] == 'start':
-            start_list.append(string)
-        elif metatag[1] == 'end':
-            end_list.append(string)
+        if type(string) is dict:
+            metatag = string['state']
+            if metatag == 'start':
+                start_list.append(string)
+            elif metatag == 'end':
+                end_list.append(string)
+        if type(string) is str:
+            for test in los[string]:
+                metatag = los[string][test]['state']
+                if metatag == 'start':
+                    start_list.append(los[string][test])
+                elif metatag == 'end':
+                    end_list.append(los[string][test])
     return start_list, end_list

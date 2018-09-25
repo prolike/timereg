@@ -77,7 +77,11 @@ def load_git_jsonblob_by_hash_name(name):
     Returns a dict in form of the json
     '''
     logging.debug(f'git_timestore.load_git_jsonblob_by_hash_name({name})')
-    return json.loads(''.join(read_git_object_content(name)))
+    p = subprocess.run(shared.git_prefix() + ['cat-file', '-p', name], shell=False, \
+                        stdout=subprocess.PIPE, encoding='utf-8')
+    return json.loads(p.stdout.rstrip())
+
+
 
 def load_git_commit_by_hash_name(name):
     logging.debug(f'git_timestore.load_git_commit_by_hash_name({name})')

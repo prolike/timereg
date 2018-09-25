@@ -26,6 +26,11 @@
     tablesection = document.getElementById('table-section')
     var jsonArray = JSON.parse('{{ split | safe}}');
     tHTML = ''
+    console.log(jsonArray)
+    // for (var k in jsonArray['split_days']) {
+    //     for (var e in jsonArray['split_days'][k])
+    //         console.log(jsonArray['split_days'][k][e]['timestamp'])
+    // }
     for (var k in jsonArray['split_days']) {
         n = 0
         var cHTML = ''
@@ -40,15 +45,14 @@
             '</tr>'
         for (var i in jsonArray['split_days'][k]) {
             if ((n % 2) == 0) {
-                var regexDate = /\[(.*?)\]\[(.*?)\](\d{4}(-\d{2}){2})T/
-                var regexBrackets = /\[(.*?)\]\[(.*?)\]/
+                var regexDate = /(\d{4}(-\d{2}){2})T/
                 var regexTz = /[+-](\d{4})/
 
-                strm1 = jsonArray['split_days'][k][n].replace(regexDate, '')
-                strm2 = jsonArray['split_days'][k][n + 1].replace(regexDate, '')
-
-                dt1 = jsonArray['split_days'][k][n].replace(regexBrackets, '')
-                dt2 = jsonArray['split_days'][k][n + 1].replace(regexBrackets, '')
+                strm1 = jsonArray['split_days'][k][n]['timestamp'].replace(regexDate, '')
+                strm2 = jsonArray['split_days'][k][n + 1]['timestamp'].replace(regexDate, '')
+                
+                dt1 = jsonArray['split_days'][k][n]['timestamp']
+                dt2 = jsonArray['split_days'][k][n + 1]['timestamp']
                 dt1 = dt1.replace(regexTz, '')
                 dt2 = dt2.replace(regexTz, '')
                 var d1 = new Date(dt1)
@@ -72,13 +76,14 @@
             '</table>' +
             '</div>'
         tHTML += cHTML
+        cHTML = ''
     }
 
     cHTML += '<div class = "totalwork">' +
         '<table>' +
         '<tr>' +
         '<td class = "right-left double-size-table">Total time worked</td>' +
-        '<td class = "center-text worked">' + jsonArray['total_time_worked'] + '</td>' +
+        '<td class = "center-text worked">' + writeUTCtime(new Date(jsonArray['total_time_worked'] * 1000)) + '</td>' +
         '</tr>' +
         '</table>' +
         '</div>'

@@ -1,4 +1,4 @@
-from python_lib import metadata, shared, timestore
+from python_lib import metadata, shared, timestore, git_timestore_calls as gtc
 from datetime import datetime
 import subprocess
 
@@ -6,7 +6,7 @@ import subprocess
 def main():
     username = shared.get_git_variables()['username']
     url = shared.get_git_variables()['url']
-    split_days = metadata.split_on_days(timestore.readfromfile())
+    split_days = metadata.split_on_days(gtc.get_all_as_dict())
     t_string = '\n'
     t_string += (username + ' worked on project ' + url.split('/')[4])
     t_string += ('\nurl: ' + url)
@@ -31,7 +31,7 @@ def table_print(value):
         timestr = metadata.seconds_to_timestamp(metadata.calc_time_worked(start_list, end_list))
         r_string += ('| Time worked today             | ' + timestr.ljust(15) + ' |\n')
         r_string += ('---------------------------------------------------\n')
-    start_list_total, end_list_total = timestore.listsplitter(metadata.order_days(timestore.readfromfile()))
+    start_list_total, end_list_total = timestore.listsplitter(metadata.order_days(gtc.get_all_as_dict()))
     timestr = metadata.seconds_to_timestamp(metadata.calc_time_worked(start_list_total, end_list_total))
     r_string += ('---------------------------------------------------\n')
     r_string += ('| Total time worked             | ' + timestr.ljust(15) + ' |\n')

@@ -20,7 +20,7 @@ checkbox.addEventListener( 'change', function() {
                 nMin -= 60
             }
             
-            var newstr = nHour + ':' + nMin + ':' + tzsplit[0].split(':')[2]
+            var newstr = addZeroBefore(nHour) + ':' + addZeroBefore(nMin) + ':' + tzsplit[0].split(':')[2]
             all[i].innerHTML = newstr
         }
     } else {
@@ -33,3 +33,7 @@ checkbox.addEventListener( 'change', function() {
         }
     }
 });
+
+function addZeroBefore(n) {
+    return (n < 10 ? '0' : '') + n;
+}

@@ -1,6 +1,6 @@
 import os, sys, subprocess, logging, re, json
 from python_lib import shared 
-from .git_objects import Entry, Blob, Commit, Tree, Time_entry
+from .git_objects import Entry, Blob, Commit, Tree
 
 tree_codes = {
     'commit':   100644,
@@ -182,7 +182,7 @@ def target_obj(args):
 def save_entry(kwargs):
     '''
     new time entry:
-        json(str) or entry(Time_entry)
+        json(str) or entry(dict)
         issue(number), commit(ref) or target(blob ref)
 
     remove time entry:
@@ -202,7 +202,10 @@ def save_entry(kwargs):
 
     if json_string and not entry:
         json_data = json.loads(json_string)
-        entry = json_data['content']
+        if 'content' in json_data:
+            entry = json_data['content']
+        else:
+            entry = json_data
         kwargs['entry'] = entry
 
     if not target:
@@ -210,72 +213,6 @@ def save_entry(kwargs):
         kwargs['target'] = target
 
     edit_json_git_blob(kwargs)
-
-
-# def target_obj(args): # dupe save
-#     '''
-#     Determins if a reference to object is send in or if it has to make a new git object.
-#     And returns the reference of the target git object
-#     '''
-#     logging.debug(f'git_timestore.target_obj({args})')
-#     issue = args.get('issue', None)
-#     issue_comment = args.get('issue_comment', None)
-#     commit = args.get('commit', None)
-#     #TODO add calendar/slack and files
-
-#     #create obj depending on args
-#     if commit:
-#         #TODO verify git object exsist
-#         obj = commit
-#     elif issue:
-#         url = shared.find_git_variables()['url'] + '/issue/' + str(issue)
-#         obj = save_git_blob(Blob(url))
-#     elif issue_comment:
-#         url = shared.find_git_variables()['url'] + '/issue/' + issue_comment
-#         obj = save_git_blob(Blob(url))
-
-#     if 'obj' not in locals():
-#         logging.error('Missing placement argument')
-#         sys.exit(1)
-#     else:
-#         return obj
-
-# def save_timeentry(messages, kwargs):
-#     '''
-#     Args: 
-#         param1(list): messages list og strings
-#         param2(str): String containing hash to a or commit or starts with issue
-#     '''
-#     logging.debug(f'git_timestore.save_timeentry({messages}, {kwargs})')
-#     tree = load_latest_tree()
-
-#     obj = target_obj(kwargs)
-
-#     #append new timestamps to blob with reference to the object
-#     for index, entry in enumerate(tree.get_all_entries()):
-#         if entry.p2 == obj:
-#             place = index
-    
-#     if 'place' in locals():
-#         entry = tree.get_entry_by_index(place)
-#         msg_list = load_git_blob_by_hash_name(entry.p1)
-#         msg_list = list(filter(None, msg_list))
-#     else:
-#         msg_list = []
-#         entry = Entry('blob', None, tree_codes['commit'], obj)
-    
-#     #Update old entry with new
-#     blob = save_git_blob(Blob('\n'.join(msg_list + messages))) 
-#     entry.p1 = blob
-
-#     if 'place' in locals():
-#         tree.change_entry_by_index(place, entry)
-#     else:
-#         tree.add_entry(entry)
-    
-#     tree_hashname = tree.save_tree()
-#     commit_hash = commit_tree(tree_hashname)
-#     save_commit_ref(commit_hash)
 
 def extract_entries():
     logging.debug(f'git_timestore.extract_entries()')
@@ -290,39 +227,6 @@ def extract_entries_by_hash(hashname):
     entry = tree.get_entry_by_key(hashname)
     data = load_git_jsonblob_by_hash_name(entry.p1)
     return data
-
-def entries_all_as_list():
-    entries = []
-    temp = extract_entries()
-    
-    for value in temp.values():
-        for val in value:
-            entries += val
-    return entries
-
-# def listsplitter(los):
-#     '''
-#     Take whatever content we have in tempfile and sorts it in our
-#     2 different tags so we can play nice with them.
-
-#     Args:
-#         param1(list): los - los or list of strings is a as the name says
-#         a list of string with our meta data.
-
-#     Return:
-#         list: start_list - A list with all the meta tags start
-#         list: end_list - A list with all the meta tags end
-#     '''
-#     logging.debug(f'git_timestore.listsplitter({los})')
-#     start_list = []
-#     end_list = []
-#     for string in los:
-#         metatag = re.findall(r'\[(.*?)\]', string)
-#         if metatag[1] == 'start':
-#             start_list.append(string)
-#         elif metatag[1] == 'end':
-#             end_list.append(string)
-#     return start_list, end_list
 
 def treeway_merge_blobs(base, remote, local):
     logging.debug(f'git_timestore.extract_entries()')
@@ -348,7 +252,7 @@ def merge_dict_content(base, remote, local):
     Return:
         list: Returns a list containing strings 
     '''
-    logging.debug(f'git_timestore.merge_list_content({base}, {remote}, {local})')
+    logging.debug(f'git_timestore.merge_dict_content({base}, {remote}, {local})')
 
     local_removed, local_added = dict_diff(base, local)
     #TODO modify remote with the lines removed and lines added
@@ -380,36 +284,3 @@ def dict_diff(dict1, dict2):
             added.append(key)
     
     return removed, added
-
-
-def merge_list_content(base, remote, local):
-    '''
-    Merges 2 list of strings together by looking at the split point they both originated from hashname
-    Args:
-        param1(list containing strings): base - The list of strings the two other list originated from
-        param2(list containing strings): remote - A list of strings
-        param3(list containing strings): local - A list of strings
-    
-    Return:
-        list: Returns a list containing strings 
-    '''
-    logging.debug(f'git_timestore.merge_list_content({base}, {remote}, {local})')
-
-    base_remote_diff = list_diff(base, remote)
-    base_local_diff = list_diff(base, local)
-
-    return base + base_remote_diff + base_local_diff
-
-
-def list_diff(list1, list2):
-    '''
-    Args:
-        param1(list): list1 - origin
-        param2(list): list2 - list that is an extension of origin
-
-    Return:
-        list: Returns a list of objects list2 has added ontop of list1
-    '''
-    logging.debug(f'git_timestore.list_diff({list1}, {list2})')
-    diff = list2[len(list1):]
-    return diff

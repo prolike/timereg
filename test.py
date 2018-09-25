@@ -409,7 +409,6 @@ class Test_git_timestore(unittest.TestCase):
                     commits[0]: {shared.sha1_gen_dict(content2): content2}}
         self.assertEqual(gtc.get_all_as_dict(), expected)
 
-
         # #test push with refs on origin        
         shared.set_working_dir('./test/test_env/origin')
         timecommit_name = git_timestore.get_current_ref()
@@ -428,6 +427,37 @@ class Test_git_timestore(unittest.TestCase):
                     commits[0]: {shared.sha1_gen_dict(content2): content2}}
         self.assertEqual(gtc.get_all_as_dict(), expected)
 
+    def test_store_json(self):
+        #setup test env
+        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+        shared.set_working_dir('./test/test_env/clone2')
+        json_obj = {'storage': {'repo': shared.get_gitpath(), 'issue':2}, 'content': {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}}        
+        json_string = str(json_obj).replace('\'','"')
+        gtc.store_json(json_string)
+        issue2 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/2'))
+        expected = {issue2: {shared.sha1_gen_dict(json_obj['content']): json_obj['content']}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
+
+        expected = {shared.sha1_gen_dict(json_obj['content']): json_obj['content']}
+        self.assertEqual(gtc.get_all_by_hash(issue2), expected)
+
+        shared.set_working_dir('./test/test_env/clone1')
+        json_obj = {'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}        
+        json_string = str(json_obj).replace('\'','"')        
+        gtc.store(json=json_string, issue=2)
+        issue2 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/2')) 
+        expected = {issue2: {shared.sha1_gen_dict(json_obj): json_obj}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
+
+        shared.set_working_dir('./test/test_env/clone1')
+        os.remove(shared.get_gitpath() + 'refs/time/commits')
+        json_obj = {'content':{'user':'alfen', 'state':'start', 'timestamp':'2018-09-04T09:15:00+0200'}}
+        json_string = str(json_obj).replace('\'','"')      
+        gtc.store(json=json_string, issue=2)
+        issue2 = git_timestore.save_git_blob(git_objects.Blob(os.getcwd()+'/test/test_env/origin/issue/2')) 
+        expected = {issue2: {shared.sha1_gen_dict(json_obj['content']): json_obj['content']}}
+        self.assertEqual(gtc.get_all_as_dict(), expected)
+        
 
     def test_merge_local_and_push(self):
         #setup test env

@@ -24,18 +24,11 @@ class Tree:
 
     def get_all_entries(self):
         return self.entries
-
-    def get_entry_by_index(self, index):
-        return self.entries[index]
     
     def get_entry_by_key(self, key):
         for entry in self.entries:
             if entry.p2 == key:
                 return entry
-
-    def change_entry_by_index(self, index, new_entry):
-        if index < len(self.entries) and index >= 0:
-            self.entries[index] = new_entry
 
     def change_entry_by_key(self, key, new_entry):
         for i, entry in enumerate(self.entries):
@@ -81,20 +74,3 @@ class Entry:
 
     def __str__(self):
         return f'{self.p2_type} {self.p1_type} {self.p1}\t{self.p2}\n'
-
-
-class Time_entry:
-    def __init__(self):
-        self.repo = ''
-        self.parent = ''
-        self.content = {}
-
-    def __str__(self):
-        return str(self.content).replace('\'','"')
-
-    def load_from_json(self, json_string):
-        json_data = json.loads(json_string)
-        self.content = json_data['content']
-
-    def contenthash(self):
-        return shared.sha1_gen(str(self.content))

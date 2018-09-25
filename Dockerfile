@@ -14,8 +14,11 @@ RUN echo $TZ > /etc/timezone && \
     apt-get clean
 
 RUN mkdir /home/python_lib && \
-    mkdir /home/test
+    mkdir /home/test && \
+    mkdir /home/python_lib/flask
 
+
+COPY python_lib/flask/* /home/python_lib/flask/
 COPY python_lib/* /home/python_lib/
 COPY requirements.txt /home
 COPY test/* /home/test/
@@ -25,6 +28,6 @@ COPY git-mytest.py /home
 RUN pip3 install -r /home/requirements.txt && \
     chmod 755 /home/test.py && \
     chmod 755 /home/git-mytest.py && \
-    ls -all /
+    ls -all /home/python_lib/flask/
 
 WORKDIR /home

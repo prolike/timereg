@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify
-from python_lib import shared, metadata, timestore, git_timestore_calls as gtc
+from python_lib import shared, metadata, git_timestore_calls as gtc
 import json
 
 
@@ -11,7 +11,7 @@ def index():
     clean_dict = gtc.get_all_as_dict()
     order = metadata.order_days(clean_dict)
     split_days = metadata.split_on_days(clean_dict)
-    start, end = timestore.listsplitter(clean_dict)
+    start, end = shared.listsplitter(clean_dict)
     data = {}
     data['total_time_worked'] = metadata.calc_time_worked(start, end)
     data['split_days'] = split_days

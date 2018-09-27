@@ -1,18 +1,15 @@
-from python_lib import shared, timestore, metadata
+from python_lib import shared, metadata
 from datetime import datetime
 import logging
 
 
 time_format = shared.get_time_format()[:-2]
 
-def test():
-    print(check_booked_time(timestore.readfromfile(), metadata.time()))
-
 def check_booked_time(t_list, value):
     logging.debug(f'dbook.check_booked_time({t_list}, {value})')
     date = metadata.get_date(value)
     d_list = get_list_of_day(t_list, date)
-    start_date, end_date = timestore.listsplitter(d_list)
+    start_date, end_date = shared.listsplitter(d_list)
     for start, end in zip(start_date, end_date):
         start_sec = datetime.strptime(metadata.extract_timestamp(start)[:-5], time_format).timestamp()
         end_sec = datetime.strptime(metadata.extract_timestamp(end)[:-5], time_format).timestamp()

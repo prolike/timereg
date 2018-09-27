@@ -1,4 +1,4 @@
-from python_lib import shared, timestore, git_timestore_calls as gtc
+from python_lib import shared, git_timestore_calls as gtc
 from datetime import datetime
 from time import mktime as mktime
 from collections import defaultdict

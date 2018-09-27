@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from datetime import datetime
-from python_lib import metadata, shared, timestore, timelog
+from python_lib import metadata, shared, timelog
 from python_lib import git_timestore_calls as gtc, git_objects, git_timestore
 from tzlocal import get_localzone
 from collections import defaultdict
@@ -80,7 +80,7 @@ def test_log_3rd_party_end_self(self):
     shared.set_working_dir('./test/test_env/clone2')
     shared.set_issue_number(1)
     timelog.log_type('start')
-    timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+    gtc.store(entry={'user':'bo', 'state':'start', 'timestamp':'2018-08-28T13:40:45+0200'}, issue=1)
     self.assertEqual(timelog.log_type('end'), True)
 
 
@@ -89,7 +89,7 @@ def test_log_3rd_party_start_self(self):
     shared.set_working_dir('./test/test_env/clone2')
     shared.set_issue_number(1)
     timelog.log_type('start')
-    timestore.writetofile(['[bo]][start]2018-08-28T13:40:45+0200'])
+    gtc.store(entry={'user':'bo', 'state':'start', 'timestamp':'2018-08-28T13:40:45+0200'}, issue=1)
     self.assertEqual(timelog.log_type('start'), False)
 
 
@@ -297,29 +297,6 @@ class Test_gitmytest(unittest.TestCase):
         run = subprocess.run(
             ['python3', 'git-mytest.py', '-h'], stdout=subprocess.PIPE)
         self.assertEqual(run.returncode, 0)
-
-
-class Test_timestore(unittest.TestCase):
-
-    @classmethod
-    def tearDownClass(self):
-        shared.set_working_dir(os.getcwd())
-        subprocess.call(['rm', '-rf', './test/test_env'],
-                        stdout=None, stderr=None)
-
-    def setUp(self):
-        shared.set_working_dir(os.getcwd())
-        print(' In method', self._testMethodName)
-
-    def test_listsplitter(self):
-        testdata = {'2df195ddc6fd9153a2326ce55a718455ca5e79bc': {'ce31b3b3492cae01018f2859b87d69a840b15fb5': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}, '901f04282f02771977b6f17bbfe1e42bb1577d9f': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:02+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '901f04282f02771977b6f17bbfe1e42bb1577d9f'}}, '2b660624249cd63db721810a7b5c5ff6216075a5': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:03+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}}, '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:04+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4'}}, 'ea16293a47e783e1ea74c3ade5a63d204de95f31': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:41:26+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ea16293a47e783e1ea74c3ade5a63d204de95f31'}}, '6360c0de47e1c7bc456c8e213ba7584849a2684e': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:41:30+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '6360c0de47e1c7bc456c8e213ba7584849a2684e'}},
-                                                                 '7ba6a3ac15c776f4848d3eb9b978b3c0dc4d1801': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:29+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '7ba6a3ac15c776f4848d3eb9b978b3c0dc4d1801'}}, '58056171fbd3cbefd8b161d78fd4fff9f010525d': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:44:42+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '58056171fbd3cbefd8b161d78fd4fff9f010525d'}}, 'a602878548affc03399c9a53a7ccf02faca737df': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:49+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'a602878548affc03399c9a53a7ccf02faca737df'}}, '3543633e336ca7a6718d64969e9ff819105d2153': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:46:34+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '3543633e336ca7a6718d64969e9ff819105d2153'}}, 'b6af662f075c8e13a8730f02717a85b033c81305': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:50:33+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'b6af662f075c8e13a8730f02717a85b033c81305'}}, '96b8f277195b658dab43b652f4264dde9bdc189f': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:50:39+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '96b8f277195b658dab43b652f4264dde9bdc189f'}}}}
-        start_list, end_list = timestore.listsplitter(testdata)
-        self.assertEqual(start_list, [{'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:03+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:41:26+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ea16293a47e783e1ea74c3ade5a63d204de95f31'}}, {
-                         'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:29+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '7ba6a3ac15c776f4848d3eb9b978b3c0dc4d1801'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:49+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'a602878548affc03399c9a53a7ccf02faca737df'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:50:33+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'b6af662f075c8e13a8730f02717a85b033c81305'}}])
-        self.assertEqual(end_list, [{'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:02+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '901f04282f02771977b6f17bbfe1e42bb1577d9f'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:04+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:41:30+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '6360c0de47e1c7bc456c8e213ba7584849a2684e'}}, {
-                         'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:44:42+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '58056171fbd3cbefd8b161d78fd4fff9f010525d'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:46:34+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '3543633e336ca7a6718d64969e9ff819105d2153'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:50:39+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '96b8f277195b658dab43b652f4264dde9bdc189f'}}])
-
 
 class Test_git_timestore(unittest.TestCase):
 

@@ -1,4 +1,4 @@
-from python_lib import metadata, shared, timestore, git_timestore_calls as gtc
+from python_lib import metadata, shared, git_timestore_calls as gtc
 from datetime import datetime
 import subprocess
 
@@ -17,7 +17,7 @@ def main():
 def table_print(value):
     r_string = ''
     for key in value:
-        start_list, end_list = timestore.listsplitter(value[key])    
+        start_list, end_list = shared.listsplitter(value[key])    
         r_string += (datetime.strptime(key, '%Y-%m-%d').strftime('\n%A %Y-%m-%d') + '\n')
         r_string += ('---------------------------------------------------\n')
         r_string += ('| Started       | Ended         | Time worked     |\n')
@@ -31,7 +31,7 @@ def table_print(value):
         timestr = metadata.seconds_to_timestamp(metadata.calc_time_worked(start_list, end_list))
         r_string += ('| Time worked today             | ' + timestr.ljust(15) + ' |\n')
         r_string += ('---------------------------------------------------\n')
-    start_list_total, end_list_total = timestore.listsplitter(metadata.order_days(gtc.get_all_as_dict()))
+    start_list_total, end_list_total = shared.listsplitter(metadata.order_days(gtc.get_all_as_dict()))
     timestr = metadata.seconds_to_timestamp(metadata.calc_time_worked(start_list_total, end_list_total))
     r_string += ('---------------------------------------------------\n')
     r_string += ('| Total time worked             | ' + timestr.ljust(15) + ' |\n')

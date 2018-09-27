@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from python_lib import metadata, shared, timestore, timelog, visualconsole, dbook, git_timestore_calls as gtc
+from python_lib import metadata, shared, timelog, visualconsole, dbook, git_timestore_calls as gtc
 from python_lib.flask import app
 import argparse, logging, re, importlib, json
 

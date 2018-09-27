@@ -193,3 +193,35 @@ def sha1_gen_dict(content):
     sha1 = hashlib.sha1()
     sha1.update(str.encode(content))
     return sha1.hexdigest()
+
+def listsplitter(los):
+    '''
+    Take whatever content we have in tempfile and sorts it in our
+    2 different tags so we can play nice with them.
+
+    Args:
+        param1(list): los - los or list of strings is a as the name says
+        a list of string with our meta data.
+
+    Return:
+        list: start_list - A list with all the meta tags start
+        list: end_list - A list with all the meta tags end
+    '''
+    logging.debug(f'timestore.listsplitter({los})')
+    start_list = []
+    end_list = []
+    for string in los:
+        if type(string) is dict:
+            metatag = string['state']
+            if metatag == 'start':
+                start_list.append(string)
+            elif metatag == 'end':
+                end_list.append(string)
+        if type(string) is str:
+            for test in los[string]:
+                metatag = los[string][test]['state']
+                if metatag == 'start':
+                    start_list.append(los[string][test])
+                elif metatag == 'end':
+                    end_list.append(los[string][test])
+    return start_list, end_list

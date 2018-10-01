@@ -36,7 +36,7 @@ def main():
         else:
             timelog.log_type('end')
     if args.checktime:
-        visualconsole.main()
+        # visualconsole.main()
         app.main()
     
     if args.push:

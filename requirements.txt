@@ -2,3 +2,4 @@ pytz
 tzlocal
 yattag
 flask
+flask-restful

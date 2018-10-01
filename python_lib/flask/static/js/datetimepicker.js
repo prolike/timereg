@@ -7,7 +7,7 @@
             dateFormat: "YYYY-MM-DDTHH:mmz",
             showTime: true,
             locale: 'en',
-            positionShift: { top: 20, left: 0},
+            positionShift: { top: 0, left: 0},
             title: "Select Date and Time",
             buttonTitle: "Select"
         }, options);
@@ -17,7 +17,7 @@
         var mousedown = false;
         var timeout = 800;
         var selectDate = settings.selectData == "now" ? moment() : moment(settings.selectData, settings.dateFormat);
-        if (selectDate < moment()) {
+        if (selectDate > moment()) { // MODIFIED THIS!
             selectDate = moment();
         }
         var startDate = copyDate(moment());
@@ -60,7 +60,7 @@
                 var $content = createContent();
                 $body.append($content);
                 var offset = elem.offset();
-                $content.css({top: (offset.top + settings.positionShift.top) + "px", left: (offset.left + settings.positionShift.left) + "px"});
+                $content.css({left: (offset.left + settings.positionShift.left) + "px"});
                 feelDates(selectDate);
                 $win.on('click', function () {
                     $content.remove();

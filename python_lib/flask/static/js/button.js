@@ -28,34 +28,14 @@ window.onclick = function (event) {
 }
 
 button2.onclick = function () {
-    // alert(start.value)
-    // alert(end.value)
-
-    var json = '[{ ' +
-        '"storage": {' +
-        '"repo": "empty", ' +
-        '"issue": ' + issueID.value +
-        '}, ' +
-        '"content": {' +
-        '"user": "davidcarl",' +
-        '"state": "start",' +
-        '"timestamp": "' + start.value + '"' +
-        '}},' +
-        '{ ' +
-        '"storage": {' +
-        '"repo": "empty", ' +
-        '"issue": ' + issueID.value +
-        '}, ' +
-        '"content": {' +
-        '"user": "davidcarl",' +
-        '"state": "end",' +
-        '"timestamp": "' + end.value + '"' +
-        '}' +
-        '}]'
-
-    const url = "http://localhost:5000/api/test"
+    const url = "http://localhost:5000/addtime"
     const other = {
-        method: "GET"
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({issue: issueID.value, start_time: res1.value, end_time: res2.value, username: 'davidcarl'})
     }
     fetch(url, other)
         .then(function (response) {
@@ -65,17 +45,5 @@ button2.onclick = function () {
             console.log(JSON.stringify(myJson));
         });
 
-    console.log(json)
+    // console.log(json)
 }
-
-$('#picker-start').dateTimePicker({
-    positionShift: { top: 0, left: 0 },
-    title: "Select Date and Time",
-    buttonTitle: "Select",
-});
-
-$('#picker-end').dateTimePicker({
-    positionShift: { top: 0, left: 0 },
-    title: "Select Date and Time",
-    buttonTitle: "Select",
-});

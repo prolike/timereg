@@ -58,7 +58,8 @@
                 var d1 = new Date(dt1)
                 var d2 = new Date(dt2)
                 var worked = new Date(d2.getTime() - d1.getTime())
-                cHTML += '<tr>' +
+                console.log(jsonArray["split_days"][k][n])
+                cHTML += '<tr onclick="rowClick(this)" data-username=' + JSON.stringify(jsonArray['username']) + ' data-json-s=' + JSON.stringify(jsonArray["split_days"][k][n]) + ' data-json-e=' + JSON.stringify(jsonArray["split_days"][k][n + 1]) + '>' +
                     '<td class = "center-text timeconvert">' + strm1 + '</td>' +
                     '<td class = "center-text timeconvert">' + strm2 + '</td>' +
                     '<td class = "center-text worked">' + writeUTCtime(worked) + '</td>' +
@@ -103,31 +104,16 @@
     }
 </script>
 
-<!-- The Modal -->
-<div id="myModal" class="modal">
-
-    <!-- Modal content -->
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Add a date</h2>
-        <p>Select the date and time where you wanna add you time!</p>
-        <p>Please input your issue number</p>
-        <input type='number' id='issueID'/>
-        <p>Start time and date:</p>
-        <div id="picker-start"> </div>
-        <input type="hidden" id="res1" value="">
-        <p>End time and date:</p>
-        <div id="picker-end"> </div>
-        <input type="hidden" id="res2" value="">
-        <br>
-        <button type='button' id='test'>Click here!</button>
-    </div>
-
-</div>
 <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
     crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment-with-locales.min.js"></script>
 <script src="{{ url_for('static',filename='js/datetimepicker.js') }}"></script>
+<script src="{{ url_for('static',filename='js/table.js') }}"></script>
 <script src="{{ url_for('static',filename='js/main.js') }}"></script>
-<script src="{{ url_for('static',filename='js/button.js') }}"></script>
+<!-- <script src="{{ url_for('static',filename='js/button.js') }}"></script> -->
+<script src="{{ url_for('static',filename='js/tingle.js') }}"></script>
+<script src="{{ url_for('static',filename='js/modalAddTime.js') }}"></script>
+<script src="{{ url_for('static',filename='js/modalEditTime.js') }}"></script>
+
+
 {% endblock %}

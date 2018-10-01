@@ -43,12 +43,18 @@ def time(**kwargs):
     if cminute is not None:
         now = now.replace(minute=int(cminute))
     if cday is not None:
-        now = now.replace(day=int(cday))  # TODO IMPLEMENT LATER
+        now = now.replace(day=int(cday))
     if cmonth is not None:
-        pass
-        # now = now.replace(month=int(cmonth)) #TODO IMPLEMENT LATER
+        now = now.replace(month=int(cmonth))
     return now.strftime(format)
 
+def get_tz_info():
+    format = time_format    
+    local_tz = get_localzone()
+    tz = pytz.timezone(str(local_tz))
+    now = datetime.utcnow()
+    now = tz.localize(now)
+    return now.strftime(format)[-5:]
 
 def check_correct_order(username, state):
     '''
@@ -164,14 +170,14 @@ def split_on_days(time_list):
 #             pass
 #     return res
 
-
-# def match_week(value, week):
-#     if week == 'this':
-#         week = datetime.utcnow().isocalendar()[1]
-#     for each in value:
-#         if str(datetime.strptime(get_date(each), '%Y-%m-%d').isocalendar()[1]) == str(week):
-#             print(each)
-
+def match_week(value, week):
+    res = []
+    if week == 'this':
+        week = datetime.utcnow().isocalendar()[1]
+    for _, item in value.items():
+            for _, content in item.items():
+                res.append(content)
+    return res
 
 def order_days(value):  # TODO Make single extract call!
     logging.debug(f'metadata.order_days({value})')
@@ -198,6 +204,8 @@ def extract_time(value):
             res.append(
                 re.search(r'(([01]\d|2[0-3])(:[0-5]\d){2})\+(\d{4})', each['timestamp']).group(0))
         return res
+    if type(value) is str:
+        return re.search(r'(([01]\d|2[0-3])(:[0-5]\d))((:[0-5]\d)\+(\d{4}))?', value).group(0)
 
 def extract_timestamp(value):
     logging.debug(f'metadata.extract_timestamp({value})')

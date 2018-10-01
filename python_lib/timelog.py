@@ -101,6 +101,7 @@ def _write_note(note_dict, value, **kwargs):
     
     # note_dict = shared.sha1_gen(note_dict) + note_dict
     # gtc.store(note_dict, issue=shared.get_issue_number())
+    print(str(note_dict))
     gtc.store_json(str(note_dict).replace('\'', '"'))
 
 def _split_time_value(value):

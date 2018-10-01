@@ -27,7 +27,6 @@ def index():
     return render_template('test.html', username=git_var['username'],
                            url=git_var['url'], split=jsonTest)
 
-
 @app.route('/api/test')
 def api_test():
     try:

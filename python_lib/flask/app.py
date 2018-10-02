@@ -140,4 +140,4 @@ api.add_resource(getall, '/getall')
 
 def main():
     # Remove debug=True to disable auto reload on code change + on release!
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

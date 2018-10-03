@@ -6,10 +6,10 @@ var html = `<h2>Add a date</h2>
 <input type='number' id='issueID'/>
 <p>Start time and date:</p>
 <div id="picker-start"> </div>
-<input type="hidden" id="res1" value="">
+<input type="hidden" id="res1" value="` + moment().format('Y-M-DD[T]H:m') + `">
 <p>End time and date:</p>
 <div id="picker-end"> </div>
-<input type="hidden" id="res2" value="">
+<input type="hidden" id="res2" value="` + moment().format('Y-M-DD[T]H:m') + `">
 <br>
 <button type='button' id='test'>Click here!</button>`
 
@@ -30,7 +30,7 @@ var modalTinyNoFooter = new tingle.modal({
     cssClass: ['class1', 'class2']
 });
 
-btn.addEventListener('click', function(){
+btn.addEventListener('click', function(){   
     modalTinyNoFooter.open();
 });
 

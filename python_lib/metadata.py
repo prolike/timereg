@@ -46,6 +46,7 @@ def time(**kwargs):
         now = now.replace(day=int(cday))
     if cmonth is not None:
         now = now.replace(month=int(cmonth))
+    now = now.replace(second=00)
     return now.strftime(format)
 
 def get_tz_info():

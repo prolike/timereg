@@ -24,7 +24,7 @@ def index():
     data['ordered'] = order
     jsonTest = json.dumps(data)
     #print(json.dumps(data, indent=4, sort_keys=True))
-    return render_template('test.html', username=git_var['username'],
+    return render_template('body.html', username=git_var['username'],
                            url=git_var['url'], split=jsonTest)
 
 @app.route('/api/test')

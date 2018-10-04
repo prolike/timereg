@@ -3,8 +3,8 @@ var btn = document.getElementById('timebutton')
 function rowClick(x) {
     var start = JSON.parse(x.dataset.jsonS)
     var end = JSON.parse(x.dataset.jsonE)
-    starttime = start['timestamp'].replace(/:\d{2}\+\d{4}/, '')
-    endtime = end['timestamp'].replace(/:\d{2}\+\d{4}/, '')
+    starttime = converttime(start['timestamp'])
+    endtime = converttime(end['timestamp'])
     console.log(starttime + ' : ' + endtime)
     html = `<h2>Edit time</h2>
     <h4>Date: ` + start['timestamp'].replace(/T.*/, '') + `</h4>

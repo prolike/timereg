@@ -45,17 +45,8 @@ def main():
         gtc.fetch()
 
     if args.test:
-
-        # dd = '{"content":{"user": "penis","state": "end","timestamp": "2018-09-19T07:28:1343438+0200"} }'        
-        # gtc.store(remove='6cdbfa204d5edfa135e1179374fd4d03e02b79a0',json=dd, issue=1)
-        # ere = gtc.get_all_as_dict()
-        # print(ere)
-
-        # dd = '{"storage":{"repo":"'+ shared.get_gitpath() +'", "issue":1},'
-        # test = {"user": "davidcarl","state": "end","timestamp": metadata.time()}        
-        # gtc.store(entry=test, issue=10)
-
-        print(gtc.get_all_as_dict())
+        metadata.test_shit()
+        # print(gtc.get_all_as_dict())
 
     if args.save:
         print(gtc.get_all_as_dict())

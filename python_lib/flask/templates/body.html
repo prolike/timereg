@@ -22,98 +22,14 @@
 
 </div>
 
-<script>
-    tablesection = document.getElementById('table-section')
-    var jsonArray = JSON.parse('{{ split | safe}}');
-    tHTML = ''
-    console.log(jsonArray)
-    // for (var k in jsonArray['split_days']) {
-    //     for (var e in jsonArray['split_days'][k])
-    //         console.log(jsonArray['split_days'][k][e]['timestamp'])
-    // }
-    for (var k in jsonArray['split_days']) {
-        n = 0
-        var cHTML = ''
-        var tWorked = 0
-        cHTML += '<div><p class = "datetime">' + k + '</p></div>' +
-            '<div class = "timetable">' +
-            '<table>' +
-            '<tr>' +
-            '<th>Started</th>' +
-            '<th>Ended</th>' +
-            '<th class = "worked">Time Worked</th>' +
-            '</tr>'
-        for (var i in jsonArray['split_days'][k]) {
-            if ((n % 2) == 0) {
-                var regexDate = /(\d{4}(-\d{2}){2})T/
-                var regexTz = /[+-](\d{4})/
-
-                strm1 = jsonArray['split_days'][k][n]['timestamp'].replace(regexDate, '')
-                strm2 = jsonArray['split_days'][k][n + 1]['timestamp'].replace(regexDate, '')
-                
-                dt1 = jsonArray['split_days'][k][n]['timestamp']
-                dt2 = jsonArray['split_days'][k][n + 1]['timestamp']
-                dt1 = dt1.replace(regexTz, '')
-                dt2 = dt2.replace(regexTz, '')
-                var d1 = new Date(dt1)
-                var d2 = new Date(dt2)
-                var worked = new Date(d2.getTime() - d1.getTime())
-                console.log(jsonArray["split_days"][k][n])
-                cHTML += '<tr onclick="rowClick(this)" data-username=' + JSON.stringify(jsonArray['username']) + ' data-json-s=' + JSON.stringify(jsonArray["split_days"][k][n]) + ' data-json-e=' + JSON.stringify(jsonArray["split_days"][k][n + 1]) + '>' +
-                    '<td class = "center-text timeconvert">' + strm1 + '</td>' +
-                    '<td class = "center-text timeconvert">' + strm2 + '</td>' +
-                    '<td class = "center-text worked">' + writeUTCtime(worked) + '</td>' +
-                    '</tr>'
-                tWorked += worked.getTime()
-            }
-            n++
-        }
-        cHTML += '</table>' +
-            '<table>' +
-            '<tr>' +
-            '<td class = "right-left double-size-table">Time worked this day</td>' +
-            '<td class = "center-text worked">' + writeUTCtime(new Date(tWorked)) + '</td>' +
-            '</tr>' +
-            '</table>' +
-            '</div>'
-        tHTML += cHTML
-        cHTML = ''
-    }
-
-    cHTML += '<div class = "totalwork">' +
-        '<table>' +
-        '<tr>' +
-        '<td class = "right-left double-size-table">Total time worked</td>' +
-        '<td class = "center-text worked">' + writeUTCtime(new Date(jsonArray['total_time_worked'] * 1000)) + '</td>' +
-        '</tr>' +
-        '</table>' +
-        '</div>'
-
-    tHTML += cHTML
-    tablesection.innerHTML = tHTML
-
-    function writeUTCtime(date) {
-        var hour = addZeroBefore(date.getUTCHours())
-        var min = addZeroBefore(date.getUTCMinutes())
-        var seconds = addZeroBefore(date.getUTCSeconds())
-        return hour + ':' + min + ':' + seconds
-    }
-
-    function addZeroBefore(n) {
-        return (n < 10 ? '0' : '') + n;
-    }
-</script>
-
 <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
     crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment-with-locales.min.js"></script>
+<script src="{{ url_for('static',filename='js/main.js') }}"></script>
 <script src="{{ url_for('static',filename='js/datetimepicker.js') }}"></script>
 <script src="{{ url_for('static',filename='js/table.js') }}"></script>
-<script src="{{ url_for('static',filename='js/main.js') }}"></script>
-<!-- <script src="{{ url_for('static',filename='js/button.js') }}"></script> -->
 <script src="{{ url_for('static',filename='js/tingle.js') }}"></script>
 <script src="{{ url_for('static',filename='js/modalAddTime.js') }}"></script>
 <script src="{{ url_for('static',filename='js/modalEditTime.js') }}"></script>
-
 
 {% endblock %}

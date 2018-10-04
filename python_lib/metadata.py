@@ -223,3 +223,31 @@ def extract_timestamp(value):
 def seconds_to_timestamp(value):
     logging.debug(f'metadata.seconds_to_timestamp({value})')
     return str(dt.timedelta(seconds=value))
+
+def convert_from_js(value, tz):
+    newHour = 0
+    newMin = 0
+    rtnstr = ''
+    if '+' in tz:
+        newHour = int(value[-5:-3]) - int(tz[1:-2])
+        newMin = int(value[-2:]) - int(tz[3:])
+        if newMin < 0:
+            newMin += 60
+            newHour -= 1
+    if '-' in tz:
+        newHour = int(value[-5:-3]) + int(tz[1:-2])
+        newMin = int(value[-2:]) + int(tz[3:])
+        if newMin > 59:
+            newMin -= 60
+            newHour += 1
+    if(newHour < 10):
+        rtnstr += '0' + str(newHour)
+    else:
+        rtnstr += str(newHour)
+    rtnstr += ':'
+    if(newMin < 10):
+        rtnstr += '0' + str(newMin)
+    else:
+        rtnstr += str(newMin)
+    rtnstr = value.split('T')[0] + 'T' + rtnstr
+    return rtnstr

@@ -1,31 +1,15 @@
-function clearTable(){
+function clearTable() {
     console.log('Clearing')
     tablesection = document.getElementById('table-section')
-    tablesection.innerHTML = ''    
+    tablesection.innerHTML = ''
 }
 
 function makeTable(x) {
     console.log('Called!')
     tablesection = document.getElementById('table-section')
     tHTML = ''
-    // const url = "http://localhost:5000/getall"
-    // const other = {
-    //     method: "GET",
-    // }
-    // fetch(url, other)
-    //     .then(function (response) {
-    //         return response.json();
-    //     })
-    //     .then(function (myJson) {
-    //         jsonArray = myJson;
-    //     });
 
     var jsonArray = x
-
-    // for (var k in jsonArray){
-    //     console.log(jsonArray[k])
-    //     tHTML += jsonArray[k]
-    // }
 
     console.log(x)
 
@@ -48,9 +32,11 @@ function makeTable(x) {
                 var regexDate = /(\d{4}(-\d{2}){2})T/
                 var regexTz = /[+-](\d{4})/
 
-                strm1 = jsonArray['split_days'][k][n]['timestamp'].replace(regexDate, '')
-                strm2 = jsonArray['split_days'][k][n + 1]['timestamp'].replace(regexDate, '')
-
+                // strm1 = jsonArray['split_days'][k][n]['timestamp'].replace(regexDate, '')
+                // strm2 = jsonArray['split_days'][k][n + 1]['timestamp'].replace(regexDate, '')
+                strm1 = jsonArray['split_days'][k][n]['timestamp']
+                strm2 = jsonArray['split_days'][k][n + 1]['timestamp']
+                console.log(strm1)
                 dt1 = jsonArray['split_days'][k][n]['timestamp']
                 dt2 = jsonArray['split_days'][k][n + 1]['timestamp']
                 dt1 = dt1.replace(regexTz, '')
@@ -60,8 +46,8 @@ function makeTable(x) {
                 var worked = new Date(d2.getTime() - d1.getTime())
                 console.log(jsonArray["split_days"][k][n])
                 cHTML += '<tr onclick="rowClick(this)" data-username=' + JSON.stringify(jsonArray['username']) + ' data-json-s=' + JSON.stringify(jsonArray["split_days"][k][n]) + ' data-json-e=' + JSON.stringify(jsonArray["split_days"][k][n + 1]) + '>' +
-                    '<td class = "center-text timeconvert">' + strm1 + '</td>' +
-                    '<td class = "center-text timeconvert">' + strm2 + '</td>' +
+                    '<td class = "center-text timeconvert">' + converttime_print(strm1) + '</td>' +
+                    '<td class = "center-text timeconvert">' + converttime_print(strm2) + '</td>' +
                     '<td class = "center-text worked">' + writeUTCtime(worked) + '</td>' +
                     '</tr>'
                 tWorkedDay += worked.getTime()
@@ -98,9 +84,25 @@ function writeUTCtime(date) {
     var hour = addZeroBefore(date.getUTCHours())
     var min = addZeroBefore(date.getUTCMinutes())
     var seconds = addZeroBefore(date.getUTCSeconds())
-    return hour + ':' + min + ':' + seconds
+    return hour + ':' + min
 }
 
 function addZeroBefore(n) {
     return (n < 10 ? '0' : '') + n;
+}
+
+window.onload = function () {
+    console.log('LOADED')
+    const url = "http://localhost:5000/getall"
+    const other = {
+        method: "GET"
+    }
+    fetch(url, other)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (myJson) {
+            clearTable()
+            makeTable(myJson['newdata'])
+        });
 }

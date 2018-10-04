@@ -34,6 +34,95 @@ checkbox.addEventListener( 'change', function() {
     }
 });
 
-function addZeroBefore(n) {
-    return (n < 10 ? '0' : '') + n;
+function converttime_print(x){
+    time = x.split('T')[1]
+    newTime = ''
+    if(x.includes('+')){
+        tz = time.split('+')
+        timesplit = tz[0].split(':')
+        temp = tz[1].split('')
+        tzhour = temp[0] + temp[1]
+        tzmin = temp[2] + temp[3]
+
+        newHour = parseInt(timesplit[0]) + parseInt(tzhour) 
+        newMin = parseInt(timesplit[1]) + parseInt(tzmin)
+
+        if(newMin > 59){
+            newHour++
+            newMin -= 60
+        }
+
+        if(newMin < 10){
+            newMin = '0' + newMin
+        }
+
+        if(newHour < 10){
+            newHour = '0' + newHour
+        }
+
+        newTime = newHour + ':' + newMin
+    }else if(x.includes('-')){
+        tz = time.split('-')
+        timesplit = tz[0].split(':')
+        temp = tz[1].split('')
+        tzhour = temp[0] + temp[1]
+        tzmin = temp[2] + temp[3]
+
+        newHour = parseInt(timesplit[0]) - parseInt(tzhour) 
+        newMin = parseInt(timesplit[1]) - parseInt(tzmin)
+
+        if(newMin < 59){
+            newHour--
+            newMin += 60
+        }
+
+        if(newMin < 10){
+            newMin = '0' + newMin
+        }
+
+        if(newHour < 10){
+            newHour = '0' + newHour
+        }
+
+        newTime = newHour + ':' + newMin
+    }
+    return newTime
+}
+
+function converttime(x){
+    time = x.split('T')[1]
+    newTime = ''
+    if(x.includes('+')){
+        tz = time.split('+')
+        timesplit = tz[0].split(':')
+        temp = tz[1].split('')
+        tzhour = temp[0] + temp[1]
+        tzmin = temp[2] + temp[3]
+
+        newHour = parseInt(timesplit[0]) + parseInt(tzhour) 
+        newMin = parseInt(timesplit[1]) + parseInt(tzmin)
+
+        if(newMin > 59){
+            newHour++
+            newMin -= 60
+        }
+        newTime = newHour + ':' + newMin
+    }else if(x.includes('-')){
+        tz = time.split('-')
+        timesplit = tz[0].split(':')
+        temp = tz[1].split('')
+        tzhour = temp[0] + temp[1]
+        tzmin = temp[2] + temp[3]
+
+        newHour = parseInt(timesplit[0]) - parseInt(tzhour) 
+        newMin = parseInt(timesplit[1]) - parseInt(tzmin)
+
+        if(newMin < 59){
+            newHour--
+            newMin += 60
+        }
+        newTime = newHour + ':' + newMin
+    }
+    newTime = x.split('T')[0] + 'T' + newTime
+    return newTime
 }

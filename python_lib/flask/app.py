@@ -8,7 +8,6 @@ import json, time
 app = Flask(__name__)
 api = Api(app)
 
-
 @app.route('/')
 def index():
     git_var = shared.get_git_variables()
@@ -34,7 +33,6 @@ def api_test():
     except:
         return jsonify({'state': 'Failed!'})
 
-
 class addtime(Resource):
     def get(self):
         return {'hello': 'world'}
@@ -50,10 +48,11 @@ class addtime(Resource):
             data['info'] = {'issue': issue, 'start_time': start_time,
                             'end_time': end_time, 'username': username}
             shared.set_issue_number(issue)
-            tz = metadata.get_tz_info() 
+            tz = metadata.get_tz_info()
+            start_time = metadata.convert_from_js(start_time, tz)
+            end_time = metadata.convert_from_js(end_time, tz)
             start_time += ':00' + tz
             end_time += ':00' + tz
-
             path = shared.get_gitpath()
             issuenumber = shared.get_issue_number()
 
@@ -72,16 +71,13 @@ class addtime(Resource):
         except:
             json_data = request.get_json(force=True)
             start_time = json_data['start_time']
-            # print(metadata.extract_time(start_time))
             return jsonify(status="Failed", data=json_data)
-
 
 class edittime(Resource):
 
     def post(self):
         try:
             json_data = request.get_json(force=True)
-            # print(json_data)
             username = json_data['username']
             start_time = json_data['start_time']
             end_time = json_data['end_time']
@@ -91,6 +87,9 @@ class edittime(Resource):
             start_line_hash = json_data['startlh']
             end_issue_hash = json_data['endih']
             end_line_hash = json_data['endlh']
+            tz = metadata.get_tz_info()
+            start_time = metadata.convert_from_js(start_time, tz)
+            end_time = metadata.convert_from_js(end_time, tz)
             if datetime.strptime(start_time, '%Y-%m-%dT%H:%M') < datetime.strptime(end_time, '%Y-%m-%dT%H:%M'):
                 if start_time != def_start_time[:-8]:
                     time = start_time[11:]
@@ -110,7 +109,6 @@ class edittime(Resource):
                     minute = time[-2:]
                     end_newObj = {'user': username, 'state': 'end', 'timestamp': metadata.time(chour=hour, cminute=minute, cday=date, cmonth=month)}
                     gtc.store(commit=end_issue_hash, remove=end_line_hash, entry=end_newObj)
-            # gtc.store(commit=end_issue_hash, remove=end_line_hash, entry=newObj)
             data = {}
             data['user'] = username
             newdata = {}
@@ -120,23 +118,20 @@ class edittime(Resource):
             data = {}
             return jsonify(status="Failed", data=json_data)
 
-
 class getweek(Resource):
     def get(self):
         return metadata.match_week(gtc.get_all_as_dict(), 'this')
 
 class getall(Resource):
     def get(self):
-        time.sleep(2)
-        # print(metadata.order_days(gtc.get_all_as_dict()))
-        return metadata.order_days(gtc.get_all_as_dict())
-
+        newdata = {}
+        newdata['split_days'] = metadata.split_on_days(gtc.get_all_as_dict())
+        return jsonify(newdata=newdata)
 
 api.add_resource(edittime, '/edittime')
 api.add_resource(addtime, '/addtime')
 api.add_resource(getweek, '/getweek')
 api.add_resource(getall, '/getall')
-
 
 def main():
     # Remove debug=True to disable auto reload on code change + on release!

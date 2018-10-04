@@ -7,13 +7,13 @@
             dateFormat: "YYYY-MM-DDTHH:mmz",
             showTime: true,
             locale: 'en',
-            positionShift: { top: 0, left: 0},
+            positionShift: { top: 0, left: 0 },
             title: "Select Date and Time",
             buttonTitle: "Select"
         }, options);
         moment.locale(settings.locale);
         var elem = this;
-        var limitation = {"hour": 23, "minute": 59};
+        var limitation = { "hour": 23, "minute": 59 };
         var mousedown = false;
         var timeout = 800;
         var selectDate = settings.selectData == "now" ? moment() : moment(settings.selectData, settings.dateFormat);
@@ -60,7 +60,7 @@
                 var $content = createContent();
                 $body.append($content);
                 var offset = elem.offset();
-                $content.css({left: (offset.left + settings.positionShift.left) + "px"});
+                $content.css({ left: (offset.left + settings.positionShift.left) + "px" });
                 feelDates(selectDate);
                 $win.on('click', function () {
                     $content.remove();
@@ -226,12 +226,46 @@
                 function appendIncrement(typeDigits, increment) {
 
                     var $i = typeDigits == "hour" ? $hour : $minute;
-                    var val = parseInt($i.text()) + increment;
-                    if (val < 0) {
-                        val = limitation[typeDigits];
-                    }
-                    else if (val > limitation[typeDigits]) {
-                        val = 0;
+                    if ($i.attr('id') == "d-hh") {
+                        var val = parseInt($i.text()) + increment;
+                        if (val < 0) {
+                            val = limitation[typeDigits];
+                        }
+                        else if (val > limitation[typeDigits]) {
+                            val = 0;
+                        }
+                    } else if ($i.attr('id') == "d-mm") { // INCREMENT TIMER!
+                        if (increment == 1) {
+                            switch (parseInt($i.text())) {
+                                case 0:
+                                    val = 15
+                                    break;
+                                case 15:
+                                    val = 30
+                                    break;
+                                case 30:
+                                    val = 45
+                                    break;
+                                case 45:
+                                    val = 0
+                                    break;
+                            }
+                        } else if (increment == -1) {
+                            switch (parseInt($i.text())) {
+                                case 0:
+                                    val = 45
+                                    break;
+                                case 15:
+                                    val = 0
+                                    break;
+                                case 30:
+                                    val = 15
+                                    break;
+                                case 45:
+                                    val = 30
+                                    break;
+                            }
+                        }
                     }
                     $i.text(formatDigits(val));
                 }

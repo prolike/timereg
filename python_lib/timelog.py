@@ -90,18 +90,10 @@ def _write_note(note_dict, value, **kwargs):
         chour, cminute = _split_time_value(value)
         if cday is not None:
             note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute, cday=cday)
-            # note_dict += metadata.time(chour=chour, cminute=cminute, cday=cday)
         else:
             note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute)
-            # note_dict += metadata.time(chour=chour, cminute=cminute)
     else:
         note_dict['content']['timestamp'] = metadata.time()
-        # note_dict += metadata.time()
-    # print(note_dict)
-    
-    # note_dict = shared.sha1_gen(note_dict) + note_dict
-    # gtc.store(note_dict, issue=shared.get_issue_number())
-    print(str(note_dict))
     gtc.store_json(str(note_dict).replace('\'', '"'))
 
 def _split_time_value(value):

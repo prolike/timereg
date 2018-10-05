@@ -16,6 +16,8 @@ When you start to work, the command is the following `git git-mytest workon {iss
 
 When you are done with your issue or need a pause from the issue, you will need to run the following command `git git-mytest wrapup`
 
-Now you have made a time registration. A way to see what time you have registered and edit it if you made a mistake is to use the webreport we have made with the following command `git git-mytest webreport` in that you can click on the time registration you wan to edit.
+Now you have made a time registration. A way to see what time you have registered and edit it if you made a mistake is to use the webreport we have made with the following command `git git-mytest webreport` in that you can click on the time registration you wan to edit. Like this
+
+![Alt Text](graphics/edit_time.gif)
 
 You can also see what you have logged directly in your console with the command `git git-mytest consolereport`

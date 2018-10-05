@@ -215,12 +215,12 @@
                 }
 
                 function autoIncrement(el) {
-                    if (mousedown) {
-                        if (timeout > 200) {
-                            timeout -= 200;
-                        }
-                        changeTime(el);
-                    }
+                    // if (mousedown) {
+                    //     if (timeout > 200) {
+                    //         timeout -= 200;
+                    //     }
+                    //     changeTime(el);
+                    // }
                 }
 
                 function appendIncrement(typeDigits, increment) {
@@ -249,6 +249,9 @@
                                 case 45:
                                     val = 0
                                     break;
+                                default:
+                                     val = parseInt($i.text()) + 1
+                                    break;
                             }
                         } else if (increment == -1) {
                             switch (parseInt($i.text())) {
@@ -263,6 +266,9 @@
                                     break;
                                 case 45:
                                     val = 30
+                                    break;
+                                default:
+                                    val = parseInt($i.text()) - 1
                                     break;
                             }
                         }

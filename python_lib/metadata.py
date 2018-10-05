@@ -251,3 +251,55 @@ def convert_from_js(value, tz):
         rtnstr += str(newMin)
     rtnstr = value.split('T')[0] + 'T' + rtnstr
     return rtnstr
+
+def visual_timestamp(x):
+    tz = x[-5:]
+    hour = x[:2]
+    min = x[3:5]
+    newHour = 0
+    newMin = 0
+    rtnstr = ''
+    if '+' in tz:
+        tzhour = tz[1:3]
+        tzmin = tz[3:]
+        newHour = int(hour) + int(tzhour)
+        newMin = int(min) + int(tzmin)
+    if '-' in tz:
+        tzhour = tz[1:3]
+        tzmin = tz[3:]
+        newHour = int(hour) - int(tzhour)
+        newMin = int(min) - int(tzmin)
+    if newMin > 59:
+        print('59!', newMin)
+        newHour += 1
+        newMin -= 60
+    if newMin < 0:
+        print('0!', newMin)
+        newHour -= 1
+        newMin += 60
+    if newHour < 10:
+        rtnstr = '0' + str(newHour)
+    else:
+        rtnstr = str(newHour)
+    rtnstr += ':'
+    if newMin < 10:
+        rtnstr += '0' + str(newMin)
+    else:
+        rtnstr += str(newMin)
+    return rtnstr
+
+def remove_seconds_timestamp(x):
+    arr = x.split(':')
+    rtnstr = ''
+    hour = arr[0]
+    min = arr[1]
+    if int(hour) < 10:
+        rtnstr = '0' + str(hour)
+    else:
+        rtnstr = str(hour)
+    rtnstr += ':'
+    if int(min) < 10 and min != '00':
+        rtnstr += '0' + str(min)
+    else:
+        rtnstr += str(min)
+    return rtnstr

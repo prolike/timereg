@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from python_lib import metadata, shared, timelog, visualconsole, dbook, git_timestore_calls as gtc
 from python_lib.flask import app
-import argparse, logging, re, importlib, json
+import argparse, logging, re, importlib, json, pprint
 
 
 def workon(args):
@@ -27,7 +27,7 @@ def consolereport(args):
     visualconsole.main()
 
 def dump(args):
-    print(gtc.get_all_as_dict())
+    pprint.pprint(gtc.get_all_as_dict())
 
 def push(args):
     gtc.push()

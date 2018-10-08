@@ -3,9 +3,10 @@ var btn = document.getElementById('timebutton')
 function rowClick(x) {
     var start = JSON.parse(x.dataset.jsonS)
     var end = JSON.parse(x.dataset.jsonE)
+    var issue = JSON.parse(x.dataset.jsonS)['issue']
     starttime = converttime(start['timestamp'])
     endtime = converttime(end['timestamp'])
-    console.log(starttime + ' : ' + endtime)
+    console.log('user: ' + x.dataset.username + ' ' + starttime + ' : ' + endtime)
     html = `<h2>Edit time</h2>
     <h4>Date: ` + start['timestamp'].replace(/T.*/, '') + `</h4>
     <p>Start time and date:</p>
@@ -15,7 +16,7 @@ function rowClick(x) {
     <div id="picker-end"> </div>
     <input id='res2' value='` + endtime + `' type='hidden'>
     <br/>
-    <button type='button' onclick="edittime('` + x.dataset.username + `', '` + JSON.parse(x.dataset.jsonS)['storage']['issuehash'] + `', '` + JSON.parse(x.dataset.jsonS)['storage']['linehash'] + `', '` + JSON.parse(x.dataset.jsonE)['storage']['issuehash'] + `', '` + JSON.parse(x.dataset.jsonE)['storage']['linehash'] + `', '` + JSON.parse(x.dataset.jsonS)['timestamp'] + `', '` + JSON.parse(x.dataset.jsonE)['timestamp'] + `')">Click here!</button>`
+    <button type='button' onclick="edittime('` + x.dataset.username + `', '` + JSON.parse(x.dataset.jsonS)['storage']['issuehash'] + `', '` + JSON.parse(x.dataset.jsonS)['storage']['linehash'] + `', '` + JSON.parse(x.dataset.jsonE)['storage']['issuehash'] + `', '` + JSON.parse(x.dataset.jsonE)['storage']['linehash'] + `', '` + JSON.parse(x.dataset.jsonS)['timestamp'] + `', '` + JSON.parse(x.dataset.jsonE)['timestamp'] + `', '` + JSON.parse(x.dataset.jsonS)['issue'] + `')">Click here!</button>`
 
     // console.log(JSON.parse(x.dataset.jsonS)['storage'])
 
@@ -46,8 +47,9 @@ var start = document.getElementById('res1')
 var end = document.getElementById('res2')
 var issueID = document.getElementById('issueID')
 
-function edittime(name, jsonSih, jsonSlh, jsonEih, jsonElh, defstarttime, defendtime) {
+function edittime(name, jsonSih, jsonSlh, jsonEih, jsonElh, defstarttime, defendtime, startissue) {
     // console.log(JSON.parse(jsonS))
+    console.log(startissue)
     const url = "http://localhost:5000/edittime"
     const other = {
         method: "POST",
@@ -55,7 +57,7 @@ function edittime(name, jsonSih, jsonSlh, jsonEih, jsonElh, defstarttime, defend
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ start_time: res1.value, end_time: res2.value, def_start_time: defstarttime, def_end_time: defendtime, username: name, startih: jsonSih, startlh: jsonSlh, endih: jsonEih, endlh: jsonElh })
+        body: JSON.stringify({ start_time: res1.value, end_time: res2.value, def_start_time: defstarttime, def_end_time: defendtime, username: name, startih: jsonSih, startlh: jsonSlh, endih: jsonEih, endlh: jsonElh, issue: startissue })
     }
     fetch(url, other)
         .then(function (response) {

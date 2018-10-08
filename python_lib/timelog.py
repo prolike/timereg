@@ -63,8 +63,7 @@ def _did_test(value):
         test_time = metadata.time()[:-5]
         hour = datetime.strptime(test_time, time_format).strftime('%H')
         mmin = datetime.strptime(test_time, time_format).strftime('%M')
-        date = datetime.strptime(test_time, time_format).strftime('%d') #%Y-%m-%d
-        #msec = datetime.strptime(test_time, time_format).strftime('%S')
+        date = datetime.strptime(test_time, time_format).strftime('%d')
         mhour = int(hour) - int(value2[:-1])
         if mhour < 0:
             mhour = 24 + mhour
@@ -92,6 +91,7 @@ def _write_note(note_dict, value, **kwargs):
             note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute)
     else:
         note_dict['content']['timestamp'] = metadata.time()
+    note_dict['content']['issue'] = shared.get_issue_number()
     gtc.store_json(str(note_dict).replace('\'', '"'))
 
 def _split_time_value(value):
@@ -116,4 +116,5 @@ def _error(state):
         # logging.error('You already', state + 'ed your timer!', ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
     logging.error('dooo')
     return False
+    
     

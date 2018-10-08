@@ -16,14 +16,16 @@ def main():
 def table_print(value):
     r_string = ''
     for key in value:
+        print(value[key])
         start_list, end_list = shared.listsplitter(value[key])    
         r_string += (datetime.strptime(key, '%Y-%m-%d').strftime('\n%A %Y-%m-%d') + '\n')
-        r_string += (' Started   '.ljust(8) + 'Ended '.ljust(8) + '  Time worked\n')
+        r_string += (' Started   '.ljust(8) + 'Ended '.ljust(8) + '  Issue '.ljust(8) + '    Time worked\n')
         start_try = metadata.extract_time(start_list)
         end_try = metadata.extract_time(end_list)
-        for start_time, end_time, stString, enString in zip(start_list, end_list, start_try, end_try):
+        issue_list = metadata.extract_issue_number(start_list)
+        for start_time, end_time, stString, enString, enIssue in zip(start_list, end_list, start_try, end_try, issue_list):
             timestr = metadata.seconds_to_timestamp(metadata.calc_time_worked([start_time], [end_time]))
-            r_string += (' ' + metadata.visual_timestamp(stString).ljust(8) + '  ' + metadata.visual_timestamp(enString).ljust(8) + '  ' + metadata.remove_seconds_timestamp(timestr).ljust(8) + ' \n')
+            r_string += (' ' + metadata.visual_timestamp(stString).ljust(8) + '  ' + metadata.visual_timestamp(enString).ljust(8) + '  ' + str(enIssue).ljust(8) + '  ' + metadata.remove_seconds_timestamp(timestr).ljust(8) + ' \n')
         timestr = metadata.seconds_to_timestamp(metadata.calc_time_worked(start_list, end_list))
         r_string += (' Time worked today   ' + metadata.remove_seconds_timestamp(timestr).ljust(8) + ' \n')
     start_list_total, end_list_total = shared.listsplitter(metadata.order_days(gtc.get_all_as_dict()))

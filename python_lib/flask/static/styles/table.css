@@ -25,7 +25,7 @@ td {
 }
 
 .double-size-table {
-    width: 411px; /*603 without td padding*/
+    width: 497px;
 }
 
 .worked {
@@ -38,4 +38,8 @@ td {
 
 .timetable {
     padding-bottom: 12px;
+}
+
+.issue {
+    width: 75px;
 }

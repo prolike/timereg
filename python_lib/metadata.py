@@ -211,14 +211,43 @@ def extract_timestamp(value):
             res.append(each['timestamp'])
     return res
 
+def extract_issue_number(value):
+    res = []
+    if type(value) is dict:
+        for _, item in value.items():
+            for _, content in item.items():
+                res.append(content['issue'])
+    if type(value) is list:
+        for each in value:
+            res.append(each['issue'])
+    return res
+
 def seconds_to_timestamp(value):
     logging.debug(f'metadata.seconds_to_timestamp({value})')
     return str(dt.timedelta(seconds=value))
+
+def fix_stamp(x):
+    date = x.split('T')
+    rtnstr = date[0] + 'T'
+    arr = date[1].split(':')
+    hour = arr[0]
+    min = arr[1]
+    if int(hour) < 10:
+        rtnstr += '0' + str(hour)
+    else:
+        rtnstr += str(hour)
+    rtnstr += ':'
+    if int(min) < 10 and min != '00':
+        rtnstr += '0' + str(min)
+    else:
+        rtnstr += str(min)
+    return rtnstr
 
 def convert_from_js(value, tz):
     newHour = 0
     newMin = 0
     rtnstr = ''
+    value = fix_stamp(value)
     if '+' in tz:
         newHour = int(value[-5:-3]) - int(tz[1:-2])
         newMin = int(value[-2:]) - int(tz[3:])
@@ -280,8 +309,8 @@ def visual_timestamp(x):
     return rtnstr
 
 def remove_seconds_timestamp(x):
-    arr = x.split(':')
     rtnstr = ''
+    arr = x.split(':')
     hour = arr[0]
     min = arr[1]
     if int(hour) < 10:
@@ -289,7 +318,7 @@ def remove_seconds_timestamp(x):
     else:
         rtnstr = str(hour)
     rtnstr += ':'
-    if int(min) < 10 and min != '00':
+    if int(min) < 10 and min == '00':
         rtnstr += '0' + str(min)
     else:
         rtnstr += str(min)

@@ -4,6 +4,8 @@ from . import shared, git_timestore as gt, git_timestore_merge as gtm
 def store(**kwargs):
     logging.debug(f'git_timestore_calls.store({kwargs})')
     gt.save_entry(kwargs)
+    if shared.autopush():
+        push()
 
 def store_json(json_string):
     logging.debug(f'git_timestore_calls.store_json({json_string})')
@@ -15,6 +17,8 @@ def store_json(json_string):
     for key, value in json_data['storage'].items():
         kwargs[key] = value
     gt.save_entry(kwargs)
+    if shared.autopush():
+        push()
 
 def fetch():
     logging.debug(f'git_timestore_calls.fetch()')

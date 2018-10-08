@@ -1,14 +1,10 @@
-from python_lib import shared, git_timestore_calls as gtc
+from . import shared, git_timestore_calls as gtc
 from datetime import datetime
-from time import mktime as mktime
+from time import mktime
 from collections import defaultdict
 from tzlocal import get_localzone
 import datetime as dt
-import sys
-import os
-import re
-import logging
-import pytz
+import sys, os, re, logging, pytz
 
 
 time_format = shared.get_time_format()
@@ -32,9 +28,7 @@ def time(**kwargs):
     cday = kwargs.get('cday', None)
     cmonth = kwargs.get('cmonth', None)
     local_tz = get_localzone()
-    # print(f'local_tz, {local_tz}')
     tz = pytz.timezone(str(local_tz))
-    # print(f'tz, {tz}')
     format = time_format
     now = datetime.utcnow()
     now = tz.localize(now)
@@ -97,11 +91,9 @@ def calc_time_worked(started, ended):
         str: Returns a string with amount of minutes worked with the provided information
     '''
     logging.debug(f'metadata.calc_time_worked({started}, {ended})')
-    # print(started)
     fmt = time_format
     sec_worked = 0
 
-    # name = get_clean_name_meta_data(started)
     clean_start = get_clean_time_meta_data(started)
     clean_end = get_clean_time_meta_data(ended)
 
@@ -161,7 +153,6 @@ def split_on_days(time_list):
 # def match_month(value, month):
 #     if month == 'this':
 #         month = datetime.utcnow().strftime('%m')
-#         print(type(month))
 #     res = []
 #     for each in value:
 #         try:

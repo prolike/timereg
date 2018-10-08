@@ -1,17 +1,9 @@
 #!/usr/bin/env python3
 from datetime import datetime
-from python_lib import metadata, shared, timelog
-from python_lib import git_timestore_calls as gtc, git_objects, git_timestore
+from python_lib import metadata, shared, timelog, git_timestore_calls as gtc, git_objects, git_timestore, settings
 from tzlocal import get_localzone
 from collections import defaultdict
-import logging
-import unittest
-import subprocess
-import os
-import sys
-import pytz
-import importlib
-import time
+import logging, unittest, subprocess, os, sys, pytz, importlib, time
 
 
 # uncommenent to enable verbose :)
@@ -241,7 +233,6 @@ class Test_metadata(unittest.TestCase):
         data = {'2df195ddc6fd9153a2326ce55a718455ca5e79bc': {'ce31b3b3492cae01018f2859b87d69a840b15fb5': {'user': 'davidcarl', 'state': 'start',
                                                                                                           'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}}}
         ans = metadata.split_on_days(data)
-        # print(ans)
         self.assertEqual(metadata.split_on_days(data), ans)
 
 
@@ -310,6 +301,7 @@ class Test_git_timestore(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         shared.set_quiet_mode(True)
+        settings.settings['autopush'] = 'False'
 
     @classmethod
     def tearDownClass(self):

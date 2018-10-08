@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from python_lib import metadata, shared, timelog, visualconsole, dbook, git_timestore_calls as gtc
+from python_lib import metadata, shared, timelog, visualconsole, dbook, settings, git_timestore_calls as gtc
 from python_lib.flask import app
 import argparse, logging, re, importlib, json, pprint
 
@@ -35,6 +35,9 @@ def push(args):
 def fetch(args):
     gtc.fetch()
 
+def setup_settings(args):
+    settings.run_setup()
+
 def global_settings(args):
     if args.debug:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
@@ -45,7 +48,7 @@ def global_settings(args):
         shared.set_working_dir(args.path)
     if args.quiet:
         shared.set_quiet_mode(True)
-
+    
 def argparser_setup():
     global args
     parser = argparse.ArgumentParser(prog='Git extension POC',)
@@ -55,8 +58,8 @@ def argparser_setup():
     parser.add_argument('-d', '--debug', action='store_true', help='Outputs debug data')
     parser.add_argument('-q', '--quiet', action='store_true', help='Removes console output from git commads')
     parser.add_argument('-C', '--path', help='Define a path', type=str)
-
-    #workon subcommand
+    
+    #subcommand
     parser_workon = subparsers.add_parser('workon', help='Start time logging')
     parser_workon.usage = 'git timereg workon [issue] [optional arguments]'
     parser_workon.add_argument('issue', type=int, help='Issue number timeregistration are to be referenced to')
@@ -88,6 +91,11 @@ def argparser_setup():
     parser_fetch.usage = 'git timereg fetch'
     parser_fetch.set_defaults(func=fetch)
 
+    parser_setup = subparsers.add_parser('setup', help='Setup setiings')
+    parser_setup.usage = 'git timereg setup'
+    parser_setup.set_defaults(func=setup_settings)
+
+
     args = parser.parse_args()
 
 def main():
@@ -96,7 +104,10 @@ def main():
     argparser_setup()
 
     global_settings(args)
-    args.func(args)
+    try:
+        args.func(args)
+    except:
+        pass
 
 if __name__ == '__main__':
     main()

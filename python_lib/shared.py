@@ -1,9 +1,5 @@
-import os
-import subprocess
-import logging
-import re
-import hashlib
-
+import os, subprocess, logging, re, hashlib
+from . import settings
 
 issue_number = 0
 gitpath = ''
@@ -171,7 +167,7 @@ def get_issue_number():
                 temp = temp[6:-1]
                 issue_number = int(temp)
             except:
-                print('You must be in a branch!')
+                logging.error('Unable to extract issue number form current branch')
     return issue_number
 
 def set_issue_number(number):
@@ -225,3 +221,15 @@ def listsplitter(los):
                 elif metatag == 'end':
                     end_list.append(los[string][test])
     return start_list, end_list
+
+def autopush():
+    return str_to_bool(settings.get_setting('autopush'))
+
+def str_to_bool(s):
+    s = s.lower()
+    if s == 'true':
+         return True
+    elif s == 'false':
+         return False
+    else:
+         raise ValueError

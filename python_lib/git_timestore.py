@@ -1,5 +1,5 @@
 import os, sys, subprocess, logging, re, json
-from python_lib import shared 
+from . import shared 
 from .git_objects import Entry, Blob, Commit, Tree
 
 tree_codes = {

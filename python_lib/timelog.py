@@ -53,11 +53,9 @@ def _custom_check(value):
         return True
     else:
         if re.search(r'([01]\d|2[0-3])(:*)\d', value):
-            print('Seems like you forgot a digit!\nPlease use the following format: hh:mm or hhmm')
+            logging.error('Seems like you forgot a digit!\nPlease use the following format: hh:mm or hhmm')
             return False
-        #else:
-        #    return False
-
+        
 def _did_test(value):
     logging.debug(f'timelog._did_test({value})')
     if re.search(r'((\d){1,2})([h]|[H])', value):
@@ -112,10 +110,10 @@ def _error(state):
     try:
         # s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
         #             ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
-        print('You already', state + 'ed your timer!', s.group(0))
+        logging.error('You already', state + 'ed your timer!', s.group(0))
     except:
         pass
-        # print('You already', state + 'ed your timer!', ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
-    print('dooo')
+        # logging.error('You already', state + 'ed your timer!', ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
+    logging.error('dooo')
     return False
     

@@ -1,4 +1,4 @@
-from python_lib import shared, metadata
+from . import shared, metadata
 from datetime import datetime
 import logging
 

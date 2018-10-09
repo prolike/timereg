@@ -17,9 +17,9 @@
         var mousedown = false;
         var timeout = 800;
         var selectDate = settings.selectData == "now" ? moment() : moment(settings.selectData, settings.dateFormat);
-        if (selectDate > moment()) { // MODIFIED THIS!
-            selectDate = moment();
-        }
+        // if (selectDate > moment()) { // MODIFIED THIS!
+        //     selectDate = moment();
+        // }
         var startDate = copyDate(moment());
         var lastSelected = copyDate(selectDate);
         return this.each(function () {

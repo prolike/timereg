@@ -6,9 +6,11 @@ function rowClick(x) {
     var issue = JSON.parse(x.dataset.jsonS)['issue']
     starttime = converttime(start['timestamp'])
     endtime = converttime(end['timestamp'])
-    console.log('user: ' + x.dataset.username + ' ' + starttime + ' : ' + endtime)
     html = `<h2>Edit time</h2>
+    <div class="loader" id="loader" style="display: none;"></div> 
     <h4>Date: ` + start['timestamp'].replace(/T.*/, '') + `</h4>
+    <p>Issue number</p>
+    <input type='number' id='issueedit' min='0' value='` + JSON.parse(x.dataset.jsonS)['issue'] + `' required/>
     <p>Start time and date:</p>
     <div id="picker-start"> </div>
     <input id='res1' value='` + starttime + `' type='hidden'>
@@ -45,11 +47,11 @@ var modalTinyNoFooter2 = new tingle.modal({
 var button2 = document.getElementById('test')
 var start = document.getElementById('res1')
 var end = document.getElementById('res2')
-var issueID = document.getElementById('issueID')
-
+// var issueNew = document.getElementById('issue')
 function edittime(name, jsonSih, jsonSlh, jsonEih, jsonElh, defstarttime, defendtime, startissue) {
     // console.log(JSON.parse(jsonS))
-    console.log(startissue)
+    var issueedit = document.getElementById('issueedit')
+    console.log(issueedit)
     const url = "http://localhost:5000/edittime"
     const other = {
         method: "POST",
@@ -57,19 +59,23 @@ function edittime(name, jsonSih, jsonSlh, jsonEih, jsonElh, defstarttime, defend
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ start_time: res1.value, end_time: res2.value, def_start_time: defstarttime, def_end_time: defendtime, username: name, startih: jsonSih, startlh: jsonSlh, endih: jsonEih, endlh: jsonElh, issue: startissue })
+        body: JSON.stringify({ start_time: res1.value, end_time: res2.value, def_start_time: defstarttime, def_end_time: defendtime, username: name, startih: jsonSih, startlh: jsonSlh, endih: jsonEih, endlh: jsonElh, issue: startissue, newIssue: issueedit.value })
     }
+
+    removeDiv('dtp_modal-win')
+    removeDiv('dtp_modal-content')
+
+    document.getElementById("loader").style.display = "inline";
     fetch(url, other)
         .then(function (response) {
+            document.getElementById("loader").style.display = "none";
             return response.json();
         })
         .then(function (myJson) {
-            // returnjson = JSON.stringify(myJson);
-            // returnjson = myJson;
+            modalTinyNoFooter2.close()
             clearTable()
             makeTable(myJson['newdata'])
         });
-    
 }
 
 function makeFields(starttime, endtime) {

@@ -1,21 +1,15 @@
 var btn = document.getElementById('timebutton')
 
-// var start = moment('2018-12-08 09:42');
-// var remainder = 15 - (start.minute() % 15);
-
-// var dateTime = moment(start).add(remainder, "minutes").format('Y-M-DD[T]HH:mm');
-
-// console.log(dateTime);
-
-var m = (Math.round(moment().minutes()/15) * 15) % 60
+var m = (Math.round(moment().minutes() / 15) * 15) % 60
 
 var total = moment().minute(m).format('Y-M-DD[T]HH:mm')
 console.log(total)
 
 var html = `<h2>Add a date</h2>
+<div class="loader" id="loader" style="display: none;"></div> 
 <p>Select the date and time where you wanna add you time!</p>
 <p>Please input your issue number</p>
-<input type='number' id='issueID' required/>
+<input type='number' id='issueID' min='0' required/>
 <p>Start time and date:</p>
 <div id="picker-start"> </div>
 <input type="hidden" id="res1" value="` + total + `">
@@ -54,7 +48,7 @@ var end = document.getElementById('res2')
 var issueID = document.getElementById('issueID')
 
 button2.onclick = function () {
-    if (issueID.value != '') {
+    if (issueID.value != '' && issueID != '0') {
         const url = "http://localhost:5000/addtime"
         const other = {
             method: "POST",
@@ -64,13 +58,18 @@ button2.onclick = function () {
             },
             body: JSON.stringify({ issue: issueID.value, start_time: res1.value, end_time: res2.value, username: 'davidcarl' })
         }
+        removeDiv('dtp_modal-win')
+        removeDiv('dtp_modal-content')
+
+        document.getElementById("loader").style.display = "inline";
         fetch(url, other)
             .then(function (response) {
+                document.getElementById("loader").style.display = "none";
                 return response.json();
             })
             .then(function (myJson) {
+                modalTinyNoFooter.close()
                 clearTable()
-                console.log(myJson)
                 makeTable(myJson['newdata'])
             });
     } else {

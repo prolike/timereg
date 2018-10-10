@@ -126,3 +126,10 @@ function converttime(x){
     newTime = x.split('T')[0] + 'T' + newTime
     return newTime
 }
+
+function removeDiv(className){
+    var elem = document.getElementsByClassName(className)
+    for (var i = elem.length - 1; i >= 0; --i) {
+        elem[i].remove();
+    }
+}

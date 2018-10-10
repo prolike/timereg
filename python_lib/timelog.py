@@ -23,7 +23,7 @@ def log_type(state, **kwargs):
     cday = kwargs.get('date', None)
     username = shared.get_git_variables()['username']
     note_dict = {}
-    note_dict['storage'] = {'repo': shared.get_gitpath(), 'issue': shared.get_issue_number()}
+    note_dict['storage'] = {'repo': shared.get_gitpath()}
     note_dict['content'] = {'user': username, 'state': state}    
     if metadata.check_correct_order(username, state) is True:
         try:
@@ -91,8 +91,26 @@ def _write_note(note_dict, value, **kwargs):
             note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute)
     else:
         note_dict['content']['timestamp'] = metadata.time()
+    if note_dict['content']['state'] == 'end':
+        shared.set_issue_number(get_last_var('issue'))
+    note_dict['storage']['issue'] = shared.get_issue_number()
     note_dict['content']['issue'] = shared.get_issue_number()
+    print(shared.get_issue_number())
     gtc.store_json(str(note_dict).replace('\'', '"'))
+
+def get_last_var(rtnval):
+    val = gtc.get_all_as_dict()
+    for each in val:
+        res = 0
+        id = ''
+        for each2 in val[each]:
+            if val[each][each2]['user'] == shared.get_git_variables()['username']:
+                res += 1
+                id = each2
+        if (res % 2) != 0:
+            return val[each][id][rtnval]
+
+
 
 def _split_time_value(value):
     logging.debug(f'timelog._split_time_value({value})')
@@ -108,13 +126,11 @@ def _split_time_value(value):
 def _error(state):
     logging.debug(f'timelog._error({state})')
     try:
-        # s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
-        #             ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
-        logging.error('You already', state + 'ed your timer!', s.group(0))
+        s = re.search(r'(\d{4}(-\d{2}){2})T(([01]\d|2[0-3])(:[0-5]\d){2})[+-](\d{4})', \
+                    get_last_var('timestamp'))
+        logging.error('You already ' + state + 'ed your timer! ' + s.group(0))
     except:
         pass
-        # logging.error('You already', state + 'ed your timer!', ''.join(metadata.order_days(gtc.get_all_as_list())[-1:]))
-    logging.error('dooo')
+        logging.error('You already ' + state + 'ed your timer! ' + get_last_var('timestamp'))
+    # logging.error('dooo')
     return False
-    
-    

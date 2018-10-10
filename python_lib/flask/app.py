@@ -76,6 +76,8 @@ class edittime(Resource):
     def post(self):
         try:
             json_data = request.get_json(force=True)
+            editissue = False
+            newissue = json_data['newIssue']
             issue = json_data['issue']
             username = json_data['username']
             start_time = json_data['start_time']
@@ -87,10 +89,14 @@ class edittime(Resource):
             end_issue_hash = json_data['endih']
             end_line_hash = json_data['endlh']
             tz = metadata.get_tz_info()
+            print(issue, newissue)
+            if int(issue) != int(newissue):
+                issue = newissue
+                editissue = True
             start_time = metadata.convert_from_js(start_time, tz)
             end_time = metadata.convert_from_js(end_time, tz)
             if datetime.strptime(start_time, '%Y-%m-%dT%H:%M') < datetime.strptime(end_time, '%Y-%m-%dT%H:%M'):
-                if start_time != def_start_time[:-8]:
+                if start_time != def_start_time[:-8] or editissue:
                     time = start_time[11:]
                     datestamp = start_time[:10]
                     month = datestamp[5:-3]
@@ -99,7 +105,7 @@ class edittime(Resource):
                     minute = time[-2:]
                     start_newObj = {'user': username, 'state': 'start', 'timestamp': metadata.time(chour=hour, cminute=minute, cday=date, cmonth=month), 'issue': issue}
                     gtc.store(commit=start_issue_hash, remove=start_line_hash, entry=start_newObj)
-                if end_time != def_end_time[:-8]:
+                if end_time != def_end_time[:-8] or editissue:
                     time = end_time[11:]
                     datestamp = end_time[:10]
                     month = datestamp[5:-3]

@@ -95,7 +95,6 @@ def _write_note(note_dict, value, **kwargs):
         shared.set_issue_number(get_last_var('issue'))
     note_dict['storage']['issue'] = shared.get_issue_number()
     note_dict['content']['issue'] = shared.get_issue_number()
-    print(shared.get_issue_number())
     gtc.store_json(str(note_dict).replace('\'', '"'))
 
 def get_last_var(rtnval):
@@ -130,7 +129,6 @@ def _error(state):
                     get_last_var('timestamp'))
         logging.error('You already ' + state + 'ed your timer! ' + s.group(0))
     except:
-        pass
-        logging.error('You already ' + state + 'ed your timer! ' + get_last_var('timestamp'))
+        logging.error('You already ' + state + 'ed your timer! ')
     # logging.error('dooo')
     return False

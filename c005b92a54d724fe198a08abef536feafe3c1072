@@ -1,1 +1,1 @@
-{"bd1f43d807b03a980bb14b71b13927184aba3360": {"user": "davidcarl", "state": "end", "timestamp": "2018-10-16T08:30:00+0200", "issue": "4"}, "06beafb5c4dcac6c1a37967cf20c9175e77ecb1f": {"user": "davidcarl", "state": "start", "timestamp": "2018-10-16T08:00:00+0200", "issue": "2"}}
+{"06beafb5c4dcac6c1a37967cf20c9175e77ecb1f": {"user": "davidcarl", "state": "start", "timestamp": "2018-10-16T08:00:00+0200", "issue": "2"}, "7bad8e75eb8c28464fd3dbddf4f7175a3ad030d5": {"user": "davidcarl", "state": "end", "timestamp": "2018-10-16T08:30:00+0200", "issue": "2"}}

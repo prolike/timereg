@@ -38,6 +38,9 @@ def fetch(args):
 def setup_settings(args):
     settings.run_setup()
 
+def test(args):
+    gtc.store(target=[x.strip() for x in args.place.split(',')], content=args.content, remove=args.remove, append=args.append)
+
 def global_settings(args):
     if args.debug:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
@@ -95,7 +98,14 @@ def argparser_setup():
     parser_setup.usage = 'git timereg setup'
     parser_setup.set_defaults(func=setup_settings)
 
-
+    #TODO finish this shit
+    parser_test = subparsers.add_parser('test', help='Add entry to timestore')
+    parser_test.add_argument('-p', '--place', type=str, help='Define a custom content')
+    parser_test.add_argument('-c', '--content', type=str, help='Content')
+    parser_test.add_argument('-r', '--remove', type=str, help='Hash of the object you want to remove')
+    parser_test.add_argument('-a', '--append', type=str, help='Hash of the object you want to append to')
+    parser_test.set_defaults(func=test)
+    
     args = parser.parse_args()
 
 def main():

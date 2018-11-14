@@ -89,11 +89,11 @@ def _merge_time_conflicts(local_name):
     
     split_point = find_commit_split(local, remote)
 
-    local = gt.load_git_commit_by_hash_name(local)
-    remote = gt.load_git_commit_by_hash_name(remote)
+    local = gt.load_git_commit_by_hash(local)
+    remote = gt.load_git_commit_by_hash(remote)
 
-    local = gt.load_git_tree_by_hash_name(local.get_tree())
-    remote = gt.load_git_tree_by_hash_name(remote.get_tree())
+    local = gt.load_git_tree_by_hash(local.get_tree())
+    remote = gt.load_git_tree_by_hash(remote.get_tree())
 
     local_dict = local.entries_to_dict()
     remote_dict = remote.entries_to_dict()
@@ -103,8 +103,8 @@ def _merge_time_conflicts(local_name):
         split_point_dict = {}
         distinct, overlapping = dict_find_distinct_and_overlapping(local_dict, remote_dict)        
     else:
-        split_point = gt.load_git_commit_by_hash_name(split_point)
-        split_point = gt.load_git_tree_by_hash_name(split_point.get_tree())
+        split_point = gt.load_git_commit_by_hash(split_point)
+        split_point = gt.load_git_tree_by_hash(split_point.get_tree())
         split_point_dict = split_point.entries_to_dict()
 
         remote_split_point_diff = tree_hash_refrence_difference(remote_dict, split_point_dict)

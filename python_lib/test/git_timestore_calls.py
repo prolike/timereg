@@ -68,7 +68,7 @@ class Test_git_timestore(unittest.TestCase):
         gtc.store(entry=content, issue=4)
         # checking commit history
         old_timecommit_name = timecommit_name
-        timecommit = git_timestore.load_git_commit_by_hash_name(
+        timecommit = git_timestore.load_git_commit_by_hash(
             git_timestore.get_current_ref())
         self.assertEqual(timecommit.parent, old_timecommit_name)
         # Check entries
@@ -90,7 +90,7 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/origin')
         # checking commit history
         old_timecommit_name = timecommit_name
-        timecommit = git_timestore.load_git_commit_by_hash_name(
+        timecommit = git_timestore.load_git_commit_by_hash(
             git_timestore.get_current_ref())
         self.assertEqual(timecommit.parent, old_timecommit_name)
         # Check entries
@@ -155,8 +155,8 @@ class Test_git_timestore(unittest.TestCase):
         gtc.store(entry=content, issue=4)
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         # Check entries
         issue = git_timestore.save_git_blob(git_objects.Blob(
@@ -175,8 +175,8 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/origin')
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         # Check entries
         issue = git_timestore.save_git_blob(git_objects.Blob(
@@ -215,8 +215,8 @@ class Test_git_timestore(unittest.TestCase):
         gtc.push()
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 2)
         # Check entries
         content1 = {'user': 'david', 'state': 'start',
@@ -231,8 +231,8 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/origin')
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 2)
         # Check entries
         content1 = {'user': 'david', 'state': 'start',
@@ -268,8 +268,8 @@ class Test_git_timestore(unittest.TestCase):
         gtc.fetch()
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 2)
         # Check entries
         content1 = {'user': 'david', 'state': 'start',
@@ -284,8 +284,8 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/origin')
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         # Check entries expect not to have clone1 changes
         content1 = {'user': 'david', 'state': 'start',
@@ -316,8 +316,8 @@ class Test_git_timestore(unittest.TestCase):
         gtc.push()
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         # Check entries
         content1 = {'user': 'alfen', 'state': 'start',
@@ -332,8 +332,8 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/origin')
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         # Check entries
         content1 = {'user': 'alfen', 'state': 'start',
@@ -374,8 +374,8 @@ class Test_git_timestore(unittest.TestCase):
         gtc.push()
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         # Check entries
         content1 = {'user': 'david', 'state': 'start',
@@ -393,8 +393,8 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/origin')
         # check tree
         timecommit_name = git_timestore.get_current_ref()
-        commit = git_timestore.load_git_commit_by_hash_name(timecommit_name)
-        tree = git_timestore.load_git_tree_by_hash_name(commit.get_tree())
+        commit = git_timestore.load_git_commit_by_hash(timecommit_name)
+        tree = git_timestore.load_git_tree_by_hash(commit.get_tree())
         self.assertTrue(len(tree.get_all_entries()) is 1)
         # Check entries
         content1 = {'user': 'david', 'state': 'start',

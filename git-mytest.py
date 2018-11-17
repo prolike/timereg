@@ -27,7 +27,7 @@ def consolereport(args):
     visualconsole.main()
 
 def dump(args):
-    pprint.pprint(gtc.get_all_as_dict())
+    pprint.pprint(gtc.get_all_by_path([x.strip() for x in args.place.split(',')]))
 
 def push(args):
     gtc.push()
@@ -84,8 +84,9 @@ def argparser_setup():
 
     parser_dump = subparsers.add_parser('dump', help='Show all stored timelogs in current directory')
     parser_dump.usage = 'git timereg dump'
+    parser_dump.add_argument('-p', '--place', type=str, help='Define a custom content')
     parser_dump.set_defaults(func=dump)
-
+    
     parser_push = subparsers.add_parser('push', help='Push timelogs with automerge')
     parser_push.usage = 'git timereg push'
     parser_push.set_defaults(func=push)

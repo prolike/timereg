@@ -1,6 +1,0 @@
-#!/bin/bash
-
-test_env='./test/test_env'
-commit_sha1=$(egrep "[0-9a-f]{40}" <(git -C $test_env/clone1 log) | awk "{ print \$2 }")
-
-echo $commit_sha1

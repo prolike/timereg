@@ -26,7 +26,7 @@ class Tree:
             if len(path) is 0:
                 return
             elif len(path) is 1:
-                obj = self.get_entry_by_name(path[0])
+                obj = self.get_blob_entry_by_name(str(path[0]))
                 if obj is None:
                     #create new entry
                     obj = Entry('blob', '', '100644', path[0])
@@ -34,7 +34,7 @@ class Tree:
                     obj.content = Blob('{ }')
                 return obj.get_content()
             elif len(path) > 1:
-                obj = self.get_entry_by_name(path[0])
+                obj = self.get_tree_entry_by_name(str(path[0]))
                 if obj is None:
                     #create new entry
                     obj = Entry('tree', '', '040000', path[0])
@@ -56,10 +56,16 @@ class Tree:
     def get_all_entries(self):
         return self.entries
 
-    def get_entry_by_name(self, name):
+    def get_blob_entry_by_name(self, name):
         #TODO new
         for entry in self.entries:
-            if entry.p2 == name:
+            if entry.p2 == name and entry.p1_type == 'blob':
+                return entry
+    
+    def get_tree_entry_by_name(self, name):
+        #TODO new
+        for entry in self.entries:
+            if entry.p2 == name and entry.p1_type == 'tree':
                 return entry
     
     def get_entry_by_key(self, key):
@@ -76,7 +82,7 @@ class Tree:
     def entries_to_dict(self):
         result = {}
         for entry in self.entries:
-            result[entry.p2] = entry.p1
+            result[entry.p2 + '-' + entry.p1_type] = entry.p1
         return result
 
 
@@ -139,6 +145,7 @@ class Entry:
         if self.content_is_loaded():
             self.p1_type = self.content.get_type()
             self.p1 = self.content.save()
+            self.content = None
 
     def __str__(self):
         return f'{self.p2_type} {self.p1_type} {self.p1}\t{self.p2}\n'

@@ -63,21 +63,22 @@ def check_correct_order(username, state):
     Return:
         bool: true or false depending on the criterias
     '''
-    logging.debug(f'metadata.check_correct_order({username}, {state})')
-    test = gtc.get_all_as_dict()
-    data_list = order_days(test)
-    last_value = -1
-    for idx, element in enumerate(data_list):
-        if element['user'] == username:
-            last_value = idx
-    try:
-        cstate = data_list[last_value]['state']
-        if cstate == 'end' and state == 'start' or cstate == 'end' and state == 'did' or cstate == 'start' and state == 'end' or last_value is -1:
-            return True
-    except:
-        if last_value is -1 and state == 'start' or last_value is -1 and state == 'did':
-            return True 
-    return False
+    return True
+    # logging.debug(f'metadata.check_correct_order({username}, {state})')
+    # test = gtc.get_all_as_dict()
+    # data_list = order_days(test)
+    # last_value = -1
+    # for idx, element in enumerate(data_list):
+    #     if element['user'] == username:
+    #         last_value = idx
+    # try:
+    #     cstate = data_list[last_value]['state']
+    #     if cstate == 'end' and state == 'start' or cstate == 'end' and state == 'did' or cstate == 'start' and state == 'end' or last_value is -1:
+    #         return True
+    # except:
+    #     if last_value is -1 and state == 'start' or last_value is -1 and state == 'did':
+    #         return True 
+    # return False
 
 def calc_time_worked(started, ended):
     '''

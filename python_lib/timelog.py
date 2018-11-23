@@ -23,15 +23,15 @@ def log_type(state, **kwargs):
     cday = kwargs.get('date', None)
     username = shared.get_git_variables()['username']
     note_dict = {}
-    note_dict['storage'] = {'repo': shared.get_gitpath()}
-    note_dict['content'] = {'user': username, 'state': state}    
+    note_dict['user'] = username  
+    print(state)
     if metadata.check_correct_order(username, state) is True:
         try:
             if cday is None:
                 return _state_types(state, value, note_dict)
             return _state_types(state, value, note_dict, cday = cday)
         except:
-            _write_note(note_dict, value)
+            _write_note(note_dict, value, state)
     else:
         return _error(state)
     return True
@@ -44,7 +44,7 @@ def _state_types(state, value, note_dict, **kwargs):
     elif state == 'end' or state == 'start':
         if _custom_check(value) is False:
             return False
-        _write_note(note_dict, value, cday = cday)
+        _write_note(note_dict, value, state, cday = cday)
         return True
 
 def _custom_check(value):
@@ -80,22 +80,36 @@ def _did_test(value):
         return True
     return False
 
-def _write_note(note_dict, value, **kwargs):
+def _write_note(note_dict, value, state, **kwargs):
     logging.debug(f'timelog._write_note({note_dict}, {value}, {kwargs})')
     cday = kwargs.get('cday', None)
     if value is not None:
         chour, cminute = _split_time_value(value)
         if cday is not None:
-            note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute, cday=cday)
+            if state == 'start':
+                note_dict['timestamp_start'] = metadata.time(chour=chour, cminute=cminute, cday=cday)
+            else:
+                note_dict['timestamp_start'] = metadata.time(chour=chour, cminute=cminute, cday=cday)
         else:
-            note_dict['content']['timestamp'] = metadata.time(chour=chour, cminute=cminute)
+            if state == 'end':
+                note_dict['timestamp_end'] = metadata.time(chour=chour, cminute=cminute)
+            else:
+                note_dict['timestamp_end'] = metadata.time(chour=chour, cminute=cminute)
     else:
-        note_dict['content']['timestamp'] = metadata.time()
-    if note_dict['content']['state'] == 'end':
-        shared.set_issue_number(get_last_var('issue'))
-    note_dict['storage']['issue'] = shared.get_issue_number()
-    note_dict['content']['issue'] = shared.get_issue_number()
-    gtc.store_json(str(note_dict).replace('\'', '"'))
+        if state == 'start':
+                note_dict['timestamp_start'] = metadata.time()
+        elif state == 'end':
+                note_dict['timestamp_end'] = metadata.time()
+    print(note_dict)
+    if state == 'start':
+        # gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], content=note_dict) # Tilfoej ny!
+        gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], remove='74866fd4078fdad62b13a4968087852aec7b0788')
+    elif state == 'end':
+        gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], append='sha1', content={'timestamp_end': '123'}) # tilfoej slut tid
+    # shared.sha1_gen_dict(note_dict) # Generate SHA1 to store in non push namespace
+    # content = gtc.get_all_by_path(shared.get_git_variables()['username'],datetime.now().year,datetime.now().month)
+    
+    # gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], remove='28fc3ad6e0ebe8a5a5fdd47ef9607fa7449c8f19') # remove time
 
 def get_last_var(rtnval):
     val = gtc.get_all_as_dict()

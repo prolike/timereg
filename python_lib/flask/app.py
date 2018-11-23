@@ -10,19 +10,20 @@ api = Api(app)
 
 @app.route('/')
 def index():
-    git_var = shared.get_git_variables()
-    clean_dict = gtc.get_all_as_dict()
-    order = metadata.order_days(clean_dict)
-    split_days = metadata.split_on_days(clean_dict)
-    start, end = shared.listsplitter(clean_dict)
+    # git_var = shared.get_git_variables()
+    # clean_dict = gtc.get_all_as_dict()
+    # order = metadata.order_days(clean_dict)
+    # split_days = metadata.split_on_days(clean_dict)
+    # start, end = shared.listsplitter(clean_dict)
     data = {}
-    data['username'] = git_var['username']
-    data['total_time_worked'] = metadata.calc_time_worked(start, end)
-    data['split_days'] = split_days
-    data['ordered'] = order
+    # data['username'] = git_var['username']
+    # data['total_time_worked'] = metadata.calc_time_worked(start, end)
+    # data['split_days'] = split_days
+    # data['ordered'] = order
     jsonTest = json.dumps(data)
-    return render_template('body.html', username=git_var['username'],
-                           url=git_var['url'], split=jsonTest)
+    return render_template('body.html')
+    # return render_template('body.html', username=git_var['username'],
+                        #    url=git_var['url'], split=jsonTest)
 
 @app.route('/api/test')
 def api_test():
@@ -53,15 +54,10 @@ class addtime(Resource):
             end_time += ':00' + tz
             path = shared.get_gitpath()
             issuenumber = shared.get_issue_number()
-
-            note_dict_start = {}
-            note_dict_start['storage'] = {'repo': path, 'issue': issuenumber}
-            note_dict_start['content'] = {'user': username, 'state': 'start', 'timestamp': start_time, 'issue': issuenumber}
-            note_dict_end = {}
-            note_dict_end['storage'] = {'repo': path, 'issue': issuenumber}
-            note_dict_end['content'] = {'user': username, 'state': 'end', 'timestamp': end_time, 'issue': issuenumber}     
-            gtc.store_json(str(note_dict_start).replace('\'', '"'))
-            gtc.store_json(str(note_dict_end).replace('\'', '"'))
+            
+            note_dict = {}            
+            note_dict = {'user': username, 'timestamp_start': start_time, 'timestamp_end': end_time, 'issue': issuenumber}
+            gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], content=note_dict)
 
             newdata = {}
             newdata['split_days'] = metadata.split_on_days(gtc.get_all_as_dict())
@@ -131,7 +127,7 @@ class getweek(Resource):
 class getall(Resource):
     def get(self):
         newdata = {}
-        newdata['split_days'] = metadata.split_on_days(gtc.get_all_as_dict())
+        newdata['split_days'] = gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now().year, datetime.now().month])#metadata.split_on_days(gtc.get_all_as_dict())
         return jsonify(newdata=newdata)
 
 api.add_resource(edittime, '/edittime')

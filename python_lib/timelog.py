@@ -1,4 +1,4 @@
-from python_lib import shared, metadata, git_timestore_calls as gtc
+from python_lib import shared, metadata, git_timestore_calls as gtc, git_timestore as gt
 from datetime import datetime
 import re, logging
 
@@ -19,22 +19,66 @@ def log_type(state, **kwargs):
         str: Returns a string with meta data including, git username, state (start or end),
         and timestamp with date (from the time method)
     '''
-    value = kwargs.get('value', None)
-    cday = kwargs.get('date', None)
-    username = shared.get_git_variables()['username']
-    note_dict = {}
-    note_dict['user'] = username  
-    print(state)
-    if metadata.check_correct_order(username, state) is True:
-        try:
-            if cday is None:
-                return _state_types(state, value, note_dict)
-            return _state_types(state, value, note_dict, cday = cday)
-        except:
-            _write_note(note_dict, value, state)
+    # value = kwargs.get('value', None)
+    # cday = kwargs.get('date', None)
+    # username = shared.get_git_variables()['username']
+    # note_dict = {}
+    # note_dict['user'] = username  
+    # print(state)
+    # if metadata.check_correct_order(username, state) is True:
+    #     try:
+    #         if cday is None:
+    #             return _state_types(state, value, note_dict)
+    #         return _state_types(state, value, note_dict, cday = cday)
+    #     except:
+    #         _write_note(note_dict, value, state)
+    # else:
+    #     return _error(state)
+    # return True
+    
+    print('yoyo')
+    trace = get_trace()
+    
+    if state is 'start':
+        if not trace: # no trace stored 
+            #TODO store start
+
+            #leave trace
+            save_trace('blabla')
+        else: # trace found 
+            logging.error('last one not ended')
+            #TODO give context of the one open
+            while(True):
+                q = input('Would you like to end it before you start a new time? y/n: ').lower().strip()
+
+                if q == 'y' or q == 'yes':
+                    #TODO end unfinished, remove trace, store start and save trace 
+                    break
+                elif q == 'n' or q == 'no':
+                    #TODO store start and overwrite trace
+                    break
+
+                print(q)
+                print(trace)
     else:
-        return _error(state)
-    return True
+        print('end')
+
+
+def save_trace(content):
+    blob = gt.Blob(content)
+    ref = blob.save()
+    gt.save_ref(ref, 'refs/time/trace')
+
+def get_trace():
+    ref = gt.get_current_ref('refs/time/trace')
+    blob = gt.load_git_blob_by_hash(ref)
+    content = blob.content
+    if content == '':
+        content = None
+    return content
+
+def remove_trace():
+    gt.remove_ref('refs/time/trace')
 
 def _state_types(state, value, note_dict, **kwargs):
     logging.debug(f'timelog._state_types({state}, {value}, {note_dict}, {kwargs})')
@@ -111,17 +155,17 @@ def _write_note(note_dict, value, state, **kwargs):
     
     # gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], remove='28fc3ad6e0ebe8a5a5fdd47ef9607fa7449c8f19') # remove time
 
-def get_last_var(rtnval):
-    val = gtc.get_all_as_dict()
-    for each in val:
-        res = 0
-        id = ''
-        for each2 in val[each]:
-            if val[each][each2]['user'] == shared.get_git_variables()['username']:
-                res += 1
-                id = each2
-        if (res % 2) != 0:
-            return val[each][id][rtnval]
+# def get_last_var(rtnval):
+#     val = gtc.get_all_as_dict()
+#     for each in val:
+#         res = 0
+#         id = ''
+#         for each2 in val[each]:
+#             if val[each][each2]['user'] == shared.get_git_variables()['username']:
+#                 res += 1
+#                 id = each2
+#         if (res % 2) != 0:
+#             return val[each][id][rtnval]
 
 
 

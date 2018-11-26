@@ -95,9 +95,6 @@ class Commit:
     def get_tree(self):
         return self.tree
 
-    def commit(self):
-        gt.save_commit_ref(gt.save_git_commit(self))
-
     def __str__(self):
         return f'tree:{self.tree} parent:{self.parent} msg:{self.msg}'
 

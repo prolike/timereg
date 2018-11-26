@@ -31,7 +31,7 @@ class Test_git_timestore(unittest.TestCase):
         content = {'user': 'alfen', 'something': 'some data'}
         place = ['abc']
         gtc.store(target=place, content=content)
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content): content}
         self.assertEqual(gtc.get_all_by_path(place), expected)
@@ -41,7 +41,7 @@ class Test_git_timestore(unittest.TestCase):
         content = {'user': 'alfen', 'something': 'some data'}
         place = ['asd','dada']
         gtc.store(target=place, content=content)
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content): content}
         self.assertEqual(gtc.get_all_by_path(place), expected)
@@ -50,7 +50,7 @@ class Test_git_timestore(unittest.TestCase):
         shared.set_working_dir('./test/test_env/clone1')
         gtc.push()
         shared.set_working_dir('./test/test_env/origin')
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         content = {'user': 'alfen', 'something': 'some data'}
         place = ['abc']
@@ -65,7 +65,7 @@ class Test_git_timestore(unittest.TestCase):
         # test fetch first time no ref
         shared.set_working_dir('./test/test_env/clone2')
         gtc.fetch()
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         content = {'user': 'alfen', 'something': 'some data'}
         place = ['abc']
@@ -90,13 +90,13 @@ class Test_git_timestore(unittest.TestCase):
         content2 = {'user': 'alfen', 'something': 'some other data'}
         gtc.store(target=place, content=content2)
         gtc.push()
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1, shared.sha1_gen_dict(content2): content2}
         self.assertEqual(gtc.get_all_by_path(place), expected)
 
         shared.set_working_dir('./test/test_env/origin')
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1, shared.sha1_gen_dict(content2): content2}
         self.assertEqual(gtc.get_all_by_path(place), expected)
@@ -108,7 +108,7 @@ class Test_git_timestore(unittest.TestCase):
         append_data = {'more':'data'}
         gtc.store(target=place, append=append, content=append_data)
         content1.update(append_data)
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1, shared.sha1_gen_dict(content2): content2}
         self.assertEqual(gtc.get_all_by_path(place), expected)
@@ -117,7 +117,7 @@ class Test_git_timestore(unittest.TestCase):
         place = ['asd','dada']
         remove = shared.sha1_gen_dict(content2)
         gtc.store(target=place, remove=remove)
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1}
         self.assertEqual(gtc.get_all_by_path(place), expected)
@@ -141,7 +141,7 @@ class Test_git_timestore(unittest.TestCase):
         gtc.store(target=place2, content=content2)
         gtc.push()
 
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1}
         self.assertEqual(gtc.get_all_by_path(place1), expected)
@@ -149,7 +149,7 @@ class Test_git_timestore(unittest.TestCase):
         self.assertEqual(gtc.get_all_by_path(place2), expected)
 
         shared.set_working_dir('./test/test_env/origin')
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1}
         self.assertEqual(gtc.get_all_by_path(place1), expected)
@@ -163,7 +163,7 @@ class Test_git_timestore(unittest.TestCase):
         gtc.store(target=place3, content=content3)
         gtc.fetch()
         gtc.push()
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1}
         self.assertEqual(gtc.get_all_by_path(place1), expected)
@@ -173,7 +173,7 @@ class Test_git_timestore(unittest.TestCase):
         self.assertEqual(gtc.get_all_by_path(place3), expected)
 
         shared.set_working_dir('./test/test_env/origin')
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1}
         self.assertEqual(gtc.get_all_by_path(place1), expected)
@@ -198,14 +198,14 @@ class Test_git_timestore(unittest.TestCase):
         gtc.store(target=place1, content=content2)
         gtc.push()
         
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1, \
                     shared.sha1_gen_dict(content2): content2}
         self.assertEqual(gtc.get_all_by_path(place1), expected)
         
         shared.set_working_dir('./test/test_env/origin')
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1, \
                     shared.sha1_gen_dict(content2): content2}
@@ -216,7 +216,7 @@ class Test_git_timestore(unittest.TestCase):
         content3 = {'user': 'alfen', 'something': 'some data new data'}
         gtc.store(target=place1, content=content3)
         gtc.push()
-        timecommit_name = git_timestore.get_current_ref()
+        timecommit_name = git_timestore.get_current_ref('refs/time/commits')
         self.assertTrue(timecommit_name is not None)
         expected = {shared.sha1_gen_dict(content1): content1, \
                     shared.sha1_gen_dict(content2): content2, \

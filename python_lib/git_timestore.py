@@ -2,12 +2,6 @@ import os, sys, subprocess, logging, re, json
 from . import shared 
 from .git_objects import Entry, Blob, Commit, Tree
 
-# tree_codes = {
-#     'commit':   '100644',
-#     'file':     '100644',
-#     'ref':      '100644',
-#     'dir':      '040000'
-# }
 
 def save_git_object(obj):
     logging.debug(f'git_timestore.save_git_object({obj})')
@@ -37,15 +31,20 @@ def save_git_commit(commit):
     p = subprocess.run(call, stdout=subprocess.PIPE)
     return p.stdout.decode('utf-8').rstrip()
 
-def save_commit_ref(commit_hash):
-    logging.debug(f'git_timestore.save_commit_ref({commit_hash})')
-    p = subprocess.run(shared.git_prefix() + ['update-ref', 'refs/time/commits', commit_hash], \
+def save_ref(commit_hash, path):
+    logging.debug(f'git_timestore.save_ref({commit_hash}, {path})')
+    p = subprocess.run(shared.git_prefix() + ['update-ref', path, commit_hash], \
+                            stdout=subprocess.PIPE , encoding='utf-8')
+
+def remove_ref(path):
+    logging.debug(f'git_timestore.remove_ref({path})')
+    p = subprocess.run(shared.git_prefix() + ['update-ref', '-d', path], \
                             stdout=subprocess.PIPE , encoding='utf-8')
 
 def read_git_object_content(name):
     logging.debug(f'git_timestore.read_git_object_content({name})')
     p = subprocess.run(shared.git_prefix() + ['cat-file', '-p', name], shell=False, \
-                        stdout=subprocess.PIPE, encoding='utf-8')
+                        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, encoding='utf-8')
     return p.stdout.rstrip()
 
 def read_git_object_type(name):
@@ -82,22 +81,22 @@ def load_git_commit_by_hash(name):
     parent = lines[1].split(' ')[1]
     return Commit(tree, parent, '')
 
-def get_current_ref():
-    logging.debug(f'git_timestore.get_current_ref()')
-    call = shared.git_prefix() + ['show-ref', 'refs/time/commits']
+def get_current_ref(path):
+    logging.debug(f'git_timestore.get_current_ref({path})')
+    call = shared.git_prefix() + ['show-ref', path]
     p = subprocess.run(call, shell=False, stdout=subprocess.PIPE, encoding='utf-8')
     return p.stdout.rstrip().split(' ')[0]
         
 def load_latest_tree():
     logging.debug(f'git_timestore.load_latest_tree()')
-    commit = load_git_commit_by_hash(get_current_ref())
+    commit = load_git_commit_by_hash(get_current_ref('refs/time/commits'))
     if commit:
         return load_git_tree_by_hash(commit.tree)
     return Tree()
 
 def commit_tree(tree_hashname):
     logging.debug(f'git_timestore.commit_tree({tree_hashname})')
-    parent = get_current_ref()
+    parent = get_current_ref('refs/time/commits')
     if parent == '':
         parent = None
     commit = Commit(tree_hashname, parent, 'added timestamps')
@@ -123,6 +122,7 @@ def store(kwargs):
             content(dict)
 
     '''
+    logging.debug(f'git_timestore.store({kwargs})')
     tree = load_latest_tree()
 
     target = kwargs.get('target', None)
@@ -164,7 +164,7 @@ def store(kwargs):
     #done with content and inserts it into the blob again
     content_blob.content = json.dumps(content)
     tree_ref = tree.save()
-    save_commit_ref(commit_tree(tree_ref))
+    save_ref(commit_tree(tree_ref), 'refs/time/commits')
 
 def extract_entries_by_path(path):
     tree = load_latest_tree()

@@ -27,7 +27,7 @@ def _fetch_call():
     call = shared.git_prefix() \
            + ['fetch', 'origin', 'refs/time/commits:refs/time/commits'] \
            + shared.git_suffix()
-    p = subprocess.run(call, stdout=subprocess.PIPE)
+    p = subprocess.run(call, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     return (p.returncode == 0)
 
 def _push_call():
@@ -35,7 +35,7 @@ def _push_call():
     call = shared.git_prefix() \
            + ['push', 'origin', 'refs/time/commits'] \
            + shared.git_suffix()
-    p = subprocess.run(call, stdout=subprocess.PIPE)
+    p = subprocess.run(call, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     return (p.returncode == 0)
 
 def _rename_ref_time_file(old_name, new_name):
@@ -250,7 +250,7 @@ def _merge_time_conflicts(local_name):
         split_point = None
 
     new_ref = three_way_merge_tree(split_point, remote, local)
-    gt.save_commit_ref(gt.commit_tree(new_ref))
+    gt.save_ref(gt.commit_tree(new_ref), 'refs/time/commits')
     _delete_ref_time_file(local_name)
 
 def tree_difference(origin, desendent):

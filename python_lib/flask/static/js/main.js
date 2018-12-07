@@ -92,6 +92,7 @@ function converttime_print(x){
 function converttime(x){
     time = x.split('T')[1]
     newTime = ''
+    console.log(x)
     if(x.includes('+')){
         tz = time.split('+')
         timesplit = tz[0].split(':')

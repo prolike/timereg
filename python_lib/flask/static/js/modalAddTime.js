@@ -21,16 +21,14 @@ var html = `<h2>Add a date</h2>
 
 var modalTinyNoFooter = new tingle.modal({
     onClose: function () {
-        console.log('close');
     },
     onOpen: function () {
-        console.log('open');
     },
     beforeOpen: function () {
-        console.log('before open');
     },
     beforeClose: function () {
-        console.log('before close');
+        removeDiv('dtp_modal-win');
+        removeDiv('dtp_modal-content');
         return true;
     },
     cssClass: ['class1', 'class2']

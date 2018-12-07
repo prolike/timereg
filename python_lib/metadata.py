@@ -4,7 +4,7 @@ from time import mktime
 from collections import defaultdict
 from tzlocal import get_localzone
 import datetime as dt
-import sys, os, re, logging, pytz
+import sys, os, re, logging, pytz, pprint
 
 
 time_format = shared.get_time_format()
@@ -126,29 +126,28 @@ def get_clean_time_meta_data(meta_data):
 
 def get_date(value):
     logging.debug(f'metadata.get_date({value}))')
+    if type(value) is dict:
+        res = []
+        for each in value:
+            res.append(re.search(r'(\d{4}(-\d{2}){2})', value[each]['timestamp_start']).group(0))
+        return res
     if type(value) is list:
         res = []
         for each in value:
-            res.append(re.search(r'(\d{4}(-\d{2}){2})', each['timestamp']).group(0))
+            if 'sha1' in each:
+                res.append(re.search(r'(\d{4}(-\d{2}){2})', each['timestamp_start']).group(0))
+            else:
+                for each2 in each:
+                    res.append(re.search(r'(\d{4}(-\d{2}){2})', each[each2]['timestamp_start']).group(0))
         return res
-
-def get_type(value):
-    logging.debug(f'metadata.get_type({value}))')
-    if type(value) is dict:
-        return value['state']
 
 def split_on_days(time_list):
     logging.debug(f'metadata.split_on_days({time_list})')
     time_list = order_days(time_list)
     diff_days = defaultdict(list)
     d_list = get_date(time_list)
-    earlier_day = ''
     for each, each_date in zip(time_list, d_list):
-        if get_type(each) == 'end':
-            diff_days[earlier_day].append(each)
-        else:
-            diff_days[each_date].append(each)
-            earlier_day = each_date
+        diff_days[each_date].append(each)
     return diff_days
 
 # def match_month(value, month):
@@ -177,16 +176,27 @@ def order_days(value):  # TODO Make single extract call!
     dates2 = extract_timestamp(value)
     dates = value
     dates2.sort(key=lambda date: datetime.strptime(
-        date[:-5], '%Y-%m-%dT%H:%M:%S'))
+    date[:-5], '%Y-%m-%dT%H:%M:%S'))
+    genre = {}
     test_dates = []
-    
     for each2 in dates2:
-        for key1, item in dates.items():
-            for key2, content in item.items():
-                if each2 in content['timestamp']:
-                    temp = content
-                    temp['storage'] = {'issuehash': key1, 'linehash': key2}
-                    test_dates.append(temp)
+        if type(dates) is list:
+            for each in dates:
+                for each3 in each:
+                    if each2 in each[each3]['timestamp_start']:
+                        if each3 not in genre: # TODO SOMETHING IN THIS LOOP FUCKS TEST
+                            genre[each3] = each3
+                            temp = each[each3]
+                            temp['sha1'] = each3
+                            test_dates.append(temp)
+        else:
+            for key1, item in dates.items():
+                if each2 in item['timestamp_start']:
+                    if key1 not in genre:
+                        genre[key1] = key1
+                        temp = item
+                        temp['sha1'] = key1
+                        test_dates.append(temp)
     return test_dates
 
 def extract_time(value):
@@ -205,11 +215,11 @@ def extract_timestamp(value):
     res = []
     if type(value) is dict:
         for _, item in value.items():
-            for _, content in item.items():
-                res.append(content['timestamp'])
+            res.append(item['timestamp_start'])
     if type(value) is list:
         for each in value:
-            res.append(each['timestamp'])
+            for each2 in each:
+                res.append(each[each2]['timestamp_start'])
     return res
 
 def extract_issue_number(value):
@@ -238,7 +248,7 @@ def fix_stamp(x):
     else:
         rtnstr += str(hour)
     rtnstr += ':'
-    if int(min) < 10 and min != '00':
+    if len(min) is not 2:
         rtnstr += '0' + str(min)
     else:
         rtnstr += str(min)
@@ -250,7 +260,7 @@ def convert_from_js(value, tz):
     rtnstr = ''
     value = fix_stamp(value)
     if '+' in tz:
-        newHour = int(value[-5:-3]) - int(tz[1:-2])
+        newHour = int(value[-5:-3]) - int(tz[1:-2]) # DØR HER
         newMin = int(value[-2:]) - int(tz[3:])
         if newMin < 0:
             newMin += 60

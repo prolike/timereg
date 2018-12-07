@@ -1,4 +1,7 @@
-import os, unittest, pytz
+import os
+import unittest
+import pytz
+from collections import defaultdict
 from tzlocal import get_localzone
 from datetime import datetime
 from python_lib import shared, metadata
@@ -65,19 +68,33 @@ class Test_metadata(unittest.TestCase):
         self.assertEqual(metadata.calc_time_worked(starts, ended), 420)
 
     def test_get_date_string(self):
-        data = [{'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {
-            'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}]
-        self.assertEqual(metadata.get_date(data), ['2018-09-25'])
+        data = {'0b1db79bc5bee19082e3df454f6d3748d6d831e1': {'issue': 7,
+                                                             'timestamp_end': '2018-11-29T13:50:00+0100',
+                                                             'timestamp_start': '2018-11-29T13:50:00+0100',
+                                                             'user': 'davidcarl'}}
+        self.assertEqual(metadata.get_date(data), ['2018-11-29'])
 
     def test_get_date_list(self):
-        data = [{'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}},
-                {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:41:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ea16293a47e783e1ea74c3ade5a63d204de95f31'}}]
-        res = ['2018-09-25', '2018-09-25']
+        data = [{'0b1db79bc5bee19082e3df454f6d3748d6d831e1': {'issue': 7,
+                                                              'timestamp_end': '2018-11-29T13:50:00+0100',
+                                                              'timestamp_start': '2018-11-29T13:50:00+0100',
+                                                              'user': 'davidcarl'},
+                 '0e321dc8650bd0ee5f8b42cbd1c8dc6c2d2c2ca4': {'issue': 888,
+                                                              'timestamp_start': '2018-11-30T08:49:00+0100',
+                                                              'user': 'davidcarl'}}]
+        res = ['2018-11-29', '2018-11-30']
         self.assertEqual(metadata.get_date(data), res)
 
     def test_order_days(self):
-        data = {'2df195ddc6fd9153a2326ce55a718455ca5e79bc': {'ce31b3b3492cae01018f2859b87d69a840b15fb5': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200'}, '901f04282f02771977b6f17bbfe1e42bb1577d9f': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200'}, '2b660624249cd63db721810a7b5c5ff6216075a5': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200'}, '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200'}, 'ea16293a47e783e1ea74c3ade5a63d204de95f31': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:41:00+0200'}, '6360c0de47e1c7bc456c8e213ba7584849a2684e': {'user': 'davidcarl', 'state': 'end',                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'timestamp': '2018-09-25T08:41:00+0200'}, '7ba6a3ac15c776f4848d3eb9b978b3c0dc4d1801': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200'}, '58056171fbd3cbefd8b161d78fd4fff9f010525d': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:44:00+0200'}, 'a602878548affc03399c9a53a7ccf02faca737df': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200'}, '3543633e336ca7a6718d64969e9ff819105d2153': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:46:00+0200'}, 'b6af662f075c8e13a8730f02717a85b033c81305': {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:50:00+0200'}, '96b8f277195b658dab43b652f4264dde9bdc189f': {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:50:00+0200'}}}
-        res = [{'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '901f04282f02771977b6f17bbfe1e42bb1577d9f'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '901f04282f02771977b6f17bbfe1e42bb1577d9f'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '901f04282f02771977b6f17bbfe1e42bb1577d9f'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '901f04282f02771977b6f17bbfe1e42bb1577d9f'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '5a00c3930a7e6321c3b77ca7e331c6d13d59b7b4'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:41:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ea16293a47e783e1ea74c3ade5a63d204de95f31'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:41:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '6360c0de47e1c7bc456c8e213ba7584849a2684e'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:41:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ea16293a47e783e1ea74c3ade5a63d204de95f31'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:41:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '6360c0de47e1c7bc456c8e213ba7584849a2684e'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '7ba6a3ac15c776f4848d3eb9b978b3c0dc4d1801'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '58056171fbd3cbefd8b161d78fd4fff9f010525d'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'a602878548affc03399c9a53a7ccf02faca737df'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '7ba6a3ac15c776f4848d3eb9b978b3c0dc4d1801'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '58056171fbd3cbefd8b161d78fd4fff9f010525d'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'a602878548affc03399c9a53a7ccf02faca737df'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '7ba6a3ac15c776f4848d3eb9b978b3c0dc4d1801'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '58056171fbd3cbefd8b161d78fd4fff9f010525d'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:44:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'a602878548affc03399c9a53a7ccf02faca737df'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:46:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '3543633e336ca7a6718d64969e9ff819105d2153'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:50:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'b6af662f075c8e13a8730f02717a85b033c81305'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:50:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '96b8f277195b658dab43b652f4264dde9bdc189f'}}, {'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:50:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'b6af662f075c8e13a8730f02717a85b033c81305'}}, {'user': 'davidcarl', 'state': 'end', 'timestamp': '2018-09-25T08:50:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '96b8f277195b658dab43b652f4264dde9bdc189f'}}]
+        data = {'0b1db79bc5bee19082e3df454f6d3748d6d831e1': {'issue': 7,
+                                                             'timestamp_end': '2018-11-29T13:50:00+0100',
+                                                             'timestamp_start': '2018-11-29T13:50:00+0100',
+                                                             'user': 'davidcarl'},
+                '0e321dc8650bd0ee5f8b42cbd1c8dc6c2d2c2ca4': {'issue': 888,
+                                                             'timestamp_start': '2018-11-30T08:49:00+0100',
+                                                             'user': 'davidcarl'}}
+        res = [{'issue': 7, 'timestamp_end': '2018-11-29T13:50:00+0100', 'timestamp_start': '2018-11-29T13:50:00+0100', 'user': 'davidcarl', 'sha1': '0b1db79bc5bee19082e3df454f6d3748d6d831e1'},
+               {'issue': 888, 'timestamp_start': '2018-11-30T08:49:00+0100', 'user': 'davidcarl', 'sha1': '0e321dc8650bd0ee5f8b42cbd1c8dc6c2d2c2ca4'}]
         self.assertEqual(metadata.order_days(data), res)
 
     def test_extract_time_string(self):
@@ -92,16 +109,25 @@ class Test_metadata(unittest.TestCase):
         self.assertEqual(metadata.extract_time(data), res)
 
     def test_extract_timestamp_string(self):
-        data = [{'user': 'davidcarl', 'state': 'start', 'timestamp': '2018-09-25T08:06:00+0200', 'storage': {
-            'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': '2b660624249cd63db721810a7b5c5ff6216075a5'}}]
+        data = {'0b1db79bc5bee19082e3df454f6d3748d6d831e1': {'issue': 7,
+                                                             'timestamp_end': '2018-11-29T13:50:00+0100',
+                                                             'timestamp_start': '2018-11-29T13:50:00+0100',
+                                                             'user': 'davidcarl'}}
         self.assertEqual(metadata.extract_timestamp(
-            data), ['2018-09-25T08:06:00+0200'])
+            data), ['2018-11-29T13:50:00+0100'])
 
     def test_seconds_to_timestamp(self):
         self.assertEqual(metadata.seconds_to_timestamp(10000), '2:46:40')
 
     def test_split_on_days(self):
-        data = {'2df195ddc6fd9153a2326ce55a718455ca5e79bc': {'ce31b3b3492cae01018f2859b87d69a840b15fb5': {'user': 'davidcarl', 'state': 'start',
-                                                                                                          'timestamp': '2018-09-25T08:06:00+0200', 'storage': {'issuehash': '2df195ddc6fd9153a2326ce55a718455ca5e79bc', 'linehash': 'ce31b3b3492cae01018f2859b87d69a840b15fb5'}}}}
-        ans = metadata.split_on_days(data)
+        data = [{'0b1db79bc5bee19082e3df454f6d3748d6d831e1': {'issue': 7,
+                                                              'timestamp_end': '2018-11-29T13:50:00+0100',
+                                                              'timestamp_start': '2018-11-29T13:50:00+0100',
+                                                              'user': 'davidcarl'},
+                 '0e321dc8650bd0ee5f8b42cbd1c8dc6c2d2c2ca4': {'issue': 888,
+                                                              'timestamp_start': '2018-11-30T08:49:00+0100',
+                                                              'user': 'davidcarl'}}]
+        ans = defaultdict(list)
+        ans['2018-11-29'].append({'issue': 7, 'timestamp_end': '2018-11-29T13:50:00+0100', 'timestamp_start': '2018-11-29T13:50:00+0100', 'user': 'davidcarl', 'sha1': '0b1db79bc5bee19082e3df454f6d3748d6d831e1'})
+        ans['2018-11-30'].append({'issue': 888, 'timestamp_start': '2018-11-30T08:49:00+0100', 'user': 'davidcarl', 'sha1': '0e321dc8650bd0ee5f8b42cbd1c8dc6c2d2c2ca4'})
         self.assertEqual(metadata.split_on_days(data), ans)

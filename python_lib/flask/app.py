@@ -2,28 +2,18 @@ from flask import Flask, render_template, jsonify
 from flask_restful import Resource, Api, request
 from python_lib import shared, metadata, timelog, git_timestore_calls as gtc
 from datetime import datetime
-import json, time
+import json
+import time
 
 
 app = Flask(__name__)
 api = Api(app)
 
+
 @app.route('/')
 def index():
-    # git_var = shared.get_git_variables()
-    # clean_dict = gtc.get_all_as_dict()
-    # order = metadata.order_days(clean_dict)
-    # split_days = metadata.split_on_days(clean_dict)
-    # start, end = shared.listsplitter(clean_dict)
-    data = {}
-    # data['username'] = git_var['username']
-    # data['total_time_worked'] = metadata.calc_time_worked(start, end)
-    # data['split_days'] = split_days
-    # data['ordered'] = order
-    jsonTest = json.dumps(data)
     return render_template('body.html')
-    # return render_template('body.html', username=git_var['username'],
-                        #    url=git_var['url'], split=jsonTest)
+
 
 @app.route('/api/test')
 def api_test():
@@ -31,6 +21,7 @@ def api_test():
         return jsonify({'state': 'Succes!'})
     except:
         return jsonify({'state': 'Failed!'})
+
 
 class addtime(Resource):
     def get(self):
@@ -52,88 +43,110 @@ class addtime(Resource):
             end_time = metadata.convert_from_js(end_time, tz)
             start_time += ':00' + tz
             end_time += ':00' + tz
-            path = shared.get_gitpath()
             issuenumber = shared.get_issue_number()
-            
-            note_dict = {}            
-            note_dict = {'user': username, 'timestamp_start': start_time, 'timestamp_end': end_time, 'issue': issuenumber}
-            gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], content=note_dict)
 
+            note_dict = {}
+            note_dict = {'user': shared.get_git_variables()['username'], 'timestamp_start': start_time,
+                         'timestamp_end': end_time, 'issue': issuenumber}
+            gtc.store(target=[shared.get_git_variables()[
+                      'username'], datetime.now().year, datetime.now().month], content=note_dict)
             newdata = {}
-            newdata['split_days'] = metadata.split_on_days(gtc.get_all_as_dict())
-            return jsonify(status="Succes", data=data, newdata=newdata)
+            newdata['split_days'] = metadata.split_on_days(gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now(
+            ).year, datetime.now().month]))
+            return jsonify(status="Succes", newdata=newdata)
         except:
-            json_data = request.get_json(force=True)
-            start_time = json_data['start_time']
-            return jsonify(status="Failed", data=json_data)
+            print('CRASH!')
+            newdata['split_days'] = metadata.split_on_days(gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now(
+            ).year, datetime.now().month]))
+            return jsonify(status="Failed", data=newdata)
+
 
 class edittime(Resource):
-
     def post(self):
         try:
             json_data = request.get_json(force=True)
-            editissue = False
-            newissue = json_data['newIssue']
-            issue = json_data['issue']
-            username = json_data['username']
-            start_time = json_data['start_time']
-            end_time = json_data['end_time']
-            def_start_time = json_data['def_start_time']
-            def_end_time = json_data['def_end_time']
-            start_issue_hash = json_data['startih']
-            start_line_hash = json_data['startlh']
-            end_issue_hash = json_data['endih']
-            end_line_hash = json_data['endlh']
+            sha1 = json_data['sha1']
+            newissue = json_data['issue']
+            timestamp_start = json_data['start_time']
+            timestamp_end = json_data['end_time']
             tz = metadata.get_tz_info()
-            print(issue, newissue)
-            if int(issue) != int(newissue):
+            og = gtc.get_all_by_path([shared.get_git_variables(
+            )['username'], datetime.now().year, datetime.now().month])[sha1]
+            try:
+                issue = og['issue']
+            except:
+                issue = None
+            try:
+                if int(issue) != int(newissue):
+                    issue = newissue
+            except:
                 issue = newissue
-                editissue = True
-            start_time = metadata.convert_from_js(start_time, tz)
-            end_time = metadata.convert_from_js(end_time, tz)
-            if datetime.strptime(start_time, '%Y-%m-%dT%H:%M') < datetime.strptime(end_time, '%Y-%m-%dT%H:%M'):
-                if start_time != def_start_time[:-8] or editissue:
-                    time = start_time[11:]
-                    datestamp = start_time[:10]
-                    month = datestamp[5:-3]
-                    date = datestamp[-2:]
-                    hour = time[:2]
-                    minute = time[-2:]
-                    start_newObj = {'user': username, 'state': 'start', 'timestamp': metadata.time(chour=hour, cminute=minute, cday=date, cmonth=month), 'issue': issue}
-                    gtc.store(commit=start_issue_hash, remove=start_line_hash, entry=start_newObj)
-                if end_time != def_end_time[:-8] or editissue:
-                    time = end_time[11:]
-                    datestamp = end_time[:10]
-                    month = datestamp[5:-3]
-                    date = datestamp[-2:]
-                    hour = time[:2]
-                    minute = time[-2:]
-                    end_newObj = {'user': username, 'state': 'end', 'timestamp': metadata.time(chour=hour, cminute=minute, cday=date, cmonth=month), 'issue': issue}
-                    gtc.store(commit=end_issue_hash, remove=end_line_hash, entry=end_newObj)
-            data = {}
-            data['user'] = username
+            timestamp_start = metadata.convert_from_js(timestamp_start, tz)
+            timestamp_end = metadata.convert_from_js(timestamp_end, tz)
+            if datetime.strptime(timestamp_start, '%Y-%m-%dT%H:%M') <= datetime.strptime(timestamp_end, '%Y-%m-%dT%H:%M'):
+                time = timestamp_start[11:]
+                datestamp = timestamp_start[:10]
+                month = datestamp[5:-3]
+                date = datestamp[-2:]
+                hour = time[:2]
+                minute = time[-2:]
+                timestamp_start = metadata.time(
+                    chour=hour, cminute=minute, cday=date, cmonth=month)
+                time = timestamp_end[11:]
+                datestamp = timestamp_end[:10]
+                month = datestamp[5:-3]
+                date = datestamp[-2:]
+                hour = time[:2]
+                minute = time[-2:]
+                timestamp_end = metadata.time(
+                    chour=hour, cminute=minute, cday=date, cmonth=month)
+            
+            gtc.store(target=[shared.get_git_variables()['username'], datetime.now().year, datetime.now().month], remove=sha1, content={
+                      'timestamp_end': timestamp_end, 'timestamp_start': timestamp_start, 'issue': issue, 'user': shared.get_git_variables()['username']})
+
             newdata = {}
-            newdata['split_days'] = metadata.split_on_days(gtc.get_all_as_dict())
-            return jsonify(status="Succes", data=data, newdata=newdata)
+            newdata['split_days'] = metadata.split_on_days(gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now(
+            ).year, datetime.now().month]))
+            return jsonify(status="Succes", newdata=newdata)
         except:
             print('CRASH!')
-            data = {}
-            return jsonify(status="Failed", data=json_data)
+            newdata = {}
+            newdata['split_days'] = metadata.split_on_days(gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now(
+            ).year, datetime.now().month]))
+            return jsonify(status="Failed", data=newdata)
 
-class getweek(Resource):
-    def get(self):
-        return metadata.match_week(gtc.get_all_as_dict(), 'this')
+
+# class getweek(Resource):
+    # def get(self):
+        # return metadata.match_week(gtc.get_all_as_dict(), 'this')
+
 
 class getall(Resource):
     def get(self):
         newdata = {}
-        newdata['split_days'] = gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now().year, datetime.now().month])#metadata.split_on_days(gtc.get_all_as_dict())
+        newdata['split_days'] = metadata.split_on_days(gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now(
+        ).year, datetime.now().month]))
         return jsonify(newdata=newdata)
+
+
+class delete(Resource):
+    def post(self):
+        json_data = request.get_json(force=True)
+        sha1 = json_data['sha1']
+        gtc.store(target=[shared.get_git_variables()['username'],
+                          datetime.now().year, datetime.now().month], remove=sha1)
+        newdata = {}
+        newdata['split_days'] = metadata.split_on_days(gtc.get_all_by_path([shared.get_git_variables()['username'], datetime.now(
+        ).year, datetime.now().month]))
+        return jsonify(newdata=newdata)
+
 
 api.add_resource(edittime, '/edittime')
 api.add_resource(addtime, '/addtime')
-api.add_resource(getweek, '/getweek')
 api.add_resource(getall, '/getall')
+api.add_resource(delete, '/delete')
+# api.add_resource(getweek, '/getweek')
+
 
 def main():
     # Remove debug=True to disable auto reload on code change + on release!

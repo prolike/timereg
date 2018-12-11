@@ -39,21 +39,21 @@ class Test_timelog(unittest.TestCase):
             pass
 
     # @patch
-    def test_log_start_end_logging(self):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
-        shared.set_working_dir('./test/test_env/clone2')
-        shared.set_issue_number(1)
-        self.assertTrue(timelog.log_type('start'))
-        self.assertTrue(timelog.log_type('end'))
+    # def test_log_start_end_logging(self):
+    #     subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+    #     shared.set_working_dir('./test/test_env/clone2')
+    #     shared.set_issue_number(1)
+    #     self.assertTrue(timelog.log_type('start'))
+    #     self.assertTrue(timelog.log_type('end'))
 
 
-    @patch('python_lib.timelog.log_type', return_value='f')
-    def test_log_double_start_logging(self, input):
-        subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
-        shared.set_working_dir('./test/test_env/clone2')
-        shared.set_issue_number(1)
-        self.assertTrue(timelog.log_type('start'))
-        self.assertTrue(timelog.log_type('start'))
+    # @patch('python_lib.timelog.log_type', return_value='f')
+    # def test_log_double_start_logging(self, input):
+    #     subprocess.call(['bash', './test/scripts/Setup'], stdout=None, stderr=None)
+    #     shared.set_working_dir('./test/test_env/clone2')
+    #     shared.set_issue_number(1)
+    #     self.assertTrue(timelog.log_type('start'))
+    #     self.assertTrue(timelog.log_type('start'))
 
 
     # def test_log_double_end_logging(self):

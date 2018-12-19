@@ -211,7 +211,7 @@ function addZeroBefore(n) {
 }
 
 window.onload = function () {
-    const url = "http://localhost:5000/getall";
+    const url = "http://localhost:5000/v1/all";
     const other = {
         method: "GET"
     }

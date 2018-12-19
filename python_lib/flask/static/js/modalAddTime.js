@@ -40,14 +40,14 @@ btn.addEventListener('click', function () {
 
 modalTinyNoFooter.setContent(html);
 
-var button2 = document.getElementById('test')
-var start = document.getElementById('res1')
-var end = document.getElementById('res2')
-var issueID = document.getElementById('issueID')
+var button2 = document.getElementById('test');
+var start = document.getElementById('res1');
+var end = document.getElementById('res2');
+var issueID = document.getElementById('issueID');
 
 button2.onclick = function () {
     if (issueID.value != '' && issueID != '0') {
-        const url = "http://localhost:5000/addtime"
+        const url = "http://localhost:5000/v1/add";
         const other = {
             method: "POST",
             headers: {
@@ -55,7 +55,7 @@ button2.onclick = function () {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ issue: issueID.value, start_time: res1.value, end_time: res2.value, username: 'davidcarl' })
-        }
+        };
         removeDiv('dtp_modal-win')
         removeDiv('dtp_modal-content')
 

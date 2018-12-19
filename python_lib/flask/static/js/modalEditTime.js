@@ -54,9 +54,9 @@ function edittime(username, sha1) {
     // console.log(JSON.parse(jsonS))
     var issueedit = document.getElementById('issueedit')
     console.log(issueedit)
-    const url = "http://localhost:5000/edittime";
+    const url = "http://localhost:5000/v1/edit";
     const other = {
-        method: "POST",
+        method: "PUT",
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -81,7 +81,7 @@ function edittime(username, sha1) {
 }
 
 function deleteEntry(sha1) {
-    const url = "http://localhost:5000/delete"
+    const url = "http://localhost:5000/v1/delete"
     const other = {
         method: "POST",
         headers: {

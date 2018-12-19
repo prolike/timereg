@@ -28,7 +28,7 @@ window.onclick = function (event) {
 }
 
 button2.onclick = function () {
-    const url = "http://localhost:5000/addtime"
+    const url = "http://localhost:5000/v1/add"
     const other = {
         method: "POST",
         headers: {

@@ -34,9 +34,9 @@ class addtime(Resource):
             start_time = json_data['start_time']
             end_time = json_data['end_time']
             username = json_data['username']
-            data = {}
-            data['info'] = {'issue': issue, 'start_time': start_time,
-                            'end_time': end_time, 'username': username}
+            # data = {}
+            # data['info'] = {'issue': issue, 'start_time': start_time,
+                            # 'end_time': end_time, 'username': username}
             shared.set_issue_number(issue)
             tz = metadata.get_tz_info()
             start_time = metadata.convert_from_js(start_time, tz)
@@ -62,7 +62,7 @@ class addtime(Resource):
 
 
 class edittime(Resource):
-    def post(self):
+    def put(self):
         try:
             json_data = request.get_json(force=True)
             sha1 = json_data['sha1']
@@ -141,11 +141,11 @@ class delete(Resource):
         return jsonify(newdata=newdata)
 
 
-api.add_resource(edittime, '/edittime')
-api.add_resource(addtime, '/addtime')
-api.add_resource(getall, '/getall')
-api.add_resource(delete, '/delete')
-# api.add_resource(getweek, '/getweek')
+api.add_resource(edittime, '/v1/edit')
+api.add_resource(addtime, '/v1/add')
+api.add_resource(getall, '/v1/all')
+api.add_resource(delete, '/v1/delete')
+# api.add_resource(getweek, '/v1/week')
 
 
 def main():

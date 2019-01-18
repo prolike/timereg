@@ -8,9 +8,9 @@ RUN echo $TZ > /etc/timezone && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata && \
     apt-get install -y \
-    python3=3.6.5-3ubuntu1 \
-    python3-pip=9.0.1-2.3~ubuntu1 \
-    git=1:2.17.1-1ubuntu0.1 && \
+    python3 \
+    python3-pip \
+    git && \
     apt-get clean
 
 RUN mkdir /home/python_lib && \

@@ -36,6 +36,7 @@ def fetch(args):
     gtc.fetch()
 
 def setup_settings(args):
+    logging.info('Setting up global git config variables')
     settings.run_setup()
 
 def test(args):
@@ -45,7 +46,7 @@ def global_settings(args):
     if args.debug:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
     else:
-        logging.basicConfig(format='%(levelname)s: %(message)s')      
+        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)      
     
     if args.path:
         shared.set_working_dir(args.path)

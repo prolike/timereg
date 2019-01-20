@@ -167,7 +167,8 @@ def get_issue_number():
                 temp = temp[6:-1]
                 issue_number = int(temp)
             except:
-                logging.error('Unable to extract issue number form current branch')
+                pass
+                # logging.error('Unable to extract issue number form current branch')
     return issue_number
 
 def set_issue_number(number):
